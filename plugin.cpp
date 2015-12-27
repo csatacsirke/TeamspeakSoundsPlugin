@@ -4,7 +4,7 @@
  * Copyright (c) 2008-2015 TeamSpeak Systems GmbH
  */
 
-
+#include "stdafx.h"
 
 #ifdef _WIN32
 #pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
@@ -56,6 +56,16 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 	return 0;
 }
 #endif
+
+#include "KeyboardHook\KeyboardHook.h"
+#include "Hook\PipeHandler.h"
+#include "Hook\KeyboardHookInstaller.h"
+// TODO App osztályt csinálni
+PipeHandler pipeHandler;
+KeyboardHookInstaller keyboardHookInstaller;
+
+
+
 
 /*********************************** Required functions ************************************/
 /*
@@ -127,6 +137,18 @@ int ts3plugin_init() {
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE);
 
 	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
+
+	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
+		// TODO Marci generated method stub
+		KBDLLHOOKSTRUCT hookStruct;
+		while (pipeHandler.TryPop(hookStruct)) {
+			//patternDetector.Add(hookStruct);
+			MessageBoxA(0, "ASD", 0, 0);
+		}
+	});
+
+	pipeHandler.ListenPipe(KeyboardHook::deafultPipeName);
+	keyboardHookInstaller.AttachDll();
 
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */

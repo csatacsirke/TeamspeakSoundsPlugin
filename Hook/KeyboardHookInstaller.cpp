@@ -79,7 +79,8 @@ BOOL KeyboardHookInstaller::AttachDll(){
 	//http://stackoverflow.com/questions/7056461/unable-to-load-some-functions-from-dll-with-getprocaddress
 	// Duo to name mangling and __stdcall
 	// We have to call a Foo function like _Foo@12
-	HOOKPROC pKeyboardProc = (HOOKPROC)GetProcAddress(hKeyboardHookDll, "_KeyboardProc@12");
+	//HOOKPROC pKeyboardProc = (HOOKPROC)GetProcAddress(hKeyboardHookDll, "_KeyboardProc@12");
+	HOOKPROC pKeyboardProc = (HOOKPROC)GetProcAddress(hKeyboardHookDll, "KeyboardProc");
 
 	if( pKeyboardProc == NULL) {
 		int error = GetLastError();
