@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_plugin", "test_plugin.vcxproj", "{192D646D-748B-450B-AF3D-BF8EDD5FC897}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeyboardHook", "..\..\..\BchSoundPlayerMfc\KeyboardHook\KeyboardHook.vcxproj", "{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,13 @@ Global
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|Win32.Build.0 = Release|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|x64.ActiveCfg = Release|x64
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|x64.Build.0 = Release|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|Win32.Build.0 = Debug|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|x64.ActiveCfg = Debug|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|x64.Build.0 = Debug|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|Win32.ActiveCfg = Release|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|Win32.Build.0 = Release|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

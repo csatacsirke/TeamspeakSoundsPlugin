@@ -4,9 +4,12 @@
  * Copyright (c) 2008-2015 TeamSpeak Systems GmbH
  */
 
+
+
 #ifdef _WIN32
 #pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
-#include <Windows.h>
+//#include <Windows.h>
+#include <afxwin.h>
 #endif
 
 #include <stdio.h>
