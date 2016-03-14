@@ -6,6 +6,9 @@
 
 #include "stdafx.h"
 
+
+//#pragma comment(lib, "HookInstaller")
+
 using namespace std;
 
 #ifdef _WIN32
@@ -30,6 +33,8 @@ using namespace std;
 
 #include "Wave\wave.h"
 
+#include "App\SoundplayerApp.h"
+
 
 #ifdef _WIN32
 #define SLEEP(x) Sleep(x)
@@ -47,6 +52,8 @@ It is therefore advisable to use the same for your project */
 
 
 static struct TS3Functions ts3Functions;
+
+SoundplayerApp theApp(ts3Functions);
 
 int PlayWelcomeSound();
 

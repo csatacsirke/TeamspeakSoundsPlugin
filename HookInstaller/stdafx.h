@@ -5,8 +5,6 @@
 
 #pragma once
 
-#define NO_WARN_MBCS_MFC_DEPRECATION
-
 #ifndef VC_EXTRALEAN
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
 #endif
@@ -28,8 +26,8 @@
 #include <condition_variable>
 #include <thread>
 #include <string>
-#include <iostream>
 
+#include "Hook/util.h"
 
 enum Messages {
 	WM_PIPE_MESSAGE = WM_USER+1

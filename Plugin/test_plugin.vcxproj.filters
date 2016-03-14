@@ -24,6 +24,9 @@
     <Filter Include="Wave">
       <UniqueIdentifier>{a268ec71-6402-4a2e-8cdb-c6c7de573758}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App">
+      <UniqueIdentifier>{e07e04af-7383-4841-ae09-fab1dd87d30c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -62,6 +65,9 @@
     <ClInclude Include="Wave\wave.h">
       <Filter>Wave</Filter>
     </ClInclude>
+    <ClInclude Include="App\SoundplayerApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -72,6 +78,9 @@
     </ClCompile>
     <ClCompile Include="Wave\wave.cpp">
       <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="App\SoundplayerApp.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

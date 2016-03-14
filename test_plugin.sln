@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_plugin", "Plugin\test_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HookInstaller", "HookInstaller\HookInstaller.vcxproj", "{D3614AA5-2871-4BF6-8819-ABA3162ED7E9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeyboardHook", "KeyboardHook\KeyboardHook.vcxproj", "{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -31,6 +33,14 @@ Global
 		{D3614AA5-2871-4BF6-8819-ABA3162ED7E9}.Release|Win32.Build.0 = Release|Win32
 		{D3614AA5-2871-4BF6-8819-ABA3162ED7E9}.Release|x64.ActiveCfg = Release|x64
 		{D3614AA5-2871-4BF6-8819-ABA3162ED7E9}.Release|x64.Build.0 = Release|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|Win32.Build.0 = Debug|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|x64.ActiveCfg = Debug|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Debug|x64.Build.0 = Debug|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|Win32.ActiveCfg = Release|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|Win32.Build.0 = Release|Win32
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|x64.ActiveCfg = Release|x64
+		{25D0F3A2-6D34-448A-BFFA-032CCD05A3D4}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
