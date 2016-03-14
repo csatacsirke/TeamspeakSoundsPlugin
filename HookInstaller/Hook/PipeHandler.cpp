@@ -2,6 +2,7 @@
 #include "PipeHandler.h"
 
 #include <vector>
+#include <thread>
 
 PipeHandler::PipeHandler(void)
 {
@@ -15,20 +16,21 @@ PipeHandler::~PipeHandler(void)
 
 // ez még nem tökéletes, de célnak megfelel :(
 bool PipeHandler::ListenPipe(CString pipeName) {
+	
 	if( !mutex.try_lock() ) {
 		return false;
 	}
-	
+
 	this->stop = false;
 
-	std::condition_variable wait;
+	// ezt miért is raktam ide?
+	//std::condition_variable wait;
 
-	std::thread listenThread([&, pipeName]() {;
+	std::thread listenerThread([&, pipeName]() {
 		RunPipe(pipeName);
 	});
 
-	listenThread.detach();
-	
+	listenerThread.detach();
 	return true;
 }
 

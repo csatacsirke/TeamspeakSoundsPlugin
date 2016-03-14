@@ -53,6 +53,8 @@ It is therefore advisable to use the same for your project */
 
 static struct TS3Functions ts3Functions;
 
+
+
 SoundplayerApp theApp(ts3Functions);
 
 int PlayWelcomeSound();
@@ -210,6 +212,8 @@ int ts3plugin_init() {
 			MessageBoxA(0, "Error registering custom sound device", 0, 0);
 		}
 	}
+
+	theApp.Init();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable

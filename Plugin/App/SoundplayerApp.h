@@ -16,6 +16,10 @@ public:
 	SoundplayerApp(TS3Functions& ts3Functions);
 	~SoundplayerApp();
 
+
+	// We need an explicit init function cause
+	// we can't create threads from dllmain ... :(
+	void Init();
 	
 
 };

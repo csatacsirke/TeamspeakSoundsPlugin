@@ -66,8 +66,12 @@ KeyboardHookInstaller::~KeyboardHookInstaller(){
 BOOL KeyboardHookInstaller::AttachDll(){
 	//hKeyboardHookDll = Check(LoadLibrary(TEXT("KeyboardHook")));
 
+	// TODO valahogy registryböl vagy máshogy okosan abszolut path-t szerezni
 	hKeyboardHookDll = LoadLibrary(TEXT("KeyboardHook"));
-	
+
+	if(hKeyboardHookDll == 0) {
+		hKeyboardHookDll = LoadLibrary(TEXT("plugins\\KeyboardHook"));
+	}
 
 	if( hKeyboardHookDll == 0) {
 
