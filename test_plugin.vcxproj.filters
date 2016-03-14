@@ -21,6 +21,9 @@
     <Filter Include="StdAfx">
       <UniqueIdentifier>{52193dae-a824-4273-a1a7-92f4bc0194bf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Wave">
+      <UniqueIdentifier>{a268ec71-6402-4a2e-8cdb-c6c7de573758}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -50,49 +53,25 @@
     <ClInclude Include="..\include\plugin_definitions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Hook\KeyboardHookInstaller.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Hook\PatternDetector.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Hook\PipeHandler.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Hook\StringPatternDetector.h">
-      <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Hook\util.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>StdAfx</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>StdAfx</Filter>
     </ClInclude>
+    <ClInclude Include="Wave\wave.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Hook\KeyboardHookInstaller.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Hook\PatternDetector.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Hook\PipeHandler.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Hook\StringPatternDetector.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Hook\util.cpp">
-      <Filter>Util</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>StdAfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\wave.cpp">
+      <Filter>Wave</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

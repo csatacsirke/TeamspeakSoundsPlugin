@@ -27,7 +27,6 @@
 #include <thread>
 #include <string>
 
-#include "Hook/util.h"
 
 enum Messages {
 	WM_PIPE_MESSAGE = WM_USER+1

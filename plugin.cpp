@@ -6,13 +6,17 @@
 
 #include "stdafx.h"
 
+using namespace std;
+
 #ifdef _WIN32
 #pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
 //#include <Windows.h>
 #include <afxwin.h>
 #endif
 
+
 #include <stdio.h>
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -24,7 +28,27 @@
 #include "ts3_functions.h"
 #include "plugin.h"
 
+#include "Wave\wave.h"
+
+
+#ifdef _WIN32
+#define SLEEP(x) Sleep(x)
+#else
+#define SLEEP(x) usleep(x*1000)
+#endif
+
+
+/*The client lib works at 48Khz internally.
+It is therefore advisable to use the same for your project */
+#define PLAYBACK_FREQUENCY 48000
+#define PLAYBACK_CHANNELS 2
+
+#define AUDIO_PROCESS_SECONDS 10
+
+
 static struct TS3Functions ts3Functions;
+
+int PlayWelcomeSound();
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
@@ -44,6 +68,11 @@ static struct TS3Functions ts3Functions;
 
 static char* pluginID = NULL;
 
+const static char* myDeviceId = "BattlechickensId";
+static anyID g_myId = 0;
+
+
+
 #ifdef _WIN32
 /* Helper function to convert wchar_T to Utf-8 encoded strings on Windows */
 static int wcharToUtf8(const wchar_t* str, char** result) {
@@ -56,13 +85,6 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 	return 0;
 }
 #endif
-
-#include "KeyboardHook\KeyboardHook.h"
-#include "Hook\PipeHandler.h"
-#include "Hook\KeyboardHookInstaller.h"
-// TODO App osztályt csinálni
-PipeHandler pipeHandler;
-KeyboardHookInstaller keyboardHookInstaller;
 
 
 
@@ -78,20 +100,20 @@ const char* ts3plugin_name() {
 	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
 	static char* result = NULL;  /* Static variable so it's allocated only once */
 	if(!result) {
-		const wchar_t* name = L"Szarházi";
+		const wchar_t* name = L"Battlechicken's first plugin";
 		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "Szarházi";  /* Conversion failed, fallback here */
+			result = "Battlechicken's first plugin";  /* Conversion failed, fallback here */
 		}
 	}
 	return result;
 #else
-	return "Szarházi";
+	return "Battlechicken's first plugin";
 #endif
 }
 
 /* Plugin version */
 const char* ts3plugin_version() {
-    return "1.0 alpha";
+    return "1.0";
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -120,7 +142,33 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
  * Custom code called right after loading the plugin. Returns 0 on success, 1 on failure.
  * If the function returns 1 on failure, the plugin will be unloaded again.
  */
+
+static uint64 connection = 0;
+
+unsigned int error;
+//	char *version;
+//	char *identity;
+
+static int    captureFrequency;
+static int    captureChannels;
+static short* captureBuffer;
+static size_t buffer_size;
+static int    captureBufferSamples;
+static int    audioPeriodCounter;
+static int    capturePeriodSize;
+
+
+
+
 int ts3plugin_init() {
+
+#ifdef DEBUG
+#pragma warning( push )
+#pragma warning( disable : 4996)
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+#pragma warning( pop )
+#endif
     char appPath[PATH_BUFSIZE];
     char resourcesPath[PATH_BUFSIZE];
     char configPath[PATH_BUFSIZE];
@@ -138,18 +186,23 @@ int ts3plugin_init() {
 
 	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
 
-	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
-		// TODO Marci generated method stub
-		KBDLLHOOKSTRUCT hookStruct;
-		while (pipeHandler.TryPop(hookStruct)) {
-			//patternDetector.Add(hookStruct);
-			MessageBoxA(0, "ASD", 0, 0);
+
+	/* Read in the wave we are going to stream to the server */
+	if (!readWave("c:\\Program Files\\TeamSpeak 3 Client\\plugins\\welcome_to_teamspeak.wav", &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
+		cout << "readWave failed";
+		return 1;
+	}
+
+	
+	unsigned int error;
+	if ((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", captureFrequency, captureChannels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
+		char* errormsg;
+		if (ts3Functions.getErrorMessage(error, &errormsg) == ERROR_ok) {
+			printf("Error registering custom sound device: %s\n", errormsg);
+			ts3Functions.freeMemory(errormsg);
+			MessageBoxA(0, "Error registering custom sound device", 0, 0);
 		}
-	});
-
-	pipeHandler.ListenPipe(KeyboardHook::deafultPipeName);
-	keyboardHookInstaller.AttachDll();
-
+	}
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -189,7 +242,10 @@ int ts3plugin_offersConfigure() {
 	 * PLUGIN_OFFERS_CONFIGURE_NEW_THREAD - Plugin does implement ts3plugin_configure and requests to run this function in an own thread
 	 * PLUGIN_OFFERS_CONFIGURE_QT_THREAD  - Plugin does implement ts3plugin_configure and requests to run this function in the Qt GUI thread
 	 */
-	return PLUGIN_OFFERS_NO_CONFIGURE;  /* In this case ts3plugin_configure does not need to be implemented */
+	//return PLUGIN_OFFERS_NO_CONFIGURE;  /* In this case ts3plugin_configure does not need to be implemented */
+
+	// ó bazdmeg ha én azt tudnám hogy ez mi a faszt csinál
+	return PLUGIN_OFFERS_CONFIGURE_NEW_THREAD;
 }
 
 /* Plugin might offer a configuration window. If ts3plugin_offersConfigure returns 0, this function does not need to be implemented. */
@@ -573,7 +629,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "Channel item 1", "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_2, "Channel item 2", "2.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_1,  "Global item 1",  "1.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_1,  "Play welcome sound",  "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_2,  "Global item 2",  "2.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
 
@@ -639,6 +695,10 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) {
     /* Some example code following to show how to use the information query functions. */
 
+	// i can just hope that this is the correct way
+	connection = serverConnectionHandlerID;
+
+
     if(newStatus == STATUS_CONNECTION_ESTABLISHED) {  /* connection established and we have client and channels available */
         char* s;
         char msg[1024];
@@ -690,19 +750,21 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
         printf("PLUGIN: My client ID = %d, nickname = %s\n", myID, s);
         ts3Functions.freeMemory(s);
 
+		g_myId = myID;
+
         /* Print list of all channels on this server */
         if(ts3Functions.getChannelList(serverConnectionHandlerID, &ids) != ERROR_ok) {
             ts3Functions.logMessage("Error getting channel list", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
             return;
         }
-        printf("PLUGIN: Available channels:\n");
+        //printf("PLUGIN: Available channels:\n");
         for(i=0; ids[i]; i++) {
             /* Query channel name */
             if(ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, ids[i], CHANNEL_NAME, &s) != ERROR_ok) {
                 ts3Functions.logMessage("Error querying channel name", LogLevel_ERROR, "Plugin", serverConnectionHandlerID);
                 return;
             }
-            printf("PLUGIN: Channel ID = %llu, name = %s\n", (long long unsigned int)ids[i], s);
+            //printf("PLUGIN: Channel ID = %llu, name = %s\n", (long long unsigned int)ids[i], s);
             ts3Functions.freeMemory(s);
         }
         ts3Functions.freeMemory(ids);  /* Release array */
@@ -748,7 +810,18 @@ void ts3plugin_onUpdateChannelEditedEvent(uint64 serverConnectionHandlerID, uint
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char* invokerName, const char* invokerUniqueIdentifier) {
 }
 
+#include <thread>
+
+
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
+	
+	if (clientID == g_myId) {
+		cout << "Moved to channel id " << newChannelID << endl;
+		cout << moveMessage << endl;
+
+	}
+	
+	
 }
 
 void ts3plugin_onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {
@@ -791,6 +864,7 @@ int ts3plugin_onServerErrorEvent(uint64 serverConnectionHandlerID, const char* e
 }
 
 void ts3plugin_onServerStopEvent(uint64 serverConnectionHandlerID, const char* shutdownMessage) {
+	cout << "server stopped" << endl;
 }
 
 int ts3plugin_onTextMessageEvent(uint64 serverConnectionHandlerID, anyID targetMode, anyID toID, anyID fromID, const char* fromName, const char* fromUniqueIdentifier, const char* message, int ffIgnored) {
@@ -835,9 +909,11 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 }
 
 void ts3plugin_onConnectionInfoEvent(uint64 serverConnectionHandlerID, anyID clientID) {
+	cout << "connection info: " << serverConnectionHandlerID << " " << clientID << endl;
 }
 
 void ts3plugin_onServerConnectionInfoEvent(uint64 serverConnectionHandlerID) {
+	cout << "server connection info: " << serverConnectionHandlerID << endl;
 }
 
 void ts3plugin_onChannelSubscribeEvent(uint64 serverConnectionHandlerID, uint64 channelID) {
@@ -859,21 +935,27 @@ void ts3plugin_onChannelPasswordChangedEvent(uint64 serverConnectionHandlerID, u
 }
 
 void ts3plugin_onPlaybackShutdownCompleteEvent(uint64 serverConnectionHandlerID) {
+	//cout << "onPlaybackShutdownCompleteEvent" << endl;
 }
 
 void ts3plugin_onSoundDeviceListChangedEvent(const char* modeID, int playOrCap) {
+	//cout << "onSoundDeviceListChangedEvent" << endl;
 }
 
 void ts3plugin_onEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels) {
+	//cout << "onEditPlaybackVoiceDataEvent" << endl;
 }
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+	//cout << "onEditPostProcessVoiceDataEvent" << endl;
 }
 
 void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+	//cout << "ts3plugin_onEditMixedPlaybackVoiceDataEvent" << endl;
 }
 
 void ts3plugin_onEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited) {
+	//cout << "ts3plugin_onEditCapturedVoiceDataEvent" << endl;
 }
 
 void ts3plugin_onCustom3dRolloffCalculationClientEvent(uint64 serverConnectionHandlerID, anyID clientID, float distance, float* volume) {
@@ -1090,8 +1172,19 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 			/* Global menu item was triggered. selectedItemID is unused and set to zero. */
 			switch(menuItemID) {
 				case MENU_ID_GLOBAL_1:
+				{
+					std::thread myThread([&]() {
+						auto result = PlayWelcomeSound();
+						if (result) {
+							cout << "Failed to play. error: 0x" << std::ios::hex << result << endl;
+						}
+					});
+					myThread.detach();
+
 					/* Menu global 1 was triggered */
 					break;
+				}
+
 				case MENU_ID_GLOBAL_2:
 					/* Menu global 2 was triggered */
 					break;
@@ -1145,4 +1238,73 @@ void ts3plugin_onHotkeyRecordedEvent(const char* keyword, const char* key) {
 
 /* Called when client custom nickname changed */
 void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyID clientID, const char* displayName, const char* uniqueClientIdentifier) {
+}
+
+
+
+int PlayWelcomeSound() {
+	//uint64 scHandlerID;
+
+	printf("\n    playing welcome sound \n");
+
+	ts3Functions.closeCaptureDevice(connection);
+
+	int error;
+	if ((error = ts3Functions.openCaptureDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
+		printf("Error opening capture device: 0x%x\n", error);
+		return error;
+	} else {
+		cout << "\tdevice id: " << myDeviceId << endl;
+	}
+
+
+	
+	cout << "buffer size: " << buffer_size << endl;
+
+
+	ts3Functions.activateCaptureDevice(connection);
+
+
+	capturePeriodSize = (captureFrequency * 20) / 1000;
+
+	int captureAudioOffset = 0;
+	for (audioPeriodCounter = 0; audioPeriodCounter < 50 * AUDIO_PROCESS_SECONDS; ++audioPeriodCounter) { /*50*20=1000*/
+
+
+		/* make sure we dont stream past the end of our wave sample */
+		if (captureAudioOffset + capturePeriodSize > captureBufferSamples) {
+			captureAudioOffset = 0;
+			break;
+		}
+
+		SLEEP(20);
+
+		/* stream capture data to the client lib */
+		if ((error = ts3Functions.processCustomCaptureData(myDeviceId, captureBuffer + captureAudioOffset*captureChannels, capturePeriodSize)) != ERROR_ok) {
+			printf("Failed to get stream capture data: %d\n", error);
+			return 1;
+		}
+
+
+		/*update buffer offsets */
+		captureAudioOffset += capturePeriodSize;
+	}
+
+	//SLEEP(500);
+
+	if ((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
+		printf("Error closeCaptureDevice: 0x%x\n", error);
+		return 1;
+	}
+
+	//if ((error = ts3Functions.closePlaybackDevice(connection) != ERROR_ok)) {
+	//	printf("Error closePlaybackDevice: 0x%x\n", error);
+	//	return 1;
+	//}
+	
+
+	printf("\n    finished playing welcome sound \n");
+	
+
+	return 0;
 }
