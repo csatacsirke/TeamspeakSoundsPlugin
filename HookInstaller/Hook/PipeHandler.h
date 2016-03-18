@@ -20,14 +20,15 @@ public:
 			wchar_t buffer[10];
 			ZeroMemory(buffer, sizeof(buffer));
 
-			int result = ToUnicodeEx(hookData.vkCode, hookData.scanCode, keyboardState, buffer, 10, 0, /*keyboardLayout*/ NULL);
+
+			int result = ToUnicodeEx(hookData.vkCode, hookData.scanCode, keyboardState, buffer, 10, 0, /*keyboardLayout*/NULL );
 			
 			if (result > 0) {
 				unicodeLiteral = buffer;
 			}
 		}
 		KBDLLHOOKSTRUCT hookData;
-		CString unicodeLiteral;
+		CString unicodeLiteral = _T("");
 	};
 private:
 	std::mutex mutex;

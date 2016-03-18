@@ -1256,7 +1256,16 @@ void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyI
 int PlayWelcomeSound() {
 	//uint64 scHandlerID;
 
+
 	printf("\n    playing welcome sound \n");
+
+
+	char* previousDeviceName;
+	char* previousMode;
+	BOOL isDefault;
+	ts3Functions.getCurrentCaptureDeviceName(connection, &previousDeviceName, &isDefault);
+	ts3Functions.getCurrentCaptureMode(connection, &previousMode);
+	
 
 	ts3Functions.closeCaptureDevice(connection);
 
@@ -1304,8 +1313,24 @@ int PlayWelcomeSound() {
 
 	if ((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
 		printf("Error closeCaptureDevice: 0x%x\n", error);
-		return 1;
+		//return 1;
 	}
+
+
+
+	if((error = ts3Functions.openCaptureDevice(connection, previousMode, previousDeviceName)) != ERROR_ok) {
+		printf("Error opening capture device: 0x%x\n", error);
+		return error;
+	} else {
+		cout << "\tnew device id: " << previousDeviceName << endl;
+	}
+
+	if((error = ts3Functions.activateCaptureDevice(connection) ) != ERROR_ok) {
+		printf("Error activating capture device: 0x%x\n", error);
+		return error;
+	} 
+
+	
 
 
 	printf("\n    finished playing welcome sound \n");

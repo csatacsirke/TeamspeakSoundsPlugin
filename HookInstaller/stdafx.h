@@ -26,6 +26,7 @@
 #include <condition_variable>
 #include <thread>
 #include <string>
+#include <iostream>
 
 #include "Hook/util.h"
 

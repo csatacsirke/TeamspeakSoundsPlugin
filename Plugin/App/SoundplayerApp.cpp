@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "SoundplayerApp.h"
 
 
@@ -13,6 +13,10 @@ SoundplayerApp::~SoundplayerApp() {
 
 void SoundplayerApp::Init() {
 
+	// A JÓ KURVA ANYÁD!
+	// enélkül ha konzolra írsz egy ő betűt eltörik az egész konzol....
+	std::locale::global(std::locale(""));
+
 	if(!hookInstaller.AttachDll()) {
 		MessageBoxA(0, "KeyboardHook dll load failed", 0, 0);
 		return;
@@ -21,9 +25,9 @@ void SoundplayerApp::Init() {
 
 	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
 		PipeHandler::KeyData keyData;
-		std::wcout << L"jott:";
+
 		while(pipeHandler.TryPop(keyData)) {
-			std::wcout << keyData.unicodeLiteral;
+			std::wcout << keyData.unicodeLiteral.GetString();
 		}
 	});
 

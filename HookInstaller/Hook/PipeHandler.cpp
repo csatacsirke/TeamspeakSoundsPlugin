@@ -31,6 +31,7 @@ bool PipeHandler::ListenPipe(CString pipeName) {
 	});
 
 	listenerThread.detach();
+
 	return true;
 }
 
@@ -45,7 +46,8 @@ void PipeHandler::SetOnNewEntryListener(std::function<void(PipeHandler&)> callba
 }
 
 bool PipeHandler::TryPop(_Out_ KeyData& keyData) {
-	return queue.try_pop(keyData);
+	auto result = queue.try_pop(keyData);
+	return result;
 }
 
 
@@ -84,9 +86,10 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 		BOOL result = ConnectNamedPipe(pipe, NULL);
 		if (!result) {
 			// look up error code here using GetLastError()
-			int asd = GetLastError();
+			int error = GetLastError();
 			CloseHandle(pipe); // close the pipe
 			//MessageBox(0,TEXT("Failed to make connection on named pipe."),0,0);
+			std::wcout << L"ConnectNamedPipe error " << error << std::endl;
 			//return FALSE;
 			continue;
 		}
@@ -108,10 +111,16 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 				this->Push(hookStruct);
 				// callback method
 				if(this->OnNewEntry) {
-					OnNewEntry(*this);
+					// TODO antihatékony
+					//std::thread callback([&]() {
+						OnNewEntry(*this);
+					//});
+					//callback.detach();
 				}
 			} else {
 				int error = GetLastError();
+				//std::wcout << L"Pipe read error " << error << std::endl;
+				//std::wcout << std::endl << "result: " << result << " nBytes: " << nReadBytes << "size: " << sizeof(hookStruct) ;
 				//MessageBox(0,TEXT("Unexpected exception @ readnamedpipe"),0,0);
 				break;
 			}
