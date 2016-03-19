@@ -56,15 +56,15 @@ void writeWave(const char* filename, int freq, int channels, short* buffer, int 
 	}
 }
 
-int readWave(const char* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples) {
+int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples) {
 	struct WaveHeader wh;
 	FILE *f;
 	int i;
 	int elemsRead;
 
 	memset(&wh, 0, sizeof(wh));
-
-	f = fopen(filename,"rb");
+	
+	f = _wfopen(filename, L"rb");
 	if (!f) {
 		printf("error: could not open wave %s\n",filename);
 		return 0;

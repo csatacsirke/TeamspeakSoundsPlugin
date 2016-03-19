@@ -26,5 +26,5 @@ struct WaveHeader {
 void writeWave(const char* filename, int freq, int channels, short* buffer, int samples);
 
 //this reads a 16 bit 1 or 2 channel wave file. returns 0 on error, 1 on success
-int readWave(const char* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples);
+int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples);
 //int readWave(const char* filename, int* freq, int* channels, short** buffer, int* samples);

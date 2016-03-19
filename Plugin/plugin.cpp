@@ -197,22 +197,12 @@ int ts3plugin_init() {
 
 
 	/* Read in the wave we are going to stream to the server */
-	if (!readWave("c:\\Program Files\\TeamSpeak 3 Client\\plugins\\welcome_to_teamspeak.wav", &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
+	if (!readWave(L"c:\\Program Files\\TeamSpeak 3 Client\\plugins\\welcome_to_teamspeak.wav", &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
 		cout << "readWave failed";
 		return 1;
 	}
 
 	
-	unsigned int error;
-	if ((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", captureFrequency, captureChannels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
-		char* errormsg;
-		if (ts3Functions.getErrorMessage(error, &errormsg) == ERROR_ok) {
-			printf("Error registering custom sound device: %s\n", errormsg);
-			ts3Functions.freeMemory(errormsg);
-			MessageBoxA(0, "Error registering custom sound device", 0, 0);
-		}
-	}
-
 	theApp.Init();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
@@ -708,6 +698,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 
 	// i can just hope that this is the correct way
 	connection = serverConnectionHandlerID;
+	theApp.SetConnectionHandle(serverConnectionHandlerID);
 
 
     if(newStatus == STATUS_CONNECTION_ESTABLISHED) {  /* connection established and we have client and channels available */
@@ -912,9 +903,9 @@ void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int sta
 	char name[512];
 	if(ts3Functions.getClientDisplayName(serverConnectionHandlerID, clientID, name, 512) == ERROR_ok) {
 		if(status == STATUS_TALKING) {
-			printf("--> %s starts talking\n", name);
+			//printf("--> %s starts talking\n", name);
 		} else {
-			printf("--> %s stops talking\n", name);
+			//printf("--> %s stops talking\n", name);
 		}
 	}
 }
@@ -1198,6 +1189,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 
 				case MENU_ID_GLOBAL_2:
 					/* Menu global 2 was triggered */
+					theApp.AsyncOpenAndPlayFile();
 					break;
 				default:
 					break;
@@ -1256,6 +1248,8 @@ void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyI
 int PlayWelcomeSound() {
 	//uint64 scHandlerID;
 
+	char* result_before;
+	ts3Functions.getPreProcessorConfigValue(connection, "voiceactivation_level", &result_before);
 
 	printf("\n    playing welcome sound \n");
 
@@ -1311,10 +1305,12 @@ int PlayWelcomeSound() {
 		captureAudioOffset += capturePeriodSize;
 	}
 
+
 	if ((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
 		printf("Error closeCaptureDevice: 0x%x\n", error);
 		//return 1;
 	}
+
 
 
 
@@ -1325,12 +1321,30 @@ int PlayWelcomeSound() {
 		cout << "\tnew device id: " << previousDeviceName << endl;
 	}
 
-	if((error = ts3Functions.activateCaptureDevice(connection) ) != ERROR_ok) {
-		printf("Error activating capture device: 0x%x\n", error);
-		return error;
-	} 
+	//if((error = ts3Functions.activateCaptureDevice(connection) ) != ERROR_ok) {
+	//	printf("Error activating capture device: 0x%x\n", error);
+	//	return error;
+	//} 
 
-	
+	char* result_after;
+	ts3Functions.getPreProcessorConfigValue(connection, "voiceactivation_level", &result_after);
+
+	//cout << "results:" << std::endl;
+	//cout << result_before << std::endl;
+	//cout << result_after << std::endl;
+	//cout << "" << std::endl;
+
+	// ts resets it to 0 db unless we do this :'(
+	ts3Functions.setPreProcessorConfigValue(connection, "voiceactivation_level", result_before);
+
+	ts3Functions.freeMemory(result_before);
+	ts3Functions.freeMemory(result_after);
+
+	/*
+	If the capture device for a given server connection handler has been deactivated by the Client
+Lib, the flag CLIENT_INPUT_HARDWARE will be set. This can be queried with the function
+ts3client_getClientSelfVariableAsInt.
+	*/
 
 
 	printf("\n    finished playing welcome sound \n");

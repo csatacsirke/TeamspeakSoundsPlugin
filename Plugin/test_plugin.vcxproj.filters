@@ -66,7 +66,10 @@
       <Filter>Wave</Filter>
     </ClInclude>
     <ClInclude Include="App\SoundplayerApp.h">
-      <Filter>Header Files</Filter>
+      <Filter>App</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -80,7 +83,10 @@
       <Filter>Wave</Filter>
     </ClCompile>
     <ClCompile Include="App\SoundplayerApp.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>App</Filter>
+    </ClCompile>
+    <ClCompile Include="Config.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

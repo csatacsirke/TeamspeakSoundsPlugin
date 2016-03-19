@@ -52,7 +52,7 @@ bool PipeHandler::TryPop(_Out_ KeyData& keyData) {
 
 
 void PipeHandler::Push(const KBDLLHOOKSTRUCT& hookStruct) {
-	KeyData keyData(hookStruct);
+	KeyData keyData = KeyData::CreateFromHookData(hookStruct);
 	queue.push(keyData);
 }
 
