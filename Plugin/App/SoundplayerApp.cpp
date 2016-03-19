@@ -11,7 +11,9 @@
 
 using namespace std;
 
-#define USE_KEYBOARDHOOK TRUE
+//#define USE_KEYBOARDHOOK TRUE
+#define USE_KEYBOARDHOOK FALSE
+
 
 SoundplayerApp::SoundplayerApp(TS3Functions& ts3Functions) : ts3Functions(ts3Functions) {
 
@@ -115,6 +117,7 @@ void SoundplayerApp::AsyncOpenAndPlayFile() {
 }
 
 void SoundplayerApp::PlayFile(CString fileName) {
+	std::unique_lock<std::mutex> lock(playerLock);
 	//uint64 scHandlerID;
 
 	// TODO epic memóriaszivárgás!
@@ -124,7 +127,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	short* captureBuffer;
 	size_t buffer_size;
 	int    captureBufferSamples;
-	int    audioPeriodCounter;
+	//int    audioPeriodCounter;
 	int    capturePeriodSize;
 
 	if(!readWave(fileName, &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {

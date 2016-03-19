@@ -66,7 +66,7 @@ int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, 
 	
 	f = _wfopen(filename, L"rb");
 	if (!f) {
-		printf("error: could not open wave %s\n",filename);
+		wprintf(L"error: could not open wave %s\n",filename);
 		return 0;
 	}
 
@@ -90,11 +90,13 @@ int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, 
 	*samples = wh.dataLen / (*channels * sizeof(short));
 
 
-	if (*samples < *freq) {
-		fclose(f);
-		printf("error: wave file is too short\n");
-		return 0;
-	}
+
+	// what? what's wrong with short files...?
+	//if (*samples < *freq) {
+	//	fclose(f);
+	//	printf("error: wave file is too short\n");
+	//	return 0;
+	//}
 	
 	(*buffer) = (short*) malloc(wh.dataLen);
 	*buffer_size = wh.dataLen;
@@ -114,6 +116,6 @@ int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, 
 
 closeError:
 	fclose(f);
-	printf("error: invalid wave file %s\n",filename);
+	wprintf(L"error: invalid wave file %s\n",filename);
 	return 0;
 }

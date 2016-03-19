@@ -13,11 +13,15 @@ class SoundplayerApp  {
 	TS3Functions& ts3Functions;
 	uint64 connection = 0;
 
+	std::mutex playerLock;
+
+
 	KeyboardHookInstaller hookInstaller;
 	PipeHandler pipeHandler;
 	
 	bool commandInProgress = false;
 	CString inputBuffer;
+	
 private:
 	// Teamspeak sound related config
 	const char* myDeviceId = "BattlechickensId"; 
