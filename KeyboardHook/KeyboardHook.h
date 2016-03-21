@@ -2,11 +2,15 @@
 
 #define USE_LOW_LEVEL_KEYBOARD_HOOK 1
 
-#include <Windows.h>
+
 #include "CommonParams.h"
 
+
+
 #ifndef MAIN
+	#include <Windows.h>
 	#define KEYBOARD_HOOK_API __declspec(dllexport)
+	
 #else
 	#define KEYBOARD_HOOK_API __declspec(dllimport)
 #endif

@@ -122,22 +122,25 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 	// TODO epic memóriaszivárgás!
 
-	int    captureFrequency;
-	int    captureChannels;
-	short* captureBuffer;
-	size_t buffer_size;
-	int    captureBufferSamples;
-	//int    audioPeriodCounter;
-	int    capturePeriodSize;
+	//int    captureFrequency;
+	//int    captureChannels;
+	//short* captureBuffer;
+	//size_t buffer_size;
+	//int    captureBufferSamples;
+	////int    audioPeriodCounter;
+	//int    capturePeriodSize;
 
-	if(!readWave(fileName, &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
+	std::unique_ptr<WaveTrack> track = readWave(fileName);
+	
+	if( !track ) {
+		//if(!readWave(fileName, &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
 		cout << "readWave failed";
 		return;
 	}
 
 
 	unsigned int error;
-	if((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", captureFrequency, captureChannels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
+	if((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", track->frequency, track->channels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
 		char* errormsg;
 		if(ts3Functions.getErrorMessage(error, &errormsg) == ERROR_ok) {
 			printf("Error registering custom sound device: %s\n", errormsg);
@@ -171,20 +174,20 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 
 
-	cout << "buffer size: " << buffer_size << endl;
+	cout << "buffer size: " << track->buffer.size() << endl;
 
 
 	//ts3Functions.activateCaptureDevice(connection);
 
 
-	capturePeriodSize = (captureFrequency * 20) / 1000;
+	int capturePeriodSize = (track->frequency * 20) / 1000;
 
 	int captureAudioOffset = 0;
 	//for(audioPeriodCounter = 0; audioPeriodCounter < 50 * AUDIO_PROCESS_SECONDS; ++audioPeriodCounter) { /*50*20=1000*/
 	while( true ) {
 
 		// make sure we dont stream past the end of our wave sample 
-		if(captureAudioOffset + capturePeriodSize > captureBufferSamples) {
+		if(captureAudioOffset + capturePeriodSize > track->numberOfSamples ) {
 			captureAudioOffset = 0;
 			break;
 		}
@@ -193,7 +196,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 		Sleep(20);
 
 		/* stream capture data to the client lib */
-		if((error = ts3Functions.processCustomCaptureData(myDeviceId, captureBuffer + captureAudioOffset*captureChannels, capturePeriodSize)) != ERROR_ok) {
+		if((error = ts3Functions.processCustomCaptureData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->channels, capturePeriodSize)) != ERROR_ok) {
 			printf("Failed to get stream capture data: %d\n", error);
 			return;
 		}

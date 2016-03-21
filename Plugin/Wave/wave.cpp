@@ -56,7 +56,15 @@ void writeWave(const char* filename, int freq, int channels, short* buffer, int 
 	}
 }
 
-int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples) {
+
+
+
+//int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples) {
+//int readWave(const wchar_t* filename, _Out_ int& freq, _Out_ int& channels, short** buffer, size_t* buffer_size, int* samples) {
+std::unique_ptr<WaveTrack> readWave(const wchar_t* filename) {
+
+	std::unique_ptr<WaveTrack> result(new WaveTrack);
+
 	struct WaveHeader wh;
 	FILE *f;
 	int i;
@@ -83,11 +91,13 @@ int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, 
 	// Format chunk
 	if (wh.fmtLen != 16) goto closeError;
 	if (wh.formatTag != 1) goto closeError;
-	*channels = wh.channels;
-	if (*channels <1 || *channels >2) goto closeError;
-	*freq = wh.samplesPerSec;
-	if (wh.blockAlign != *channels * sizeof(short)) goto closeError;
-	*samples = wh.dataLen / (*channels * sizeof(short));
+	int channels = wh.channels;
+	result->channels = wh.channels;
+	if (channels <1 || channels >2) goto closeError;
+	//*freq = wh.samplesPerSec;
+	result->frequency = wh.samplesPerSec;
+	if (wh.blockAlign != channels * sizeof(short)) goto closeError;
+	result->numberOfSamples = wh.dataLen / (channels * sizeof(short));
 
 
 
@@ -98,21 +108,23 @@ int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, 
 	//	return 0;
 	//}
 	
-	(*buffer) = (short*) malloc(wh.dataLen);
-	*buffer_size = wh.dataLen;
-	if (!*buffer){
-		printf("error: could not allocate memory for wave\n");
-		return 0;
-	}
+	result->buffer.resize(wh.dataLen);
+	short* buffer = (short*)result->buffer.data();
+	//(*buffer) = (short*) malloc(wh.dataLen);
+	//*buffer_size = wh.dataLen;
+	//if (!*buffer){
+	//	printf("error: could not allocate memory for wave\n");
+	//	return 0;
+	//}
 
-	elemsRead = fread(*buffer, wh.dataLen, 1, f);
+	elemsRead = fread(buffer, wh.dataLen, 1, f);
 	fclose(f);
 	if (elemsRead != 1){
 		printf("error: reading wave file\n");
 		return 0;
 	}
 
-	return 1;
+	return result;
 
 closeError:
 	fclose(f);

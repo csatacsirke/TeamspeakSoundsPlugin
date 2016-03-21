@@ -14,7 +14,7 @@ using namespace std;
 #ifdef _WIN32
 #pragma warning (disable : 4100)  /* Disable Unreferenced parameter warning */
 //#include <Windows.h>
-#include <afxwin.h>
+//#include <afxwin.h>
 #endif
 
 
@@ -171,7 +171,8 @@ static int    capturePeriodSize;
 
 int ts3plugin_init() {
 
-#ifdef DEBUG
+//#ifdef DEBUG
+#if 1
 #pragma warning( push )
 #pragma warning( disable : 4996)
 	AllocConsole();
@@ -197,10 +198,10 @@ int ts3plugin_init() {
 
 
 	/* Read in the wave we are going to stream to the server */
-	if (!readWave(L"c:\\Program Files\\TeamSpeak 3 Client\\plugins\\welcome_to_teamspeak.wav", &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
-		cout << "readWave failed";
-		return 1;
-	}
+	//if (!readWave(L"c:\\Program Files\\TeamSpeak 3 Client\\plugins\\welcome_to_teamspeak.wav", &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
+	//	cout << "readWave failed";
+	//	return 1;
+	//}
 
 	
 	theApp.Init();

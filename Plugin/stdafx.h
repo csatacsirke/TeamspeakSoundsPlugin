@@ -5,6 +5,8 @@
 
 #pragma once
 
+//#define _AFXDLL
+
 #define NO_WARN_MBCS_MFC_DEPRECATION
 
 #ifndef VC_EXTRALEAN
