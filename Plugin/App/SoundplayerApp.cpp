@@ -141,6 +141,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 	unsigned int error;
 	if((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", track->frequency, track->channels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
+	//if((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", track->frequency, track->channels, track->frequency, track->channels)) != ERROR_ok) {
 		char* errormsg;
 		if(ts3Functions.getErrorMessage(error, &errormsg) == ERROR_ok) {
 			printf("Error registering custom sound device: %s\n", errormsg);
@@ -163,8 +164,6 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 
 	ts3Functions.closeCaptureDevice(connection);
-
-//	int error;
 	if((error = ts3Functions.openCaptureDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
 		printf("Error opening capture device: 0x%x\n", error);
 		return;
@@ -172,12 +171,30 @@ void SoundplayerApp::PlayFile(CString fileName) {
 		cout << "\tdevice id: " << myDeviceId << endl;
 	}
 
+	
+	ts3Functions.playWaveFile(connection, ConvertUnicodeToUTF8(fileName));
+	//ts3Functions.playWaveFileHandle(connection, WideCharToMultiByte(fileName), )
+
+	//ts3Functions.closePlaybackDevice(connection);
+	//if((error = ts3Functions.openPlaybackDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
+	//	printf("Error opening capture device: 0x%x\n", error);
+	//} else {
+	//	cout << "\tPlayback device id: " << myDeviceId << endl;
+	//}
+
+
+	
+
+	//if((error = ts3Functions.openPlaybackDevice(connection, "", "")) != ERROR_ok) {
+	//	printf("Error opening capture device: 0x%x\n", error);
+	//} else {
+	//	cout << "\tPlayback device id: " << myDeviceId << endl;
+	//}
 
 
 	cout << "buffer size: " << track->buffer.size() << endl;
 
 
-	//ts3Functions.activateCaptureDevice(connection);
 
 
 	int capturePeriodSize = (track->frequency * 20) / 1000;
@@ -200,6 +217,11 @@ void SoundplayerApp::PlayFile(CString fileName) {
 			printf("Failed to get stream capture data: %d\n", error);
 			return;
 		}
+
+		//if((error = ts3Functions.acquireCustomPlaybackData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->channels, capturePeriodSize)) != ERROR_ok) {
+		//	printf("acquireCustomPlaybackData failed: %d\n", error);
+		//	//return;
+		//}
 
 
 		/*update buffer offsets */
