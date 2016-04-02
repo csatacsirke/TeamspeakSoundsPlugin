@@ -74,6 +74,15 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Util.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\AudioDecoder.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\AudioClipSample.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -90,6 +99,15 @@
     </ClCompile>
     <ClCompile Include="Config.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Util.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\AudioDecoder.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\AudioClipSample.cpp">
+      <Filter>Wave</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

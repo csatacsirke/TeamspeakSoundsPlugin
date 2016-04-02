@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <afx.h>
 
 class Config {
@@ -9,6 +8,11 @@ class Config {
 public:
 	void LoadFromFile(CString fileName);
 	void SaveToFile(CString fileName);
+
+	static Config CreateDefault();
+
+	void Add(CString key, CString value);
+	CString Get(CString key, CString asd);
 
 private:
 	void StoreLine(std::wstring line);

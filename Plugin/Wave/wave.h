@@ -1,6 +1,7 @@
-#ifndef WAVE_H
-#define WAVE_H
+#pragma once
 
+
+//  NE HASZNÁLD! EZ SZAR!!!! HA MÁZLID VAN MüKÖDIK, DE KURVÁRA NEM VALID!
 struct WaveHeader {
 	// Riff chunk
 	char riffId[4];  // 'RIFF'
@@ -21,7 +22,7 @@ struct WaveHeader {
 	char dataId[4];  // 'data'
 	unsigned int dataLen;
 };
-#endif //WAVE_H
+
 
 void writeWave(const char* filename, int freq, int channels, short* buffer, int samples);
 
@@ -30,7 +31,7 @@ struct WaveTrack {
 	int frequency;
 	int channels;
 
-	std::vector<char> buffer;
+	std::vector<byte> buffer;
 	int numberOfSamples;
 };
 

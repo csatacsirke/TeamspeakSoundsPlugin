@@ -43,7 +43,7 @@ void StringPatternDetector::Add(const KBDLLHOOKSTRUCT& input){
 	}
 	if(EndsWith(buffer, strSuffix)){
 		std::vector<int> result;
-		for(int i=strPrefix.size(); i < buffer.size()-strSuffix.size(); ++i){
+		for(size_t i=strPrefix.size(); i < buffer.size()-strSuffix.size(); ++i){
 			result.push_back(buffer[i]);
 		}
 		if( OnPatternFound ) {
@@ -71,7 +71,7 @@ bool StringPatternDetector::EndsWith(const std::deque<int>& strWord, const std::
 		return false; // tul kevés betû, nem lehet jó
 	}
 
-	for(int i=strWord.size()-strSuffix.size(); i < strWord.size(); ++i){
+	for(size_t i=strWord.size()-strSuffix.size(); i < strWord.size(); ++i){
 		if(strWord[i] != strSuffix[i-strWord.size()+strSuffix.size()]) return false;
 	}
 	return true;

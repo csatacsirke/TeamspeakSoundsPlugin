@@ -31,6 +31,19 @@
 #include <thread>
 #include <string>
 #include <iostream>
+#include <map>
+#include <unordered_map>
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <concurrent_queue.h>
+
+
+#include "ts3_functions.h"
+
+#include <Util\Util.h>
 
 
 enum Messages {
@@ -69,20 +82,3 @@ enum Messages {
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 #endif
-
-
-
-// https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
-CStringA ConvertUnicodeToUTF8(const CStringW& uni) {
-	if(uni.IsEmpty()) return ""; // nothing to do
-	CStringA utf8;
-	int cc = 0;
-	// get length (cc) of the new multibyte string excluding the \0 terminator first
-	if((cc = WideCharToMultiByte(CP_UTF8, 0, uni, -1, NULL, 0, 0, 0) - 1) > 0) {
-		// convert
-		char *buf = utf8.GetBuffer(cc);
-		if(buf) WideCharToMultiByte(CP_UTF8, 0, uni, -1, buf, cc, 0, 0);
-		utf8.ReleaseBuffer();
-	}
-	return utf8;
-}

@@ -36,3 +36,22 @@ void Config::StoreLine(std::wstring line) {
 }
 
 
+Config Config::CreateDefault() {
+	return Config();
+}
+
+
+void Config::Add(CString key, CString value) {
+	//auto asd = std::make_pair<CString, CString>(key, value);
+	//std::make_pair<CString, CString>()
+	dictionary.insert(std::make_pair(key, value));
+	//dictionary.insert(key, value);
+}
+
+CString Config::Get(CString key, CString defaultValue) {
+	//disctionary.f
+	//assert(0);
+	
+	return CString("");
+}
+

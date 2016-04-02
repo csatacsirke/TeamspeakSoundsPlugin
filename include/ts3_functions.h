@@ -1,5 +1,9 @@
+#pragma once
+
+
 #ifndef TS3_FUNCTIONS_H
 #define TS3_FUNCTIONS_H
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -278,5 +282,13 @@ struct TS3Functions {
 #ifdef __cplusplus
 }
 #endif
+
+
+
+namespace Global {
+	extern struct TS3Functions ts3Functions;
+	extern uint64 connection;
+}
+
 
 #endif

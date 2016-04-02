@@ -17,12 +17,6 @@ using namespace std;
 //#include <afxwin.h>
 #endif
 
-
-#include <stdio.h>
-#include <iostream>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
 #include "teamspeak/public_errors.h"
 #include "teamspeak/public_errors_rare.h"
 #include "teamspeak/public_definitions.h"
@@ -50,21 +44,16 @@ It is therefore advisable to use the same for your project */
 
 #define AUDIO_PROCESS_SECONDS 10
 
+namespace Global {
+	struct TS3Functions ts3Functions;
+	uint64 connection = 0;
+}
 
-static struct TS3Functions ts3Functions;
+using namespace Global;
 
-
-
-SoundplayerApp theApp(ts3Functions);
+SoundplayerApp theApp;
 
 int PlayWelcomeSound();
-
-#ifdef _WIN32
-#define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
-#define snprintf sprintf_s
-#else
-#define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
-#endif
 
 #define PLUGIN_API_VERSION 20
 
@@ -109,14 +98,14 @@ const char* ts3plugin_name() {
 	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
 	static char* result = NULL;  /* Static variable so it's allocated only once */
 	if(!result) {
-		const wchar_t* name = L"Battlechicken's first plugin";
+		const wchar_t* name = L"Soundplayer";
 		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "Battlechicken's first plugin";  /* Conversion failed, fallback here */
+			result = "Soundplayer";  /* Conversion failed, fallback here */
 		}
 	}
 	return result;
 #else
-	return "Battlechicken's first plugin";
+	return "Soundplayer";
 #endif
 }
 
@@ -152,7 +141,7 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
  * If the function returns 1 on failure, the plugin will be unloaded again.
  */
 
-static uint64 connection = 0;
+
 
 unsigned int error;
 //	char *version;
@@ -170,13 +159,21 @@ static int    capturePeriodSize;
 
 
 int ts3plugin_init() {
+#if 0
+	ShellExecuteA(NULL, "open", "https://www.youtube.com/watch?v=oHg5SJYRHA0",
+		NULL, NULL, SW_SHOWNORMAL);
+	return 0;
+#endif
+
 
 //#ifdef DEBUG
 #if 1
 #pragma warning( push )
 #pragma warning( disable : 4996)
-	AllocConsole();
-	freopen("CONOUT$", "w", stdout);
+	if(GetKeyState(VK_CONTROL) < 0) {
+		AllocConsole();
+		freopen("CONOUT$", "w", stdout);
+	}
 #pragma warning( pop )
 #endif
     char appPath[PATH_BUFSIZE];
@@ -247,12 +244,25 @@ int ts3plugin_offersConfigure() {
 	//return PLUGIN_OFFERS_NO_CONFIGURE;  /* In this case ts3plugin_configure does not need to be implemented */
 
 	// ó bazdmeg ha én azt tudnám hogy ez mi a faszt csinál
-	return PLUGIN_OFFERS_CONFIGURE_NEW_THREAD;
+	//return PLUGIN_OFFERS_CONFIGURE_NEW_THREAD;
+
+	// Ez azért kell hogy a showHotkeySetup müködjön
+	return PLUGIN_OFFERS_CONFIGURE_QT_THREAD;
 }
+
 
 /* Plugin might offer a configuration window. If ts3plugin_offersConfigure returns 0, this function does not need to be implemented. */
 void ts3plugin_configure(void* handle, void* qParentWidget) {
     printf("PLUGIN: configure\n");
+
+
+	theApp.OpenSettingsDialog();
+	//SettingsDialog
+
+	//ts3Functions.showHotkeySetup();
+
+	//Sleep(10000);
+	//ts3Functions.requestHotkeyInputDialog(pluginID, "keyword", true, qParentWidget);
 }
 
 /*
@@ -504,6 +514,7 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 
 /* Client changed current server connection handler */
 void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) {
+	connection = serverConnectionHandlerID;
     printf("PLUGIN: currentServerConnectionChanged %llu (%llu)\n", (long long unsigned int)serverConnectionHandlerID, (long long unsigned int)ts3Functions.getCurrentServerConnectionHandlerID());
 }
 
@@ -598,7 +609,8 @@ enum {
 	MENU_ID_CHANNEL_2,
 	MENU_ID_CHANNEL_3,
 	MENU_ID_GLOBAL_1,
-	MENU_ID_GLOBAL_2
+	MENU_ID_GLOBAL_2,
+	MENU_ID_GLOBAL_3
 };
 
 /*
@@ -625,14 +637,15 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	 * e.g. for "test_plugin.dll", icon "1.png" is loaded from <TeamSpeak 3 Client install dir>\plugins\test_plugin\1.png
 	 */
 
-	BEGIN_CREATE_MENUS(6);  /* IMPORTANT: Number of menu items must be correct! */
+	BEGIN_CREATE_MENUS(8);  /* IMPORTANT: Number of menu items must be correct! */
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT,  MENU_ID_CLIENT_1,  "Client item 1",  "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT,  MENU_ID_CLIENT_2,  "Client item 2",  "2.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "Channel item 1", "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_2, "Channel item 2", "2.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_1,  "Play sound from file...",  "1.png");
-	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_2,  "Play sound from file...",  "2.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "Enqueue sound from file...", "2.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_3,  "Play sound from file advanced...",  "3.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
 
 	/*
@@ -678,11 +691,12 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	 * The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
 	BEGIN_CREATE_HOTKEYS(3);  /* Create 3 hotkeys. Size must be correct for allocating memory. */
-	CREATE_HOTKEY("keyword_1", "Test hotkey 1");
+	CREATE_HOTKEY("keyword_stop", "Stop playback");
 	CREATE_HOTKEY("keyword_2", "Test hotkey 2");
 	CREATE_HOTKEY("keyword_3", "Test hotkey 3");
 	END_CREATE_HOTKEYS;
 
+	theApp.InitHotkeys(hotkeys);
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 
@@ -699,7 +713,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 
 	// i can just hope that this is the correct way
 	connection = serverConnectionHandlerID;
-	theApp.SetConnectionHandle(serverConnectionHandlerID);
+	//theApp.SetConnectionHandle(serverConnectionHandlerID);
 
 
     if(newStatus == STATUS_CONNECTION_ESTABLISHED) {  /* connection established and we have client and channels available */
@@ -1176,23 +1190,19 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 			switch(menuItemID) {
 				case MENU_ID_GLOBAL_1:
 				{
-					//std::thread myThread([&]() {
-					//	auto result = PlayWelcomeSound();
-					//	if (result) {
-					//		cout << "Failed to play. error: 0x" << std::ios::hex << result << endl;
-					//	}
-					//});
-					//myThread.detach();
-
+					
 					theApp.AsyncOpenAndPlayFile();
-
 					/* Menu global 1 was triggered */
 					break;
 				}
 
 				case MENU_ID_GLOBAL_2:
 					/* Menu global 2 was triggered */
-					theApp.AsyncOpenAndPlayFile();
+					theApp.AsyncEnqueueFile();
+					break;
+				case MENU_ID_GLOBAL_3:
+					/* Menu global 2 was triggered */
+					theApp.AsyncOpenAndPlayFile_advanced();
 					break;
 				default:
 					break;
@@ -1235,6 +1245,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 /* This function is called if a plugin hotkey was pressed. Omit if hotkeys are unused. */
 void ts3plugin_onHotkeyEvent(const char* keyword) {
 	printf("PLUGIN: Hotkey event: %s\n", keyword);
+	theApp.OnHotkey(keyword);
 	/* Identify the hotkey by keyword ("keyword_1", "keyword_2" or "keyword_3" in this example) and handle here... */
 }
 
