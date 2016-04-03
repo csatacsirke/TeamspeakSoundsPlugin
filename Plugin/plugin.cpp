@@ -47,6 +47,7 @@ It is therefore advisable to use the same for your project */
 namespace Global {
 	struct TS3Functions ts3Functions;
 	uint64 connection = 0;
+	char* pluginID = NULL;
 }
 
 using namespace Global;
@@ -64,10 +65,10 @@ int PlayWelcomeSound();
 #define CHANNELINFO_BUFSIZE 512
 #define RETURNCODE_BUFSIZE 128
 
-static char* pluginID = NULL;
+
 
 const static char* myDeviceId = "BattlechickensId";
-static anyID g_myId = 0;
+//static anyID g_myId = 0;
 
 
 
@@ -160,8 +161,7 @@ static int    capturePeriodSize;
 
 int ts3plugin_init() {
 #if 0
-	ShellExecuteA(NULL, "open", "https://www.youtube.com/watch?v=oHg5SJYRHA0",
-		NULL, NULL, SW_SHOWNORMAL);
+	ShellExecuteA(NULL, "open", "https://www.youtube.com/watch?v=oHg5SJYRHA0", NULL, NULL, SW_SHOWNORMAL);
 	return 0;
 #endif
 
@@ -256,7 +256,7 @@ void ts3plugin_configure(void* handle, void* qParentWidget) {
     printf("PLUGIN: configure\n");
 
 
-	theApp.OpenSettingsDialog();
+	theApp.OpenSettingsDialog(handle, qParentWidget);
 	//SettingsDialog
 
 	//ts3Functions.showHotkeySetup();
@@ -610,7 +610,8 @@ enum {
 	MENU_ID_CHANNEL_3,
 	MENU_ID_GLOBAL_1,
 	MENU_ID_GLOBAL_2,
-	MENU_ID_GLOBAL_3
+	MENU_ID_GLOBAL_3,
+	MENU_ID_GLOBAL_SETTINGS
 };
 
 /*
@@ -645,7 +646,8 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_1,  "Play sound from file...",  "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "Enqueue sound from file...", "2.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_3,  "Play sound from file advanced...",  "3.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_3,  "Play sound from file...(unstable)",  "3.png");
+	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Play sound from file...(unstable)", "4.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
 
 	/*
@@ -712,7 +714,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
     /* Some example code following to show how to use the information query functions. */
 
 	// i can just hope that this is the correct way
-	connection = serverConnectionHandlerID;
+	//connection = serverConnectionHandlerID;
 	//theApp.SetConnectionHandle(serverConnectionHandlerID);
 
 
@@ -767,7 +769,8 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
         printf("PLUGIN: My client ID = %d, nickname = %s\n", myID, s);
         ts3Functions.freeMemory(s);
 
-		g_myId = myID;
+		Global::connection = myID;
+		//g_myId = myID;
 
         /* Print list of all channels on this server */
         if(ts3Functions.getChannelList(serverConnectionHandlerID, &ids) != ERROR_ok) {
@@ -832,7 +835,7 @@ void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clien
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
 	
-	if (clientID == g_myId) {
+	if (clientID == Global::connection) {
 		cout << "Moved to channel id " << newChannelID << endl;
 		cout << moveMessage << endl;
 
@@ -1190,7 +1193,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 			switch(menuItemID) {
 				case MENU_ID_GLOBAL_1:
 				{
-					
+
 					theApp.AsyncOpenAndPlayFile();
 					/* Menu global 1 was triggered */
 					break;
@@ -1203,6 +1206,9 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 				case MENU_ID_GLOBAL_3:
 					/* Menu global 2 was triggered */
 					theApp.AsyncOpenAndPlayFile_advanced();
+					break;
+				case MENU_ID_GLOBAL_SETTINGS:
+					theApp.OpenSettingsDialog(0, 0);
 					break;
 				default:
 					break;

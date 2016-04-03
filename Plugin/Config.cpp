@@ -6,6 +6,10 @@
 #include <string>
 #include <sstream>
 
+namespace Global {
+	Config config;
+}
+
 void Config::LoadFromFile(CString fileName) {
 	std::wifstream in(fileName);
 
@@ -37,7 +41,9 @@ void Config::StoreLine(std::wstring line) {
 
 
 Config Config::CreateDefault() {
-	return Config();
+	Config config;
+	config.LoadFromFile(_T("soundplayer.cfg"));
+	return config;
 }
 
 
@@ -49,9 +55,11 @@ void Config::Add(CString key, CString value) {
 }
 
 CString Config::Get(CString key, CString defaultValue) {
-	//disctionary.f
-	//assert(0);
+	CString result = defaultValue;
+	if(dictionary.find(key) != dictionary.end()) {
+		result = dictionary[key];
+	} 
 	
-	return CString("");
+	return result;
 }
 

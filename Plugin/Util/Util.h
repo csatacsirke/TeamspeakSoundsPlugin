@@ -60,7 +60,7 @@ CString ToString(T value) {
 	return CString(std::to_string(value).c_str());
 }
 
-
+CStringA GetHotkey(CStringA key);
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)

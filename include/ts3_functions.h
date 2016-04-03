@@ -285,10 +285,4 @@ struct TS3Functions {
 
 
 
-namespace Global {
-	extern struct TS3Functions ts3Functions;
-	extern uint64 connection;
-}
-
-
 #endif

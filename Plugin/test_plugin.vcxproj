@@ -151,6 +151,7 @@
   <ItemGroup>
     <ClCompile Include="App\SoundplayerApp.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Gui\SettingsDialog.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Util\Util.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include="App\SoundplayerApp.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />

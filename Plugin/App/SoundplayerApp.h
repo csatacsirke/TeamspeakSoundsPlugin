@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ts3_functions.h"
 
 #include <HookInstaller\Hook\KeyboardHookInstaller.h>
 #include <HookInstaller\Hook\PipeHandler.h>
@@ -13,7 +12,6 @@ class SoundplayerApp  {
 	//TS3Functions& ts3Functions;
 	//uint64 connection = 0;
 
-	Config config;
 
 	std::mutex playerLock;
 	bool stop;
@@ -34,7 +32,6 @@ private:
 	const int PLAYBACK_FREQUENCY = 48000;
 	const int PLAYBACK_CHANNELS = 2;
 public:
-	
 
 	SoundplayerApp(/*TS3Functions& ts3Functions*/);
 	~SoundplayerApp();
@@ -49,7 +46,7 @@ public:
 	void InitHotkeys(struct PluginHotkey*** hotkeys);
 	void OnHotkey(CStringA keyword);
 
-	void OpenSettingsDialog();
+	void OpenSettingsDialog(void* handle, void* qParentWidget);
 
 	//void SetConnectionHandle(uint64 connection);
 	//uint64 GetConnectionHandle();

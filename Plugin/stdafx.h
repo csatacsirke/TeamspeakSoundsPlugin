@@ -24,6 +24,8 @@
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 
+#include "resource.h"
+
 #include <vector>
 #include <deque>
 #include <mutex>
@@ -51,6 +53,13 @@ enum Messages {
 
 };
 
+
+
+namespace Global {
+	extern struct TS3Functions ts3Functions;
+	extern uint64 connection;
+	extern char* pluginID;
+}
 
 
 

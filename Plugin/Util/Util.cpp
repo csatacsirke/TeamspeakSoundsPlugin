@@ -21,6 +21,29 @@ CStringA ConvertUnicodeToUTF8(const CStringW& uni) {
 	return utf8;
 }
 
+CStringA GetHotkey(CStringA key) {
+
+	const char* keywords[] = {
+		key, 0
+		//Hotkey::STOP, 0
+	};
+
+
+	const int length = 2;
+	const int size = 256;
+	//char hotkeys[length][size];
+	char buffer1[size];
+	char buffer2[size];
+	char* hotkeys[length] = { buffer1, buffer2};
+
+
+	Global::ts3Functions.getHotkeyFromKeyword(Global::pluginID, keywords, hotkeys, length, size);
+
+	return hotkeys[0];
+}
+
+
+
 
 
 

@@ -4,7 +4,7 @@
 #include "afxdlgs.h"
 #include "Wave\wave.h"
 #include "Wave\AudioDecoder.h"
-
+#include "Gui\SettingsDialog.h"
 
 #include "teamspeak/public_errors.h"
 #include "teamspeak/public_errors_rare.h"
@@ -17,11 +17,6 @@ using namespace Global;
 //#define USE_KEYBOARDHOOK TRUE
 #define USE_KEYBOARDHOOK FALSE
 
-namespace Hotkey {
-	const CStringA STOP = "keyword_stop";
-	const CStringA PLAY_QUEUED = "keyword_play_queued";
-	const CStringA REPLAY = "keyword_replay";
-}
 
 SoundplayerApp::SoundplayerApp(/*TS3Functions& ts3Functions*/)/* : ts3Functions(ts3Functions)*/ {
 
@@ -616,9 +611,17 @@ void SoundplayerApp::PlayFile_advanced(CString fileName) {
 }
 
 
-void SoundplayerApp::OpenSettingsDialog() {
-	//SettingsDialog dialog;
-	//dialog.DoModal();
+void SoundplayerApp::OpenSettingsDialog(void* handle, void* qParentWidget) {
+#if 0 
+	ts3Functions.showHotkeySetup();
+#else 
+	CWnd parent;
+	parent.Attach(((HWND)handle));
+	SettingsDialog dialog(&parent);
+	dialog.qParentWidget = qParentWidget;
+	dialog.DoModal();
+	parent.Detach();
+#endif
 }
 
 
