@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <sstream>
 #include <vector>
+#include <iostream>
 
 
 namespace KeyboardHook{
@@ -37,16 +38,26 @@ BOOL ProcessKeystroke(KBDLLHOOKSTRUCT* pKeyBoardHookStruct){
         return FALSE;
     }
 
-    
+	// teszt
+	KeyboardHook::KeyData data = KeyboardHook::KeyData::CreateFromHookData(*pKeyBoardHookStruct);
 	
+
     DWORD nBytesWritten = 0;
-    BOOL result = WriteFile(
-        pipe, // handle to our outbound pipe
-		pKeyBoardHookStruct,//vBuffer.data(), // data to send
-		sizeof(KBDLLHOOKSTRUCT), //vBuffer.size(), // length of data to send (bytes)
-        &nBytesWritten, // will store actual amount of data sent
-        NULL // not using overlapped IO
-    );
+	BOOL result = WriteFile(
+		pipe, // handle to our outbound pipe
+		&data,//vBuffer.data(), // data to send
+		sizeof(data), //vBuffer.size(), // length of data to send (bytes)
+		&nBytesWritten, // will store actual amount of data sent
+		NULL // not using overlapped IO
+	);
+
+  //  BOOL result = WriteFile(
+  //      pipe, // handle to our outbound pipe
+		//pKeyBoardHookStruct,//vBuffer.data(), // data to send
+		//sizeof(KBDLLHOOKSTRUCT), //vBuffer.size(), // length of data to send (bytes)
+  //      &nBytesWritten, // will store actual amount of data sent
+  //      NULL // not using overlapped IO
+  //  );
  
     if (!result) {
         return FALSE;
@@ -73,7 +84,7 @@ extern "C" LRESULT KEYBOARD_HOOK_API
 		(void)result;
 	}
 
-
+	            
 	// 1st param is ignored
 	LRESULT RetVal = CallNextHookEx( 0, nCode, wParam, lParam );
 	return  RetVal;

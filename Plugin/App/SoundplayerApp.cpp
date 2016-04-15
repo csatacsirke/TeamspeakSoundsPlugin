@@ -5,6 +5,7 @@
 #include "Wave\wave.h"
 #include "Wave\AudioDecoder.h"
 #include "Gui\SettingsDialog.h"
+#include "Gui\SoundFolderSelector.h"
 
 #include "teamspeak/public_errors.h"
 #include "teamspeak/public_errors_rare.h"
@@ -14,8 +15,8 @@
 
 using namespace std;
 using namespace Global;
-//#define USE_KEYBOARDHOOK TRUE
-#define USE_KEYBOARDHOOK FALSE
+#define USE_KEYBOARDHOOK TRUE
+//#define USE_KEYBOARDHOOK FALSE
 
 
 SoundplayerApp::SoundplayerApp(/*TS3Functions& ts3Functions*/)/* : ts3Functions(ts3Functions)*/ {
@@ -46,10 +47,9 @@ void SoundplayerApp::InitKeyboardHook() {
 
 
 	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
-		PipeHandler::KeyData keyData;
+		KeyboardHook::KeyData keyData;
 
 		while(pipeHandler.TryPop(keyData)) {
-			std::wcout << keyData.unicodeLiteral.GetString();
 			OnKeyData(keyData);
 		}
 	});
@@ -65,13 +65,12 @@ void SoundplayerApp::InitKeyboardHook() {
 
 void SoundplayerApp::Init() {
 
-	// A JÓ KURVA ANYÁD!
-	// enélkül ha konzolra írsz egy ő betűt eltörik az egész konzol....
-	std::locale::global(std::locale(""));
-
+	
 	InitKeyboardHook();
-
+	
 	ts3Functions.showHotkeySetup();
+
+	Global::config.LoadFromFile(Global::config.defaultFileName);
 }
 
 
@@ -122,21 +121,28 @@ void SoundplayerApp::OnHotkey(CStringA keyword) {
 
 
 
-void SoundplayerApp::OnKeyData(const PipeHandler::KeyData& keyData) {
+void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 	if(keyData.hookData.vkCode == VK_ESCAPE) {
 		commandInProgress = false;
 		inputBuffer = "";
 		stop = true;
 	}
 
-	if(keyData.unicodeLiteral == L"/") {
+	if(keyData.unicodeLiteral == CString("/")) {
 		commandInProgress = true;
 	} else {
 		if(commandInProgress) {
 			if(keyData.hookData.vkCode == VK_RETURN) {
 				//CString _inputbuffer = this->inputBuffer;
-				std::wcout << std::endl << ">>" << inputBuffer << "<<" << std::endl;
-				inputBuffer == "";
+				std::wcout << std::endl << ">>" << (const wchar_t*)inputBuffer << "<<" << std::endl;
+
+				this->ProcessRegexCommand(inputBuffer);
+
+				inputBuffer = "";
+
+				if(wcout.fail()) {
+					wcout.clear();
+				}
 				//std::thread messageThread([_inputbuffer] {
 				//	MessageBox(0, _inputbuffer, 0, 0);
 				//});
@@ -294,6 +300,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 			printf("Error registering custom sound device: %s\n", errormsg);
 			ts3Functions.freeMemory(errormsg);
 			MessageBoxA(0, "Error registering custom sound device", 0, 0);
+			goto cleanup;
 		}
 	}
 
@@ -313,7 +320,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	ts3Functions.closeCaptureDevice(connection);
 	if((error = ts3Functions.openCaptureDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
 		printf("Error opening capture device: 0x%x\n", error);
-		return;
+		goto cleanup;
 	} else {
 		cout << "\tdevice id: " << myDeviceId << endl;
 	}
@@ -340,49 +347,52 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 
 	cout << "buffer size: " << track->buffer.size() << endl;
+	{
+		LocalSoundPlayer localSoundPlayer(fileName);
 
-	LocalSoundPlayer localSoundPlayer(fileName);
+
+		int capturePeriodSize = (track->frequency * 20) / 1000;
+
+		int captureAudioOffset = 0;
+		//for(audioPeriodCounter = 0; audioPeriodCounter < 50 * AUDIO_PROCESS_SECONDS; ++audioPeriodCounter) { /*50*20=1000*/
+		while(true) {
+
+			// make sure we dont stream past the end of our wave sample 
+			if(captureAudioOffset + capturePeriodSize > track->numberOfSamples || this->stop) {
+				captureAudioOffset = 0;
+				break;
+			}
+
+			//SLEEP(20);
+			Sleep(20);
+			//Sleep(10);
+
+			/* stream capture data to the client lib */
+			if((error = ts3Functions.processCustomCaptureData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->channels, capturePeriodSize)) != ERROR_ok) {
+				printf("Failed to get stream capture data: %d\n", error);
+				return;
+			}
+
+			//if((error = ts3Functions.acquireCustomPlaybackData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->channels, capturePeriodSize)) != ERROR_ok) {
+			//	printf("acquireCustomPlaybackData failed: %d\n", error);
+			//	//return;
+			//}
 
 
-	int capturePeriodSize = (track->frequency * 20) / 1000;
-
-	int captureAudioOffset = 0;
-	//for(audioPeriodCounter = 0; audioPeriodCounter < 50 * AUDIO_PROCESS_SECONDS; ++audioPeriodCounter) { /*50*20=1000*/
-	while( true ) {
-
-		// make sure we dont stream past the end of our wave sample 
-		if(captureAudioOffset + capturePeriodSize > track->numberOfSamples || this->stop) {
-			captureAudioOffset = 0;
-			break;
+			/*update buffer offsets */
+			captureAudioOffset += capturePeriodSize;
 		}
 
-		//SLEEP(20);
-		Sleep(20);
-		//Sleep(10);
 
-		/* stream capture data to the client lib */
-		if((error = ts3Functions.processCustomCaptureData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->channels, capturePeriodSize)) != ERROR_ok) {
-			printf("Failed to get stream capture data: %d\n", error);
-			return;
-		}
-
-		//if((error = ts3Functions.acquireCustomPlaybackData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->channels, capturePeriodSize)) != ERROR_ok) {
-		//	printf("acquireCustomPlaybackData failed: %d\n", error);
-		//	//return;
+		//if((error = ts3Functions.initiateGracefulPlaybackShutdown(connection) != ERROR_ok)) {
+		//	printf("Error initiateGracefulPlaybackShutdown: 0x%x\n", error);
+		//	//return 1;
 		//}
 
-
-		/*update buffer offsets */
-		captureAudioOffset += capturePeriodSize;
+		Sleep(20);
 	}
 
-
-	//if((error = ts3Functions.initiateGracefulPlaybackShutdown(connection) != ERROR_ok)) {
-	//	printf("Error initiateGracefulPlaybackShutdown: 0x%x\n", error);
-	//	//return 1;
-	//}
-	
-	Sleep(20);
+	cleanup:
 
 	if((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
 		printf("Error closeCaptureDevice: 0x%x\n", error);
@@ -400,7 +410,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 
 	if((error = ts3Functions.openCaptureDevice(connection, previousMode, previousDeviceName)) != ERROR_ok) {
-		printf("Error opening capture device: 0x%x\n", error);
+		printf("Error (re)opening capture device: 0x%x\n", error);
 		return;
 	} else {
 		cout << "\tnew device id: " << previousDeviceName << endl;
@@ -489,6 +499,8 @@ void SoundplayerApp::PlayFile_advanced(CString fileName) {
 
 	WAVEFORMATEX header = decoder.GetHeader();
 
+	printf("channels: %d", header.nChannels);
+
 	unsigned int error;
 	if((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", header.nSamplesPerSec, header.nChannels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
 	//if((error = ts3Functions.registerCustomDevice(myDeviceId, "Nice displayable wave device name", track->frequency, track->channels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
@@ -498,6 +510,7 @@ void SoundplayerApp::PlayFile_advanced(CString fileName) {
 			printf("Error registering custom sound device: %s\n", errormsg);
 			ts3Functions.freeMemory(errormsg);
 			MessageBoxA(0, "Error registering custom sound device", 0, 0);
+			return;
 		}
 	}
 
@@ -623,5 +636,57 @@ void SoundplayerApp::OpenSettingsDialog(void* handle, void* qParentWidget) {
 	parent.Detach();
 #endif
 }
+
+void OpenSoundsFolderSelectorDialog() {
+
+}
+
+
+void SoundplayerApp::PlayRandom() {
+	CString folder = _T("d:\\Documents\\AudioEdited\\");
+	assert(0 && "nincs megirva");
+}
+
+
+CString SoundplayerApp::GetLikelyFileName(CString str) {
+	CString directory = L"";
+	bool tryAgain = false;
+	do {
+		tryAgain = false;
+		directory = Global::config.Get(ConfigKey::SoundFolder, L"");
+		if(!DirectoryExists(directory)) {
+			SoundFolderSelector dialog;
+			auto result = dialog.DoModal();
+			if(result = IDOK) {
+				tryAgain = true;
+			} else {
+				return L""; // TODO
+			}
+		}
+	} while(tryAgain);
+
+	vector<CString> files;
+	ListFilesInDirectory(_Out_ files, directory);
+
+	for(auto& file : files) {
+		if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
+			return directory + file;
+			//AsyncPlayFile(directory + file);
+		}
+	}
+	return L"";
+}
+
+
+void SoundplayerApp::ProcessRegexCommand(CString str) {
+	CString fileName = GetLikelyFileName(str);
+	if(fileName.GetLength() > 0) {
+		AsyncPlayFile(fileName);
+	}
+	
+	
+}
+
+
 
 

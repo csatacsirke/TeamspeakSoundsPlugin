@@ -45,14 +45,14 @@ void PipeHandler::SetOnNewEntryListener(std::function<void(PipeHandler&)> callba
 	this->OnNewEntry = callback;
 }
 
-bool PipeHandler::TryPop(_Out_ KeyData& keyData) {
+bool PipeHandler::TryPop(_Out_ KeyboardHook::KeyData& keyData) {
 	auto result = queue.try_pop(keyData);
 	return result;
 }
 
 
-void PipeHandler::Push(const KBDLLHOOKSTRUCT& hookStruct) {
-	KeyData keyData = KeyData::CreateFromHookData(hookStruct);
+//void PipeHandler::Push(const KBDLLHOOKSTRUCT& hookStruct) {
+void PipeHandler::Push(KeyboardHook::KeyData keyData) {
 	queue.push(keyData);
 }
 
@@ -97,18 +97,41 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 
 		while(!this->stop) {
 
-			KBDLLHOOKSTRUCT hookStruct;
+			//KBDLLHOOKSTRUCT hookStruct;
 			DWORD nReadBytes;
+			//BOOL result = ReadFile(
+			//	pipe,
+			//	&hookStruct, // the data from the pipe will be put here
+			//	sizeof(hookStruct), // number of bytes allocated
+			//	&nReadBytes, // this will store number of bytes actually read
+			//	NULL // not using overlapped IO
+			//	);
+			KeyboardHook::KeyData keyData;
 			BOOL result = ReadFile(
 				pipe,
-				&hookStruct, // the data from the pipe will be put here
-				sizeof(hookStruct), // number of bytes allocated
+				&keyData, // the data from the pipe will be put here
+				sizeof(keyData), // number of bytes allocated
 				&nReadBytes, // this will store number of bytes actually read
 				NULL // not using overlapped IO
 				);
 
-			if( result!=FALSE && nReadBytes == sizeof(hookStruct) ){
-				this->Push(hookStruct);
+
+			if( result!=FALSE && nReadBytes == sizeof(keyData) ){
+				
+				CString str = keyData.unicodeLiteral;
+				
+				if(str.GetLength() > 0) {
+					std::wcout << L">" << (const wchar_t*)keyData.unicodeLiteral;
+					std::wcout << std::endl;
+					if(std::wcout.fail()) {
+						std::wcout.clear();
+					}
+				} else {
+					std::wcout << L"0";
+				}
+				
+
+				this->Push(keyData);
 				// callback method
 				if(this->OnNewEntry) {
 					// TODO antihatékony

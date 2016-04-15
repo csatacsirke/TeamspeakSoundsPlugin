@@ -21,6 +21,6 @@ CString ToString(T val) {
 	return CString(std::to_string(val).c_str());
 }
 
-CString ToUnicode(const KBDLLHOOKSTRUCT& hookStruct);
+//CString ToUnicode(const KBDLLHOOKSTRUCT& hookStruct);
 
 	

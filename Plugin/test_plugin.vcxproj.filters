@@ -89,6 +89,9 @@
     <ClInclude Include="Gui\SettingsDialog.h">
       <Filter>Gui</Filter>
     </ClInclude>
+    <ClInclude Include="Gui\SoundFolderSelector.h">
+      <Filter>Gui</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -116,6 +119,9 @@
       <Filter>Wave</Filter>
     </ClCompile>
     <ClCompile Include="Gui\SettingsDialog.cpp">
+      <Filter>Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\SoundFolderSelector.cpp">
       <Filter>Gui</Filter>
     </ClCompile>
   </ItemGroup>

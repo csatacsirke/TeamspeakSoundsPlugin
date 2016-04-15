@@ -88,6 +88,7 @@ AudioDecoder::AudioDecoder(CString fileName) {
 	//	CloseHandle(hFile);
 	//}
 
+	this->header = CreateHeader();
 
 	assert(hr == S_OK);
 	//return SUCCEEDED(hr) ? 0 : 1;
@@ -101,8 +102,12 @@ AudioDecoder::~AudioDecoder() {
 	CoUninitialize();
 }
 
-
 WAVEFORMATEX AudioDecoder::GetHeader() {
+	return this->header;
+}
+
+
+WAVEFORMATEX AudioDecoder::CreateHeader() {
 	HRESULT hr = S_OK;
 	UINT32 cbFormat = 0;
 
@@ -145,21 +150,66 @@ WAVEFORMATEX AudioDecoder::GetHeader() {
 }
 
 AudioDecoder::Buffer AudioDecoder::DecodeMillisecs(int msecAudioData) {
-	Buffer buffer;
+	
 
-	HRESULT hr = S_OK;
+	//HRESULT hr = S_OK;
 
 	DWORD cbHeader = 0;         // Size of the WAVE file header, in bytes.
-	DWORD cbAudioData = 0;      // Total bytes of PCM audio data written to the file.
+	//DWORD cbAudioData = 0;      // Total bytes of PCM audio data written to the file.
 	DWORD cbMaxAudioData = 0;
 
 
 
 	// Calculate the maximum amount of audio to decode, in bytes.
+	// GY.K.: átváltás másodpercböl bájtba....
 	cbMaxAudioData = CalculateMaxAudioDataSize(pAudioType, cbHeader, msecAudioData);
-	//cbMaxAudioData = 10 * 1024 * 1024;
+	
 	// Decode audio data to the file.
-	buffer = GetNextChunk(cbMaxAudioData);
+	Buffer buffer;
+	//if(overflow->size() > 0) {
+	//	if(overflow->size() >= cbMaxAudioData) {
+	//		// ha maradt annyi az elözö körböl, hogy még egy kört fel lehet vele tölteni
+
+	//		buffer.swap(overflow);
+	//		buffer.Truncate(cbMaxAudioData, overflow);
+
+	//	} else {
+	//		// ha maradt valamennyi, de kell még hozzáolvasni
+
+	//		buffer.swap(overflow);
+	//		Buffer nextChunk = GetNextChunk(cbMaxAudioData);
+	//		buffer.Append(nextChunk->data(), nextChunk->size());
+	//		buffer.Truncate(cbMaxAudioData, overflow);
+
+	//	}
+	//} else {
+	//	// ha üres volt az overflow
+	//	buffer = GetNextChunk(cbMaxAudioData);
+	//	buffer.Truncate(cbMaxAudioData, overflow);
+	//}
+	
+	buffer.swap(overflow);
+	while(true) {
+		if(buffer->size() < cbMaxAudioData) {
+			Buffer nextChunk = GetNextChunk(cbMaxAudioData);
+			if(nextChunk->size() == 0) {
+				break;
+			}
+			buffer.Append(nextChunk->data(), nextChunk->size());
+		} else {
+			buffer.Truncate(cbMaxAudioData, overflow);
+			break;
+		}
+	}
+
+	//bool eof = false;
+	/*while(buffer->size < cbMaxAudioData && !eof) {
+		buffer.swap(overflow);
+		if(buffer->size <= cbMaxAudioData)
+	}*/
+
+
+
 
 	
 	//// Fix up the RIFF headers with the correct sizes.
@@ -169,16 +219,18 @@ AudioDecoder::Buffer AudioDecoder::DecodeMillisecs(int msecAudioData) {
 
 	
 
-	assert(SUCCEEDED(hr));
+	//assert(SUCCEEDED(hr));
 
 	return buffer;
 }
 
 // TODO rename
-AudioDecoder::Buffer AudioDecoder::GetNextChunk( DWORD cbMaxAudioData) {
+//AudioDecoder::Buffer AudioDecoder::GetNextChunk( DWORD cbMaxAudioData) {
+
+AudioDecoder::Buffer AudioDecoder::GetNextChunk(DWORD cbMinAudioData) {
 	HRESULT hr = S_OK;
 	DWORD cbAudioData = 0;
-	DWORD cbBuffer = 0;
+	
 	BYTE *pAudioData = NULL;
 
 	IMFSample *pSample = NULL;
@@ -226,18 +278,18 @@ AudioDecoder::Buffer AudioDecoder::GetNextChunk( DWORD cbMaxAudioData) {
 			break;
 		}
 
-
+		DWORD cbBuffer = 0;
 		hr = pBuffer->Lock(&pAudioData, NULL, &cbBuffer);
 
 		if(FAILED(hr)) {
 			break;
 		}
 
-
+		// TODO ezt máshogy mert ez el van baszva...
 		// Make sure not to exceed the specified maximum size.
-		if(cbMaxAudioData - cbAudioData < cbBuffer) {
-			cbBuffer = cbMaxAudioData - cbAudioData;
-		}
+		//if(cbMaxAudioData - cbAudioData < cbBuffer) {
+		//	cbBuffer = cbMaxAudioData - cbAudioData;
+		//}
 
 		//// Write this data to the output file.
 		//hr = WriteToFile(hFile, pAudioData, cbBuffer);
@@ -261,7 +313,7 @@ AudioDecoder::Buffer AudioDecoder::GetNextChunk( DWORD cbMaxAudioData) {
 		// Update running total of audio data.
 		cbAudioData += cbBuffer;
 
-		if(cbAudioData >= cbMaxAudioData) {
+		if(cbAudioData >= cbMinAudioData) {
 			break;
 		}
 

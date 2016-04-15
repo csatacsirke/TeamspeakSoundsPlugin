@@ -7,6 +7,8 @@
 class AudioDecoder {
 	struct IMFSourceReader *pReader = NULL;
 	struct IMFMediaType *pAudioType = NULL;    // Represents the PCM audio format.
+
+	
 public:
 	//typedef std::unique_ptr<std::vector<byte>> Buffer;
 	class Buffer : public std::unique_ptr<std::vector<byte>> {
@@ -19,8 +21,17 @@ public:
 			(*this)->resize(offset + length);
 			memcpy((*this)->data() + offset, data, length);
 		}
+		void Truncate(size_t size, Buffer& overflow) {
+			if((*this)->size() > size) {
+				size_t overflowSize = (*this)->size() - size;
+				overflow.Append(this->get()->data() + size, overflowSize);
+				this->get()->resize(size);
+			}
+		}
 	};
-
+private:
+	Buffer overflow;
+	WAVEFORMATEX header;
 public:
 
 	AudioDecoder(CString fileName);
@@ -30,5 +41,5 @@ public:
 
 private:
 	Buffer AudioDecoder::GetNextChunk(DWORD cbMaxAudioData);
-
+	WAVEFORMATEX CreateHeader();
 };

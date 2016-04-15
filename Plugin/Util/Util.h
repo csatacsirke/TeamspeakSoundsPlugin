@@ -17,7 +17,7 @@ struct Exception {
 
 // https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
 CStringA ConvertUnicodeToUTF8(const CStringW& uni);
-
+BOOL DirectoryExists(CString szPath);
 
 namespace Log {
 
@@ -61,6 +61,8 @@ CString ToString(T value) {
 }
 
 CStringA GetHotkey(CStringA key);
+
+void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)

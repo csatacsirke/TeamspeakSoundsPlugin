@@ -46,7 +46,7 @@
 #include "ts3_functions.h"
 
 #include <Util\Util.h>
-
+#include <Config.h>
 
 enum Messages {
 	WM_PIPE_MESSAGE = WM_USER+1

@@ -47,11 +47,12 @@ public:
 	void OnHotkey(CStringA keyword);
 
 	void OpenSettingsDialog(void* handle, void* qParentWidget);
+	void OpenSoundsFolderSelectorDialog();
 
 	//void SetConnectionHandle(uint64 connection);
 	//uint64 GetConnectionHandle();
 	
-	void OnKeyData(const PipeHandler::KeyData& keyData);
+	void OnKeyData(const KeyboardHook::KeyData& keyData);
 	
 
 	void AsyncOpenAndPlayFile();
@@ -65,5 +66,9 @@ public:
 	void AsyncEnqueueFile();
 	void PlayQueued();
 	void Replay();
+	void PlayRandom();
+	void ProcessRegexCommand(CString str);
+private:
+	CString GetLikelyFileName(CString str);
 };
 

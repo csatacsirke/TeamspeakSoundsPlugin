@@ -57,9 +57,11 @@ public:
 		CStringA value = GetHotkey(key);
 		if(value != "") {
 			value = "(" + value + ")";
+		} else {
+			value = "(undefined)";
 		}
 
-		CString text = CString("Stop" + value);
+		CString text = CString(key + value);
 		SetWindowText(text);
 	}
 };

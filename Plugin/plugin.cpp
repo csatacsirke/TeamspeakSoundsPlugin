@@ -1,4 +1,4 @@
-/*
+﻿/*
  * TeamSpeak 3 demo plugin
  *
  * Copyright (c) 2008-2015 TeamSpeak Systems GmbH
@@ -171,6 +171,10 @@ int ts3plugin_init() {
 #pragma warning( push )
 #pragma warning( disable : 4996)
 	if(GetKeyState(VK_CONTROL) < 0) {
+		// A JÓ KURVA ANYÁD!
+		// enélkül ha konzolra írsz egy ő betűt eltörik az egész konzol....
+		std::locale::global(std::locale(""));
+
 		AllocConsole();
 		freopen("CONOUT$", "w", stdout);
 	}
@@ -243,10 +247,10 @@ int ts3plugin_offersConfigure() {
 	 */
 	//return PLUGIN_OFFERS_NO_CONFIGURE;  /* In this case ts3plugin_configure does not need to be implemented */
 
-	// � bazdmeg ha �n azt tudn�m hogy ez mi a faszt csin�l
+	// ó bazdmeg ha én azt tudnám hogy ez mi a faszt csinál
 	//return PLUGIN_OFFERS_CONFIGURE_NEW_THREAD;
 
-	// Ez az�rt kell hogy a showHotkeySetup m�k�dj�n
+	// Ez azért kell hogy a showHotkeySetup müködjön
 	return PLUGIN_OFFERS_CONFIGURE_QT_THREAD;
 }
 
@@ -714,7 +718,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
     /* Some example code following to show how to use the information query functions. */
 
 	// i can just hope that this is the correct way
-	//connection = serverConnectionHandlerID;
+	connection = serverConnectionHandlerID;
 	//theApp.SetConnectionHandle(serverConnectionHandlerID);
 
 
@@ -769,7 +773,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
         printf("PLUGIN: My client ID = %d, nickname = %s\n", myID, s);
         ts3Functions.freeMemory(s);
 
-		Global::connection = myID;
+		//Global::connection = myID;
 		//g_myId = myID;
 
         /* Print list of all channels on this server */
