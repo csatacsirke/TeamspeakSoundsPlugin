@@ -19,10 +19,11 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-
+	BOOL OnInitDialog() override;
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnEnChangeFolderPathEdit();
 	CEdit folderPathEdit;
 	afx_msg void OnBnClickedOk();
+	afx_msg void OnBnClickedBrowseButton();
 };

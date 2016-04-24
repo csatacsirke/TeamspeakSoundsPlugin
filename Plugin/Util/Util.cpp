@@ -24,7 +24,7 @@ CStringA ConvertUnicodeToUTF8(const CStringW& uni) {
 
 BOOL DirectoryExists(CString path) {
 	// we have to remove the ending \\ (if exists) in order this function to work
-	if(path.Left(1) == L"\\") {
+	if(path.Right(1) == L"\\") {
 		path.Truncate(path.GetLength() - 1);
 	}
 

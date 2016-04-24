@@ -92,6 +92,18 @@
     <ClInclude Include="Gui\SoundFolderSelector.h">
       <Filter>Gui</Filter>
     </ClInclude>
+    <ClInclude Include="Util\HotkeyHandler.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\DlgScrollable.h">
+      <Filter>Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\WindowUtil.h">
+      <Filter>Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\PresetHotkeyGroup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -123,6 +135,15 @@
     </ClCompile>
     <ClCompile Include="Gui\SoundFolderSelector.cpp">
       <Filter>Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\HotkeyHandler.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\DlgScrollable.cpp">
+      <Filter>Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\PresetHotkeyGroup.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

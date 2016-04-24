@@ -62,6 +62,10 @@ CString ToString(T value) {
 
 CStringA GetHotkey(CStringA key);
 
+inline CWnd* NoParent() {
+	return NULL;
+}
+
 void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
 
 #ifdef _WIN32

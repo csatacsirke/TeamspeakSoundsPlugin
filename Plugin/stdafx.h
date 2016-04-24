@@ -41,7 +41,7 @@
 #include <string.h>
 #include <assert.h>
 #include <concurrent_queue.h>
-
+#include <functional>
 
 #include "ts3_functions.h"
 
@@ -53,6 +53,10 @@ enum Messages {
 
 };
 
+//#define USE_KEYBOARDHOOK TRUE
+#define USE_KEYBOARDHOOK FALSE
+
+#define USE_WINDOWS_MEDIA_PACK_FEATURES FALSE
 
 
 namespace Global {
@@ -60,8 +64,6 @@ namespace Global {
 	extern uint64 connection;
 	extern char* pluginID;
 }
-
-
 
 
 
@@ -73,6 +75,9 @@ namespace Global {
 #endif // _AFX_NO_AFXCMN_SUPPORT
 
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
+
+
+#include <Gui\WindowUtil.h>
 
 
 

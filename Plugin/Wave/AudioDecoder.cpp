@@ -1,5 +1,8 @@
 #include "stdafx.h"
 
+
+#if USE_WINDOWS_MEDIA_PACK_FEATURES
+
 #include "AudioDecoder.h"
 #include "AudioClipSample.h"
 
@@ -338,3 +341,4 @@ AudioDecoder::Buffer AudioDecoder::GetNextChunk(DWORD cbMinAudioData) {
 	return buffer;
 }
 
+#endif // USE_WINDOWS_MEDIA_PACK_FEATURES

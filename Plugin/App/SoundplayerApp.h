@@ -5,13 +5,11 @@
 #include <HookInstaller\Hook\PipeHandler.h>
 
 #include "Config.h"
-
-#include <queue>
+#include "Util\HotkeyHandler.h"
 
 class SoundplayerApp  {
-	//TS3Functions& ts3Functions;
-	//uint64 connection = 0;
 
+	HotkeyHandler hotkeyHandler;
 
 	std::mutex playerLock;
 	bool stop;
@@ -67,6 +65,7 @@ public:
 	void PlayQueued();
 	void Replay();
 	void PlayRandom();
+	void PlayPreset(int ordinal);
 	void ProcessRegexCommand(CString str);
 private:
 	CString GetLikelyFileName(CString str);

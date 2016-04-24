@@ -152,10 +152,13 @@
   <ItemGroup>
     <ClCompile Include="App\SoundplayerApp.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="Gui\DlgScrollable.cpp" />
+    <ClCompile Include="Gui\PresetHotkeyGroup.cpp" />
     <ClCompile Include="Gui\SettingsDialog.cpp" />
     <ClCompile Include="Gui\SoundFolderSelector.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Util\HotkeyHandler.cpp" />
     <ClCompile Include="Util\Util.cpp" />
     <ClCompile Include="Wave\AudioClipSample.cpp" />
     <ClCompile Include="Wave\AudioDecoder.cpp" />
@@ -172,12 +175,16 @@
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include="App\SoundplayerApp.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Gui\DlgScrollable.h" />
+    <ClInclude Include="Gui\PresetHotkeyGroup.h" />
     <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="Gui\SoundFolderSelector.h" />
+    <ClInclude Include="Gui\WindowUtil.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Util\HotkeyHandler.h" />
     <ClInclude Include="Util\Util.h" />
     <ClInclude Include="Wave\AudioClipSample.h" />
     <ClInclude Include="Wave\AudioDecoder.h" />

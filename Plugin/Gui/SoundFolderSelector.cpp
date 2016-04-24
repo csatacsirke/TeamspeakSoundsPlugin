@@ -30,11 +30,21 @@ void SoundFolderSelector::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(SoundFolderSelector, CDialogEx)
 	ON_EN_CHANGE(IDC_FOLDER_PATH_EDIT, &SoundFolderSelector::OnEnChangeFolderPathEdit)
 	ON_BN_CLICKED(IDOK, &SoundFolderSelector::OnBnClickedOk)
+	ON_BN_CLICKED(IDC_BROWSE_BUTTON, &SoundFolderSelector::OnBnClickedBrowseButton)
 END_MESSAGE_MAP()
 
 
 // SoundFolderSelector message handlers
 
+BOOL SoundFolderSelector::OnInitDialog() {
+	BOOL result = CDialog::OnInitDialog();
+
+
+	CString path = Global::config.Get(ConfigKey::SoundFolder, L"");
+	this->folderPathEdit.SetWindowText(path);
+
+	return result;
+}
 
 void SoundFolderSelector::OnEnChangeFolderPathEdit() {
 	// TODO:  If this is a RICHEDIT control, the control will not
@@ -52,4 +62,12 @@ void SoundFolderSelector::OnBnClickedOk() {
 	Global::config.Add(ConfigKey::SoundFolder, folder);
 	Global::config.Save();
 	CDialogEx::OnOK();
+}
+
+
+void SoundFolderSelector::OnBnClickedBrowseButton() {
+	CFolderPickerDialog dialog;
+	if(IDOK == dialog.DoModal()) {
+		folderPathEdit.SetWindowText(dialog.GetFolderPath());
+	}
 }

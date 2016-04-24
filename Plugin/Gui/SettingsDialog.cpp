@@ -3,6 +3,8 @@
 
 #include "stdafx.h"
 #include "Gui/SettingsDialog.h"
+#include "Gui/SoundFolderSelector.h"
+#include "Gui/PresetHotkeyGroup.h"
 #include "afxdialogex.h"
 
 
@@ -21,123 +23,94 @@ SettingsDialog::~SettingsDialog()
 {
 }
 
+
+
+BOOL SettingsDialog::OnInitDialog() {
+	CDialogEx::OnInitDialog();
+	
+	scrollView.reset(new CDlgScrollable(&hotkeysGroup));
+
+	
+	AddHotkeyButton(L"Stop", Hotkey::STOP);
+	AddHotkeyButton(L"Replay", Hotkey::REPLAY);
+	AddHotkeyButton(L"Play queued", Hotkey::PLAY_QUEUED);
+	AddHotkeyButton(L"Play random", Hotkey::PLAY_RANDOM);
+
+	for(int i = 0; i < soundHotkeyCount; ++i) {
+		CStringA hotkey;
+		hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
+
+		CString title;
+		title.Format(L"Play sound #%d", i);
+
+		AddPresetHotkeyButton(title, hotkey);
+	}
+
+	// amig ki nem találok valamit ennek a végén kell lennie mert csak... 
+	CRect rect;
+	hotkeysGroup.GetClientRect(rect);
+	rect.DeflateRect(20, 20, 20, 20);
+	scrollView->MoveWindow(rect);
+
+	return 0;
+}
+
 void SettingsDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_DEAULT_SOUND_FOLDER_EDIT, defaultSoundfolderEdit);
+	DDX_Control(pDX, IDC_HOTKEYS_GROUP, hotkeysGroup);
+
+	defaultSoundfolderEdit.SetWindowText(Global::config.Get(ConfigKey::SoundFolder, L"<unset>"));
 }
 
-class Button : public CButton {
-public:
-	std::function<void()> OnClick;
-protected:
+void SettingsDialog::AddButton(CString caption, std::function<void()> onClick) {
+
+	Button* button = new Button;
+	button->Create(caption, WS_VISIBLE | WS_CHILD, CRect(CPoint(), size), this, 0);
+	button->OnClick = onClick;
 	
-	//BOOL OnButtonClicked() override {
+	scrollView->AddChild(button);
+	children.push_back(std::unique_ptr<CWnd>(button));
+}
 
-	LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam) override {
-		
-		if(message == WM_LBUTTONDOWN) {
-			if(OnClick) {
-				OnClick();
-			}
-			return TRUE;
-		}
-		return CButton::WindowProc(message, wParam, lParam);
-	}
-	
-};
 
-class HotkeyButton : public Button {
-	CStringA key;
-public:
-
-	HotkeyButton(CStringA key) {
-		this->key = key;
-	}
-	void UpdateCaption() {
-		CStringA value = GetHotkey(key);
-		if(value != "") {
-			value = "(" + value + ")";
-		} else {
-			value = "(undefined)";
-		}
-
-		CString text = CString(key + value);
-		SetWindowText(text);
-	}
-};
-
-//void SettingsDialog::AddButton(CString caption, CWnd* parent, std::function<void()> onClick) {
-//	
-//	Button* button = new Button;
-//	button->Create(caption, WS_VISIBLE | WS_CHILD, CRect(pos, pos + size), parent, 0);
-//	button->OnClick = onClick;
-//	
-//	pos.y += 40;
-//	children.push_back(std::unique_ptr<CWnd>(button));
-//}
 
 void SettingsDialog::AddHotkeyButton(CString caption, CStringA key) {
-	CWnd* parent = GetDlgItem(IDC_HOTKEYS_GROUP);
-
-	HotkeyButton* button = new HotkeyButton(key);
-	button->Create(caption, WS_VISIBLE | WS_CHILD, CRect(pos, pos + size), parent, 0);
+	
+	HotkeyButton* button = new HotkeyButton(key, caption);
+	button->Create(caption, WS_VISIBLE | WS_CHILD, CRect(CPoint(), size), this, 0);
 	button->OnClick = [=] {
 		Global::ts3Functions.requestHotkeyInputDialog(Global::pluginID, key, 0, qParentWidget);
 		button->UpdateCaption();
 	};
 	button->UpdateCaption();
 
-	pos.y += 40;
+	scrollView->AddChild(button);
 	children.push_back(std::unique_ptr<CWnd>(button));
-	
-	CRect rect;
-	parent->GetWindowRect(&rect);
 	
 }
 
-BOOL SettingsDialog::OnInitDialog() {
 
-	
-
-
-	AddHotkeyButton(L"Stop", Hotkey::STOP);
-	AddHotkeyButton(L"Replay", Hotkey::REPLAY);
-	AddHotkeyButton(L"Play queued", Hotkey::PLAY_QUEUED);
-
-
-	//CWnd* group = GetDlgItem(IDC_HOTKEYS_GROUP);
-
-	//
-
-	//AddButton(CString("Stop" + GetHotkey(Hotkey::STOP)), group, [&] {
-	//	//MessageBoxA(0, "lel", 0, 0);
-	//	Global::ts3Functions.requestHotkeyInputDialog(Global::pluginID, Hotkey::STOP, 0, qParentWidget);
-	//});
-	//
-	//AddButton(CString("Replay"), group, [&] {
-	//	//MessageBoxA(0, "lel", 0, 0);
-	//	Global::ts3Functions.requestHotkeyInputDialog(Global::pluginID, Hotkey::REPLAY, 0, qParentWidget);
-	//});
-
-	//AddButton(CString("Play queued"), group, [&] {
-	//	//MessageBoxA(0, "lel", 0, 0);
-	//	Global::ts3Functions.requestHotkeyInputDialog(Global::pluginID, Hotkey::PLAY_QUEUED, 0, qParentWidget);
-	//});
-
-	
-
-	//CButton* button1 = new CButton;
-	//button1->Create(L"Stop", WS_VISIBLE| WS_CHILD, CRect(20, 20, 200, 20), group, 0);
-	//
-	//CButton* button2 = new CButton;
-	//button2->Create(L"Stop", WS_VISIBLE | WS_CHILD, CRect(20, 20, 200, 20), group, 0);
-
-	return 0;
+void SettingsDialog::AddPresetHotkeyButton(CString caption, CStringA key) {
+	PresetHotkeyGroup* group = new PresetHotkeyGroup(key, caption, qParentWidget, this); 
+	scrollView->AddChild(group);
+	children.push_back(std::unique_ptr<CWnd>(group));
 }
 
 
 BEGIN_MESSAGE_MAP(SettingsDialog, CDialogEx)
+	ON_BN_CLICKED(IDC_EDIT_BUTTON, &SettingsDialog::OnBnClickedEditButton)
 END_MESSAGE_MAP()
 
 
 // SettingsDialog message handlers
+
+
+void SettingsDialog::OnBnClickedEditButton() {
+	SoundFolderSelector dialog;
+	dialog.DoModal();
+	//AddButton(L"Set default sound folder", [] {
+	//	
+	//});
+}

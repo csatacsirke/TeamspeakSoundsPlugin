@@ -17,6 +17,7 @@ public:
 
 	void Add(CString key, CString value);
 	CString Get(CString key, CString defaultValue);
+	bool TryGet(CString key, _Out_ CString& value);
 
 private:
 	void StoreLine(std::wstring line);
@@ -25,11 +26,15 @@ private:
 
 namespace ConfigKey {
 	static const CString SoundFolder = L"SoundFolder";
+	static const CString PresetPathTemplate = L"PresetPath%d";
 }
 
 namespace Global {
 	extern Config config;
 }
+
+// TODO config file
+static const int soundHotkeyCount = 9;
 
 
 namespace Hotkey {
@@ -37,4 +42,5 @@ namespace Hotkey {
 	static const CStringA PLAY_QUEUED = "keyword_play_queued";
 	static const CStringA REPLAY = "keyword_replay";
 	static const CStringA PLAY_RANDOM = "keyword_play_random";
+	static const CStringA PLAY_PRESET_TEMPLATE = "keyword_play_preset_%d";
 }

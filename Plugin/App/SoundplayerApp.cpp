@@ -15,8 +15,6 @@
 
 using namespace std;
 using namespace Global;
-#define USE_KEYBOARDHOOK TRUE
-//#define USE_KEYBOARDHOOK FALSE
 
 
 SoundplayerApp::SoundplayerApp(/*TS3Functions& ts3Functions*/)/* : ts3Functions(ts3Functions)*/ {
@@ -68,24 +66,12 @@ void SoundplayerApp::Init() {
 	
 	InitKeyboardHook();
 	
-	ts3Functions.showHotkeySetup();
+	//ts3Functions.showHotkeySetup();
 
 	Global::config.LoadFromFile(Global::config.defaultFileName);
 }
 
 
-/* Helper function to create a hotkey */
-static struct PluginHotkey* createHotkey(const char* keyword, const char* description) {
-	struct PluginHotkey* hotkey = (struct PluginHotkey*)malloc(sizeof(struct PluginHotkey));
-	_strcpy(hotkey->keyword, PLUGIN_HOTKEY_BUFSZ, keyword);
-	_strcpy(hotkey->description, PLUGIN_HOTKEY_BUFSZ, description);
-	return hotkey;
-}
-
-/* Some makros to make the code to create hotkeys a bit more readable */
-#define BEGIN_CREATE_HOTKEYS(x) const size_t sz = x + 1; size_t n = 0; *hotkeys = (struct PluginHotkey**)malloc(sizeof(struct PluginHotkey*) * sz);
-#define CREATE_HOTKEY(a, b) (*hotkeys)[n++] = createHotkey(a, b);
-#define END_CREATE_HOTKEYS (*hotkeys)[n++] = NULL; assert(n == sz);
 
 /*
 * Initialize plugin hotkeys. If your plugin does not use this feature, this function can be omitted.
@@ -96,27 +82,45 @@ void SoundplayerApp::InitHotkeys(struct PluginHotkey*** hotkeys) {
 	/* Register hotkeys giving a keyword and a description.
 	* The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	* The description is shown in the clients hotkey dialog. */
-	BEGIN_CREATE_HOTKEYS(3);  /* Create 3 hotkeys. Size must be correct for allocating memory. */
-	CREATE_HOTKEY(Hotkey::STOP, "Stop playback");
-	CREATE_HOTKEY(Hotkey::PLAY_QUEUED, "Play queued");
-	CREATE_HOTKEY(Hotkey::REPLAY, "Replay");
-	END_CREATE_HOTKEYS;
+
+	hotkeyHandler.Add(Hotkey::STOP, "Stop playback", [this]{StopPlayback();});
+	hotkeyHandler.Add(Hotkey::PLAY_QUEUED, "Play queued", [this] {PlayQueued(); });
+	hotkeyHandler.Add(Hotkey::REPLAY, "Replay", [this] {Replay(); });
+	hotkeyHandler.Add(Hotkey::PLAY_RANDOM, "Play random", [this] {PlayRandom(); });
+
+	for(int i = 0; i < soundHotkeyCount; ++i) {
+		CStringA hotkey;
+		hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
+
+		CStringA title;
+		title.Format("Play sound #%d", i);
+
+		hotkeyHandler.Add(hotkey, title, [this, i] {PlayPreset(i); });
+		//CREATE_HOTKEY(Hotkey::REPLAY, "Replay");
+	}
+
+
+	//Config::Get(ConfigKey::SoundHotkeyCount, soundHotkeyCount)
+
+	hotkeyHandler.Configure(hotkeys);
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 
 void SoundplayerApp::OnHotkey(CStringA keyword) {
-	if(keyword == Hotkey::PLAY_QUEUED) {
-		PlayQueued();
-	}
 
-	if(keyword == Hotkey::STOP) {
-		StopPlayback();
-	}
+	hotkeyHandler.OnHotkeyEvent(keyword);
+	//if(keyword == Hotkey::PLAY_QUEUED) {
+	//	PlayQueued();
+	//}
 
-	if(keyword == Hotkey::REPLAY) {
-		Replay();
-	}
+	//if(keyword == Hotkey::STOP) {
+	//	StopPlayback();
+	//}
+
+	//if(keyword == Hotkey::REPLAY) {
+	//	Replay();
+	//}
 }
 
 
@@ -172,7 +176,11 @@ void SoundplayerApp::AsyncOpenAndPlayFile_advanced() {
 			//CString fileName = dialog.GetFileName();
 			CString fileName = dialog.GetPathName();
 			try {
+#if USE_WINDOWS_MEDIA_PACK_FEATURES
+
 				PlayFile_advanced(fileName);
+#endif // USE_WINDOWS_MEDIA_PACK_FEATURES
+
 			} catch(Exception e) {
 				Log::Error(e.errorMessage);
 			}
@@ -491,6 +499,9 @@ void SoundplayerApp::Replay() {
 	}
 }
 
+#if USE_WINDOWS_MEDIA_PACK_FEATURES
+
+
 void SoundplayerApp::PlayFile_advanced(CString fileName) {
 	std::unique_lock<std::mutex> lock(playerLock);
 	this->stop = false;
@@ -623,6 +634,8 @@ void SoundplayerApp::PlayFile_advanced(CString fileName) {
 
 }
 
+#endif // USE_WINDOWS_MEDIA_PACK_FEATURES
+
 
 void SoundplayerApp::OpenSettingsDialog(void* handle, void* qParentWidget) {
 #if 0 
@@ -637,14 +650,38 @@ void SoundplayerApp::OpenSettingsDialog(void* handle, void* qParentWidget) {
 #endif
 }
 
-void OpenSoundsFolderSelectorDialog() {
-
+void SoundplayerApp::OpenSoundsFolderSelectorDialog() {
+	assert(0 && "nincs megirva...");
 }
 
 
+void SoundplayerApp::PlayPreset(int ordinal) {
+	//assert(0 && "nincs megirva 2");
+	CStringA key;
+	key.Format(Hotkey::PLAY_PRESET_TEMPLATE, ordinal);
+	CString file;
+	if(Global::config.TryGet(CString(key), file)) {
+		AsyncPlayFile(file);
+	}
+
+}
+
 void SoundplayerApp::PlayRandom() {
-	CString folder = _T("d:\\Documents\\AudioEdited\\");
-	assert(0 && "nincs megirva");
+	CString folder;
+	if(Global::config.TryGet(ConfigKey::SoundFolder, folder)) {
+		vector<CString> files;
+
+		if(folder.Right(1) != "\\" && folder.Right(1) != "/") {
+			folder += "\\";
+		}
+
+		ListFilesInDirectory(_Out_ files, folder);
+
+		srand((unsigned int)time(0));
+		int random = rand() % files.size();
+
+		AsyncPlayFile(folder + files[random]);
+	}
 }
 
 
@@ -657,7 +694,7 @@ CString SoundplayerApp::GetLikelyFileName(CString str) {
 		if(!DirectoryExists(directory)) {
 			SoundFolderSelector dialog;
 			auto result = dialog.DoModal();
-			if(result = IDOK) {
+			if(result == IDOK) {
 				tryAgain = true;
 			} else {
 				return L""; // TODO
@@ -678,6 +715,7 @@ CString SoundplayerApp::GetLikelyFileName(CString str) {
 }
 
 
+// TODO ez aztán név bazmeg...
 void SoundplayerApp::ProcessRegexCommand(CString str) {
 	CString fileName = GetLikelyFileName(str);
 	if(fileName.GetLength() > 0) {

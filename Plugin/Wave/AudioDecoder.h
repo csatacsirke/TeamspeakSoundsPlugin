@@ -1,5 +1,7 @@
 #pragma once
 
+#if USE_WINDOWS_MEDIA_PACK_FEATURES
+
 //#include "wave.h"
 #include <mmreg.h> // for WAVEFORMATEX
 
@@ -43,3 +45,6 @@ private:
 	Buffer AudioDecoder::GetNextChunk(DWORD cbMaxAudioData);
 	WAVEFORMATEX CreateHeader();
 };
+
+
+#endif // USE_WINDOWS_MEDIA_PACK_FEATURES

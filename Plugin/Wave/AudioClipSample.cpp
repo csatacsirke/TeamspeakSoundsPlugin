@@ -2,6 +2,7 @@
 
 #include "AudioClipSample.h"
 
+#if USE_WINDOWS_MEDIA_PACK_FEATURES
 
 // (2016.03.27)
 // https://msdn.microsoft.com/en-us/library/windows/desktop/dd757929(v=vs.85).aspx
@@ -25,6 +26,7 @@
 #pragma comment(lib, "mfplat")
 #pragma comment(lib, "mfreadwrite")
 #pragma comment(lib, "mfuuid")
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -541,7 +543,7 @@ HRESULT WriteToFile(HANDLE hFile, void* p, DWORD cb) {
 }
 
 
-
+#endif // USE_WINDOWS_MEDIA_PACK_FEATURES
 
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
 
-
+#if USE_WINDOWS_MEDIA_PACK_FEATURES
 
 #include <windows.h>
 #include <mfapi.h>
@@ -24,3 +24,5 @@ template <class T> void SafeRelease(T **ppT) {
 		*ppT = NULL;
 	}
 }
+
+#endif // USE_WINDOWS_MEDIA_PACK_FEATURES

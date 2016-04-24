@@ -7,7 +7,8 @@
 #include <sstream>
 
 namespace Global {
-	Config config;
+	// TODO igy nem a legszebb
+	Config config = Config::CreateDefault();
 }
 
 void Config::LoadFromFile(CString fileName) {
@@ -26,7 +27,7 @@ void Config::LoadFromFile(CString fileName) {
 void Config::SaveToFile(CString fileName) {
 	std::wofstream out(fileName);
 	for(auto& elem : dictionary) {
-		out << (const wchar_t*)elem.first << " " << (const wchar_t*)elem.second << std::endl;
+		out << (const wchar_t*)elem.first << L" " << (const wchar_t*)elem.second << std::endl;
 	}
 	out.close();
 }
@@ -39,7 +40,10 @@ void Config::StoreLine(std::wstring line) {
 	std::wstring value;
 	std::getline(ss, value);
 
-	dictionary.insert(std::make_pair<CString, CString>(CString(key.c_str()), CString(value.c_str())));
+
+	CString value_cs = CString(value.c_str()).TrimLeft();
+	CString key_cs = key.c_str();
+	dictionary.insert(std::make_pair(key_cs, value_cs));
 }
 
 
@@ -53,7 +57,8 @@ Config Config::CreateDefault() {
 void Config::Add(CString key, CString value) {
 	//auto asd = std::make_pair<CString, CString>(key, value);
 	//std::make_pair<CString, CString>()
-	dictionary.insert(std::make_pair(key, value));
+	//dictionary.insert_or_assign(std::make_pair(key, value));
+	dictionary.insert_or_assign(key, value);
 	//dictionary.insert(key, value);
 }
 
@@ -64,6 +69,15 @@ CString Config::Get(CString key, CString defaultValue) {
 	} 
 	
 	return result;
+}
+
+bool Config::TryGet(CString key, _Out_ CString& value) {
+	if(dictionary.find(key) != dictionary.end()) {
+		value = dictionary[key];
+		return true;
+	} else {
+		return false;
+	}
 }
 
 void Config::Save() {
