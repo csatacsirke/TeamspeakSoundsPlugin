@@ -34,6 +34,22 @@ SoundplayerApp::~SoundplayerApp() {
 //}
 
 void SoundplayerApp::InitKeyboardHook() {
+
+	localHookInstaller.Attach();
+
+	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
+		KeyboardHook::KeyData keyData;
+
+		while(pipeHandler.TryPop(keyData)) {
+			OnKeyData(keyData);
+		}
+	});
+
+	if(!pipeHandler.ListenPipe()) {
+		MessageBoxA(0, "ListenPipeload failed", 0, 0);
+		return;
+	}
+
 #if USE_KEYBOARDHOOK
 
 
@@ -108,19 +124,7 @@ void SoundplayerApp::InitHotkeys(struct PluginHotkey*** hotkeys) {
 }
 
 void SoundplayerApp::OnHotkey(CStringA keyword) {
-
 	hotkeyHandler.OnHotkeyEvent(keyword);
-	//if(keyword == Hotkey::PLAY_QUEUED) {
-	//	PlayQueued();
-	//}
-
-	//if(keyword == Hotkey::STOP) {
-	//	StopPlayback();
-	//}
-
-	//if(keyword == Hotkey::REPLAY) {
-	//	Replay();
-	//}
 }
 
 

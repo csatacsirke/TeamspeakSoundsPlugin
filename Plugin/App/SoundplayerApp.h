@@ -1,8 +1,12 @@
 #pragma once
 
 
-#include <HookInstaller\Hook\KeyboardHookInstaller.h>
+//#include <HookInstaller\Hook\KeyboardHookInstaller.h>
+
+// TODO kihozni a libböl
 #include <HookInstaller\Hook\PipeHandler.h>
+
+#include "KeyboardHook\LocalKeyboardHookInstaller.h"
 
 #include "Config.h"
 #include "Util\HotkeyHandler.h"
@@ -14,7 +18,9 @@ class SoundplayerApp  {
 	std::mutex playerLock;
 	bool stop;
 
-	KeyboardHookInstaller hookInstaller;
+	//KeyboardHookInstaller hookInstaller;
+	LocalKeyboardHookInstaller localHookInstaller;
+
 	PipeHandler pipeHandler;
 	
 	bool commandInProgress = false;

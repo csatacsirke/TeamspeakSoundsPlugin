@@ -30,6 +30,9 @@
     <Filter Include="Gui">
       <UniqueIdentifier>{b7f3cab1-2efc-4052-8b5a-67c6ae2e3930}</UniqueIdentifier>
     </Filter>
+    <Filter Include="KeyboardHook">
+      <UniqueIdentifier>{6de0aabc-593a-460f-8fbe-3ca8c8608563}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -104,6 +107,9 @@
     <ClInclude Include="Gui\PresetHotkeyGroup.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h">
+      <Filter>KeyboardHook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -144,6 +150,9 @@
     </ClCompile>
     <ClCompile Include="Gui\PresetHotkeyGroup.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyboardHook\LocalKeyboardHookInstaller.cpp">
+      <Filter>KeyboardHook</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
