@@ -59,8 +59,18 @@ void SoundFolderSelector::OnEnChangeFolderPathEdit() {
 void SoundFolderSelector::OnBnClickedOk() {
 	CString folder;
 	folderPathEdit.GetWindowText(folder);
+
+	if(folder.Right(1) != "\\" && folder.Right(1) != "/") {
+		folder += "\\";
+	}
+
 	Global::config.Add(ConfigKey::SoundFolder, folder);
 	Global::config.Save();
+
+
+	CString path = Global::config.Get(ConfigKey::SoundFolder, L"");
+	this->folderPathEdit.SetWindowText(path);
+
 	CDialogEx::OnOK();
 }
 

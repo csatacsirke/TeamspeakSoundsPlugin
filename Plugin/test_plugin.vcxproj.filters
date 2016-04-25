@@ -110,6 +110,9 @@
     <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h">
       <Filter>KeyboardHook</Filter>
     </ClInclude>
+    <ClInclude Include="KeyboardHook\PipeHandler.h">
+      <Filter>KeyboardHook</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -152,6 +155,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KeyboardHook\LocalKeyboardHookInstaller.cpp">
+      <Filter>KeyboardHook</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyboardHook\PipeHandler.cpp">
       <Filter>KeyboardHook</Filter>
     </ClCompile>
   </ItemGroup>

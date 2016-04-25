@@ -4,9 +4,10 @@
 //#include <HookInstaller\Hook\KeyboardHookInstaller.h>
 
 // TODO kihozni a libböl
-#include <HookInstaller\Hook\PipeHandler.h>
+//#include <HookInstaller\Hook\PipeHandler.h>
 
 #include "KeyboardHook\LocalKeyboardHookInstaller.h"
+#include "KeyboardHook\PipeHandler.h"
 
 #include "Config.h"
 #include "Util\HotkeyHandler.h"
@@ -37,15 +38,13 @@ private:
 	const int PLAYBACK_CHANNELS = 2;
 public:
 
-	SoundplayerApp(/*TS3Functions& ts3Functions*/);
-	~SoundplayerApp();
-
-
 	// We need an explicit init function cause
 	// we can't create threads from dllmain
 	// and thus from constructor... :(
 	void Init();
 	void InitKeyboardHook();
+	void OnKeyData(const KeyboardHook::KeyData& keyData);
+
 
 	void InitHotkeys(struct PluginHotkey*** hotkeys);
 	void OnHotkey(CStringA keyword);
@@ -53,12 +52,7 @@ public:
 	void OpenSettingsDialog(void* handle, void* qParentWidget);
 	void OpenSoundsFolderSelectorDialog();
 
-	//void SetConnectionHandle(uint64 connection);
-	//uint64 GetConnectionHandle();
 	
-	void OnKeyData(const KeyboardHook::KeyData& keyData);
-	
-
 	void AsyncOpenAndPlayFile();
 	void AsyncPlayFile(CString fileName);
 	void PlayFile(CString fileName);

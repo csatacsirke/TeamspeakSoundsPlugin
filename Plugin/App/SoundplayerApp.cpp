@@ -17,22 +17,6 @@ using namespace std;
 using namespace Global;
 
 
-SoundplayerApp::SoundplayerApp(/*TS3Functions& ts3Functions*/)/* : ts3Functions(ts3Functions)*/ {
-
-}
-
-
-SoundplayerApp::~SoundplayerApp() {
-}
-//
-//void SoundplayerApp::SetConnectionHandle(uint64 connection) {
-//	this->connection = connection;
-//}
-//
-//uint64 SoundplayerApp::GetConnectionHandle() {
-//	return this->connection;
-//}
-
 void SoundplayerApp::InitKeyboardHook() {
 
 	localHookInstaller.Attach();
@@ -50,39 +34,12 @@ void SoundplayerApp::InitKeyboardHook() {
 		return;
 	}
 
-#if USE_KEYBOARDHOOK
-
-
-
-	if(!hookInstaller.AttachDll()) {
-		MessageBoxA(0, "KeyboardHook dll load failed", 0, 0);
-		return;
-	}
-
-
-	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
-		KeyboardHook::KeyData keyData;
-
-		while(pipeHandler.TryPop(keyData)) {
-			OnKeyData(keyData);
-		}
-	});
-
-	if(!pipeHandler.ListenPipe()) {
-		MessageBoxA(0, "ListenPipeload failed", 0, 0);
-		return;
-	}
-
-#endif
-
 }
 
 void SoundplayerApp::Init() {
 
 	
 	InitKeyboardHook();
-	
-	//ts3Functions.showHotkeySetup();
 
 	Global::config.LoadFromFile(Global::config.defaultFileName);
 }
@@ -705,6 +662,12 @@ CString SoundplayerApp::GetLikelyFileName(CString str) {
 			}
 		}
 	} while(tryAgain);
+
+
+	if(directory.Right(1) != "\\" && directory.Right(1) != "/") {
+		directory += "\\";
+	}
+
 
 	vector<CString> files;
 	ListFilesInDirectory(_Out_ files, directory);

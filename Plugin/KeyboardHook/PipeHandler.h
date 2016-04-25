@@ -1,7 +1,8 @@
 #pragma once
 
 #include <concurrent_queue.h>
-#include <KeyboardHook\CommonParams.h>
+//#include <KeyboardHook\CommonParams.h>
+#include "LocalKeyboardHookInstaller.h"
 
 // TODO move
 

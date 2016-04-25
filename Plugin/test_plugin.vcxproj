@@ -103,7 +103,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MinSpace</Optimization>
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -157,6 +157,7 @@
     <ClCompile Include="Gui\SettingsDialog.cpp" />
     <ClCompile Include="Gui\SoundFolderSelector.cpp" />
     <ClCompile Include="KeyboardHook\LocalKeyboardHookInstaller.cpp" />
+    <ClCompile Include="KeyboardHook\PipeHandler.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Util\HotkeyHandler.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
     <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h" />
+    <ClInclude Include="KeyboardHook\PipeHandler.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -191,11 +193,6 @@
     <ClInclude Include="Wave\AudioClipSample.h" />
     <ClInclude Include="Wave\AudioDecoder.h" />
     <ClInclude Include="Wave\wave.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\HookInstaller\HookInstaller.vcxproj">
-      <Project>{d3614aa5-2871-4bf6-8819-aba3162ed7e9}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="test_plugin.rc" />

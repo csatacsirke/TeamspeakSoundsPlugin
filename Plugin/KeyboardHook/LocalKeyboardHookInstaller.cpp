@@ -2,7 +2,6 @@
 
 
 #include "LocalKeyboardHookInstaller.h"
-#include <KeyboardHook\CommonParams.h>
 
 #include <sstream>
 
