@@ -36,6 +36,7 @@ using namespace std;
 #define SLEEP(x) usleep(x*1000)
 #endif
 
+const char* version = "1.1";
 
 /*The client lib works at 48Khz internally.
 It is therefore advisable to use the same for your project */
@@ -48,17 +49,23 @@ namespace Global {
 	struct TS3Functions ts3Functions;
 	uint64 connection = 0;
 	char* pluginID = NULL;
+	char appPath[PATH_BUFSIZE];
+	char resourcesPath[PATH_BUFSIZE];
+	char configPath[PATH_BUFSIZE];
+	char pluginPath[PATH_BUFSIZE];
+
 }
 
 using namespace Global;
 
-SoundplayerApp theApp;
+//SoundplayerApp theApp;
+std::unique_ptr<SoundplayerApp> theApp;
 
 int PlayWelcomeSound();
 
 #define PLUGIN_API_VERSION 20
 
-#define PATH_BUFSIZE 512
+
 #define COMMAND_BUFSIZE 128
 #define INFODATA_BUFSIZE 128
 #define SERVERINFO_BUFSIZE 256
@@ -112,7 +119,7 @@ const char* ts3plugin_name() {
 
 /* Plugin version */
 const char* ts3plugin_version() {
-    return "1.0";
+    return version;
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -180,11 +187,7 @@ int ts3plugin_init() {
 	}
 #pragma warning( pop )
 #endif
-    char appPath[PATH_BUFSIZE];
-    char resourcesPath[PATH_BUFSIZE];
-    char configPath[PATH_BUFSIZE];
-	char pluginPath[PATH_BUFSIZE];
-
+    
     /* Your plugin init code here */
     printf("PLUGIN: init\n");
 
@@ -204,8 +207,8 @@ int ts3plugin_init() {
 	//	return 1;
 	//}
 
-	
-	theApp.Init();
+	theApp.reset(new SoundplayerApp);
+	theApp->Init();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -260,7 +263,7 @@ void ts3plugin_configure(void* handle, void* qParentWidget) {
     printf("PLUGIN: configure\n");
 
 
-	theApp.OpenSettingsDialog(handle, qParentWidget);
+	theApp->OpenSettingsDialog(handle, qParentWidget);
 	//SettingsDialog
 
 	//ts3Functions.showHotkeySetup();
@@ -615,6 +618,7 @@ enum {
 	MENU_ID_GLOBAL_1,
 	MENU_ID_GLOBAL_2,
 	MENU_ID_GLOBAL_3,
+	MENU_ID_GLOBAL_4,
 	MENU_ID_GLOBAL_SETTINGS
 };
 
@@ -642,15 +646,16 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	 * e.g. for "test_plugin.dll", icon "1.png" is loaded from <TeamSpeak 3 Client install dir>\plugins\test_plugin\1.png
 	 */
 
-	BEGIN_CREATE_MENUS(8);  /* IMPORTANT: Number of menu items must be correct! */
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT,  MENU_ID_CLIENT_1,  "Client item 1",  "1.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT,  MENU_ID_CLIENT_2,  "Client item 2",  "2.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "Channel item 1", "1.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_2, "Channel item 2", "2.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
+	BEGIN_CREATE_MENUS(4);  /* IMPORTANT: Number of menu items must be correct! */
+	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT,  MENU_ID_CLIENT_1,  "Client item 1",  "1.png");
+	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CLIENT,  MENU_ID_CLIENT_2,  "Client item 2",  "2.png");
+	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_1, "Channel item 1", "1.png");
+	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_2, "Channel item 2", "2.png");
+	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_1,  "Play sound from file...",  "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "Enqueue sound from file...", "2.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_3,  "Play sound from file...(unstable)",  "3.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_4, "Open debug console", "4.png");
 	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Play sound from file...(unstable)", "4.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
 
@@ -702,7 +707,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys) {
 	CREATE_HOTKEY("keyword_3", "Test hotkey 3");
 	END_CREATE_HOTKEYS;
 
-	theApp.InitHotkeys(hotkeys);
+	theApp->InitHotkeys(hotkeys);
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 
@@ -719,7 +724,7 @@ void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int 
 
 	// i can just hope that this is the correct way
 	connection = serverConnectionHandlerID;
-	//theApp.SetConnectionHandle(serverConnectionHandlerID);
+	//theApp->SetConnectionHandle(serverConnectionHandlerID);
 
 
     if(newStatus == STATUS_CONNECTION_ESTABLISHED) {  /* connection established and we have client and channels available */
@@ -1198,21 +1203,28 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 				case MENU_ID_GLOBAL_1:
 				{
 
-					theApp.AsyncOpenAndPlayFile();
+					theApp->AsyncOpenAndPlayFile();
 					/* Menu global 1 was triggered */
 					break;
 				}
 
 				case MENU_ID_GLOBAL_2:
 					/* Menu global 2 was triggered */
-					theApp.AsyncEnqueueFile();
+					theApp->AsyncEnqueueFile();
 					break;
 				case MENU_ID_GLOBAL_3:
 					/* Menu global 2 was triggered */
-					theApp.AsyncOpenAndPlayFile_advanced();
+					theApp->AsyncOpenAndPlayFile_advanced();
+					break;
+				case MENU_ID_GLOBAL_4:
+					/* Menu global 2 was triggered */
+					std::locale::global(std::locale(""));
+
+					AllocConsole();
+					freopen("CONOUT$", "w", stdout);
 					break;
 				case MENU_ID_GLOBAL_SETTINGS:
-					theApp.OpenSettingsDialog(0, 0);
+					theApp->OpenSettingsDialog(0, 0);
 					break;
 				default:
 					break;
@@ -1255,7 +1267,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 /* This function is called if a plugin hotkey was pressed. Omit if hotkeys are unused. */
 void ts3plugin_onHotkeyEvent(const char* keyword) {
 	printf("PLUGIN: Hotkey event: %s\n", keyword);
-	theApp.OnHotkey(keyword);
+	theApp->OnHotkey(keyword);
 	/* Identify the hotkey by keyword ("keyword_1", "keyword_2" or "keyword_3" in this example) and handle here... */
 }
 

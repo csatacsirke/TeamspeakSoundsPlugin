@@ -58,11 +58,18 @@ enum Messages {
 
 #define USE_WINDOWS_MEDIA_PACK_FEATURES FALSE
 
+#define PATH_BUFSIZE 512
 
 namespace Global {
 	extern struct TS3Functions ts3Functions;
 	extern uint64 connection;
 	extern char* pluginID;
+
+	extern char appPath[PATH_BUFSIZE];
+	extern char resourcesPath[PATH_BUFSIZE];
+	extern char configPath[PATH_BUFSIZE];
+	extern char pluginPath[PATH_BUFSIZE];
+
 }
 
 
@@ -96,3 +103,4 @@ namespace Global {
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 #endif
+

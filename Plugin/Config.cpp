@@ -8,13 +8,15 @@
 
 namespace Global {
 	// TODO igy nem a legszebb
-	Config config = Config::CreateDefault();
+	Config config;
 }
 
 void Config::LoadFromFile(CString fileName) {
 	this->fileName = fileName;
 
 	std::wifstream in(fileName);
+
+	assert((bool)in);
 
 	while(in) {
 		std::wstring line;
@@ -26,6 +28,8 @@ void Config::LoadFromFile(CString fileName) {
 
 void Config::SaveToFile(CString fileName) {
 	std::wofstream out(fileName);
+	assert((bool)out);
+
 	for(auto& elem : dictionary) {
 		out << (const wchar_t*)elem.first << L" " << (const wchar_t*)elem.second << std::endl;
 	}

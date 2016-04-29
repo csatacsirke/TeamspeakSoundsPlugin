@@ -7,11 +7,23 @@
 #include "Gui\SettingsDialog.h"
 #include "Gui\SoundFolderSelector.h"
 
-#include "teamspeak/public_errors.h"
-#include "teamspeak/public_errors_rare.h"
-#include "teamspeak/public_definitions.h"
-#include "teamspeak/public_rare_definitions.h"
-#include "teamspeak/clientlib_publicdefinitions.h"
+#include <teamspeak/public_errors.h>
+#include <teamspeak/public_errors_rare.h>
+#include <teamspeak/public_definitions.h>
+#include <teamspeak/public_rare_definitions.h>
+#include <teamspeak/clientlib_publicdefinitions.h>
+
+/*
+TODO LIST
+első futtatásnál 0x707 hiba a lejátszásnál
+normálisan beálíltani a lejátszás paramétereket, új soundpalyer osztály?
+megnézni hogy lehet e használni a acquiredata függvényt
+update jelzö
+backspace
+reload plugin ne fagyjon szét
+
+
+*/
 
 using namespace std;
 using namespace Global;
@@ -40,8 +52,8 @@ void SoundplayerApp::Init() {
 
 	
 	InitKeyboardHook();
-
-	Global::config.LoadFromFile(Global::config.defaultFileName);
+	CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
+	Global::config.LoadFromFile(path);
 }
 
 
