@@ -67,6 +67,7 @@ inline CWnd* NoParent() {
 }
 
 void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
+CString FileNameFromPath(CString path);
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)

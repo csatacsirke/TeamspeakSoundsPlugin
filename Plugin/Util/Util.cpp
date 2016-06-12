@@ -93,6 +93,13 @@ void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CStri
 }
 
 
+CString FileNameFromPath(CString path) {
+	int i;
+	for(i = path.GetLength() - 1; i >= 0; --i) {
+		if(path[i] == L'/' || path[i] == L'\\') break;
+	}
+	return path.Right(path.GetLength() - 1 - i);
 
+}
 
 

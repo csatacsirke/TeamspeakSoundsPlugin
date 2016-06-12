@@ -21,7 +21,10 @@ megnézni hogy lehet e használni a acquiredata függvényt
 update jelzö
 backspace
 reload plugin ne fagyjon szét
-
+*chatbe küldés
+hangtorzitás :^)
+nem létező fájlnál ne pampogjon
+hangfelvétel
 
 */
 
@@ -103,6 +106,12 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 		commandInProgress = false;
 		inputBuffer = "";
 		stop = true;
+	}
+
+	if(keyData.hookData.vkCode == VK_BACK) {
+		if(inputBuffer.GetLength() > 0) {
+			inputBuffer.Truncate(inputBuffer.GetLength() - 1);
+		}
 	}
 
 	if(keyData.unicodeLiteral == CString("/")) {
@@ -246,8 +255,14 @@ public:
 
 void SoundplayerApp::PlayFile(CString fileName) {
 
+	if(!PathFileExists(fileName)) {
+		return;
+	}
+
 	std::unique_lock<std::mutex> lock(playerLock);
 	this->stop = false;
+
+	SendFileNameToChat(fileName);
 
 	lastFile = fileName; // csak nem akad össze...
 
@@ -703,6 +718,22 @@ void SoundplayerApp::ProcessRegexCommand(CString str) {
 	
 	
 }
+
+
+
+void SoundplayerApp::SendFileNameToChat(CString path) {
+	CString fileName = FileNameFromPath(path);
+	SendMessageToChannelChat(L"Playing: " + fileName);
+}
+
+void SoundplayerApp::SendMessageToChannelChat(CString message) {
+	uint64 channelId;
+	ts3Functions.getChannelOfClient(Global::connection, Global::myID, &channelId);
+	CStringA utfMessage(message);
+	
+	ts3Functions.requestSendChannelTextMsg(Global::connection, utfMessage, channelId, NULL);
+}
+
 
 
 

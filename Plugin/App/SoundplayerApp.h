@@ -69,5 +69,7 @@ public:
 	void ProcessRegexCommand(CString str);
 private:
 	CString GetLikelyFileName(CString str);
+	void SendFileNameToChat(CString fileName);
+	void SendMessageToChannelChat(CString message);
 };
 

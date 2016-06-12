@@ -49,6 +49,9 @@ namespace Global {
 	struct TS3Functions ts3Functions;
 	uint64 connection = 0;
 	char* pluginID = NULL;
+	anyID myID;
+
+
 	char appPath[PATH_BUFSIZE];
 	char resourcesPath[PATH_BUFSIZE];
 	char configPath[PATH_BUFSIZE];
@@ -351,7 +354,6 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 				uint64 channelID = (uint64)atoi(param1);
 				char* password = param2 ? param2 : "";
 				char returnCode[RETURNCODE_BUFSIZE];
-				anyID myID;
 
 				/* Get own clientID */
 				if(ts3Functions.getClientID(serverConnectionHandlerID, &myID) != ERROR_ok) {

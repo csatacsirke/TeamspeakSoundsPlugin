@@ -64,6 +64,7 @@ namespace Global {
 	extern struct TS3Functions ts3Functions;
 	extern uint64 connection;
 	extern char* pluginID;
+	extern anyID myID;
 
 	extern char appPath[PATH_BUFSIZE];
 	extern char resourcesPath[PATH_BUFSIZE];
