@@ -24,6 +24,9 @@
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 
+//
+
+
 #include "resource.h"
 
 #include <vector>
@@ -39,6 +42,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include <assert.h>
 #include <concurrent_queue.h>
 #include <functional>
@@ -53,26 +57,15 @@ enum Messages {
 
 };
 
-//#define USE_KEYBOARDHOOK TRUE
-#define USE_KEYBOARDHOOK FALSE
+#define USE_KEYBOARDHOOK TRUE
+//#define USE_KEYBOARDHOOK FALSE
 
 #define USE_WINDOWS_MEDIA_PACK_FEATURES FALSE
 
-#define PATH_BUFSIZE 512
 
-namespace Global {
-	extern struct TS3Functions ts3Functions;
-	extern uint64 connection;
-	extern char* pluginID;
-	extern anyID myID;
 
-	extern char appPath[PATH_BUFSIZE];
-	extern char resourcesPath[PATH_BUFSIZE];
-	extern char configPath[PATH_BUFSIZE];
-	extern char pluginPath[PATH_BUFSIZE];
-
-}
-
+#include <iostream>
+#include <fstream>
 
 
 #ifndef _AFX_NO_OLE_SUPPORT

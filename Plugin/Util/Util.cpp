@@ -4,6 +4,21 @@
 
 
 
+namespace Global {
+
+
+	struct TS3Functions ts3Functions;
+	uint64 connection = 0;
+	char* pluginID = NULL;
+	anyID myID;
+
+
+	char appPath[PATH_BUFSIZE];
+	char resourcesPath[PATH_BUFSIZE];
+	char configPath[PATH_BUFSIZE];
+	char pluginPath[PATH_BUFSIZE];
+
+}
 
 
 // https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)

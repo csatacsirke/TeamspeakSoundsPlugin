@@ -73,11 +73,12 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 			1024*5, // inbound buffer
 			0, // use default wait time
 			NULL // use default security attributes
-			);
+		);
 
 		if (pipe == NULL || pipe == INVALID_HANDLE_VALUE) {
 			int asd = GetLastError();
-			MessageBox(0,TEXT("Failed to create inbound pipe instance."),0,0);
+			//MessageBox(0,TEXT("Failed to create inbound pipe instance."),0,0);
+			Log::Error(L"Failed to create inbound pipe instance.");
 			// look up error code here using GetLastError()
 			return FALSE;
 		}
@@ -89,7 +90,8 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 			int error = GetLastError();
 			CloseHandle(pipe); // close the pipe
 			//MessageBox(0,TEXT("Failed to make connection on named pipe."),0,0);
-			std::wcout << L"ConnectNamedPipe error " << error << std::endl;
+			//std::wcout << L"ConnectNamedPipe error " << error << std::endl;
+			Log::Warning(CString(L"ConnectNamedPipe error ") + ToString(error));
 			//return FALSE;
 			continue;
 		}
@@ -98,7 +100,7 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 		while(!this->stop) {
 
 			//KBDLLHOOKSTRUCT hookStruct;
-			DWORD nReadBytes;
+			DWORD nReadBytes = 0;
 			//BOOL result = ReadFile(
 			//	pipe,
 			//	&hookStruct, // the data from the pipe will be put here
@@ -106,8 +108,10 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 			//	&nReadBytes, // this will store number of bytes actually read
 			//	NULL // not using overlapped IO
 			//	);
+
+
 			KeyboardHook::KeyData keyData;
-			BOOL result = ReadFile(
+			volatile BOOL result = ReadFile(
 				pipe,
 				&keyData, // the data from the pipe will be put here
 				sizeof(keyData), // number of bytes allocated
@@ -115,20 +119,21 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 				NULL // not using overlapped IO
 				);
 
+			volatile const auto debug___ = sizeof(keyData);
 
 			if( result!=FALSE && nReadBytes == sizeof(keyData) ){
 				
 				CString str = keyData.unicodeLiteral;
-				
-				if(str.GetLength() > 0) {
-					std::wcout << L">" << (const wchar_t*)keyData.unicodeLiteral;
-					std::wcout << std::endl;
-					if(std::wcout.fail()) {
-						std::wcout.clear();
-					}
-				} else {
-					std::wcout << L"0";
-				}
+				//
+				//if(str.GetLength() > 0) {
+				//	std::wcout << L">" << (const wchar_t*)keyData.unicodeLiteral;
+				//	std::wcout << std::endl;
+				//	if(std::wcout.fail()) {
+				//		std::wcout.clear();
+				//	}
+				//} else {
+				//	std::wcout << L"0";
+				//}
 				
 
 				this->Push(keyData);
@@ -142,14 +147,20 @@ BOOL PipeHandler::RunPipe(CString pipeName) {
 				}
 			} else {
 				int error = GetLastError();
+				if(error != ERROR_BROKEN_PIPE) {
+					Log::Warning(CString(L"Pipe read error " + ToString(error)));
+				}
+				
+				break;
 				//std::wcout << L"Pipe read error " << error << std::endl;
 				//std::wcout << std::endl << "result: " << result << " nBytes: " << nReadBytes << "size: " << sizeof(hookStruct) ;
 				//MessageBox(0,TEXT("Unexpected exception @ readnamedpipe"),0,0);
-				break;
+				//break;
 			}
 		}
 
 		// Close the pipe (automatically disconnects client too)
+		//Log::Warning(L"PipeHandler: closing pipe");
 		CloseHandle(pipe);
 	}
 	return TRUE;

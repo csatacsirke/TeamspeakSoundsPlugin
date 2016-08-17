@@ -11,31 +11,10 @@
 
 #include "Config.h"
 #include "Util\HotkeyHandler.h"
+#include "Wave\AudioProcessor.h"
 
 class SoundplayerApp  {
 
-	HotkeyHandler hotkeyHandler;
-
-	std::mutex playerLock;
-	bool stop;
-
-	//KeyboardHookInstaller hookInstaller;
-	LocalKeyboardHookInstaller localHookInstaller;
-
-	PipeHandler pipeHandler;
-	
-	bool commandInProgress = false;
-	CString inputBuffer;
-
-	concurrency::concurrent_queue<CString> playlist;
-	CString lastFile;
-private:
-	// Teamspeak sound related config
-	const char* myDeviceId = "BattlechickensId"; 
-	//The client lib works at 48Khz internally.
-	//It is therefore advisable to use the same for your project 
-	const int PLAYBACK_FREQUENCY = 48000;
-	const int PLAYBACK_CHANNELS = 2;
 public:
 
 	// We need an explicit init function cause
@@ -48,6 +27,8 @@ public:
 
 	void InitHotkeys(struct PluginHotkey*** hotkeys);
 	void OnHotkey(CStringA keyword);
+
+	void OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited);
 
 	void OpenSettingsDialog(void* handle, void* qParentWidget);
 	void OpenSoundsFolderSelectorDialog();
@@ -66,10 +47,40 @@ public:
 	void Replay();
 	void PlayRandom();
 	void PlayPreset(int ordinal);
-	void ProcessRegexCommand(CString str);
+
+
+	void ProcessCommand(CString str);
 private:
-	CString GetLikelyFileName(CString str);
+	bool TryEnqueueFileFromCommand(CString str);
+	//CString GetLikelyFileName(CString str);
+	bool GetLikelyFileName(_Out_ CString& result, CString str);
 	void SendFileNameToChat(CString fileName);
 	void SendMessageToChannelChat(CString message);
+
+private:
+	HotkeyHandler hotkeyHandler;
+
+	std::mutex playerLock;
+	volatile bool stop;
+
+	//KeyboardHookInstaller hookInstaller;
+	LocalKeyboardHookInstaller localHookInstaller;
+
+	PipeHandler pipeHandler;
+
+	AudioProcessor audioProcessor;
+
+	bool commandInProgress = false;
+	CString inputBuffer;
+
+	concurrency::concurrent_queue<CString> playlist;
+	CString lastFile;
+
+	//// Teamspeak sound related config
+	//const char* myDeviceId = "BattlechickensId"; 
+	////The client lib works at 48Khz internally.
+	////It is therefore advisable to use the same for your project 
+	//const int PLAYBACK_FREQUENCY = 48000;
+	//const int PLAYBACK_CHANNELS = 2;
 };
 

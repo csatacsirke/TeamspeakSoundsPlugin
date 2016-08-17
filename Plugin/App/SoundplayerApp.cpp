@@ -7,11 +7,9 @@
 #include "Gui\SettingsDialog.h"
 #include "Gui\SoundFolderSelector.h"
 
-#include <teamspeak/public_errors.h>
-#include <teamspeak/public_errors_rare.h>
-#include <teamspeak/public_definitions.h>
-#include <teamspeak/public_rare_definitions.h>
-#include <teamspeak/clientlib_publicdefinitions.h>
+#include "Util\TSSoundPlayer.h"
+
+#include <Mmsystem.h>
 
 /*
 TODO LIST
@@ -23,8 +21,10 @@ backspace
 reload plugin ne fagyjon szét
 *chatbe küldés
 hangtorzitás :^)
-nem létező fájlnál ne pampogjon
+*nem létező fájlnál ne pampogjon
 hangfelvétel
+A Sleep paraméterét normálisan kiszámolni
+
 
 */
 
@@ -45,7 +45,8 @@ void SoundplayerApp::InitKeyboardHook() {
 	});
 
 	if(!pipeHandler.ListenPipe()) {
-		MessageBoxA(0, "ListenPipeload failed", 0, 0);
+		//MessageBoxA(0, "ListenPipeload failed", 0, 0);
+		Log::Error(L"ListenPipeload failed");
 		return;
 	}
 
@@ -106,35 +107,39 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 		commandInProgress = false;
 		inputBuffer = "";
 		stop = true;
+		return;
 	}
 
 	if(keyData.hookData.vkCode == VK_BACK) {
 		if(inputBuffer.GetLength() > 0) {
 			inputBuffer.Truncate(inputBuffer.GetLength() - 1);
 		}
+		return;
 	}
 
-	if(keyData.unicodeLiteral == CString("/")) {
+	
+	CString unicodeLiteral = keyData.unicodeLiteral;
+	if(unicodeLiteral == CString("/")) {
 		commandInProgress = true;
+		inputBuffer = "";
 	} else {
 		if(commandInProgress) {
 			if(keyData.hookData.vkCode == VK_RETURN) {
-				//CString _inputbuffer = this->inputBuffer;
+				
 				std::wcout << std::endl << ">>" << (const wchar_t*)inputBuffer << "<<" << std::endl;
 
-				this->ProcessRegexCommand(inputBuffer);
+				this->ProcessCommand(inputBuffer);
 
 				inputBuffer = "";
 
 				if(wcout.fail()) {
 					wcout.clear();
 				}
-				//std::thread messageThread([_inputbuffer] {
-				//	MessageBox(0, _inputbuffer, 0, 0);
-				//});
+
 				commandInProgress = false;
 			} else {
-				inputBuffer += keyData.unicodeLiteral;
+				inputBuffer += unicodeLiteral;
+				//Log::Debug(unicodeLiteral);
 			}
 		}
 		
@@ -199,33 +204,70 @@ void SoundplayerApp::AsyncOpenAndPlayFile() {
 	soundPlayerThread.detach();
 
 }
+//
+//interface ILocalSoundPlayer {
+//	virtual void PlayAsync() PURE;
+//	virtual void PauseAsync() PURE;
+//};
+
 
 // azé van ennek külön osztály, hogy ha valami hiba van
 // akkor a destruktor meg tudjon hívódni, és minden felszabaduljon
-class LocalSoundPlayer {
-	uint64 playbackHandle;
-	CString fileName;
-public:
-	LocalSoundPlayer(CString fileName, bool startPlaying = true) {
-		this->fileName = fileName;
-		if(startPlaying) {
-			Play();
-		}
-	}
-	~LocalSoundPlayer() {
-		Pause();
-		ts3Functions.closeWaveFileHandle(connection, playbackHandle);
-	}
+//class LocalSoundPlayer {
+//	uint64 playbackHandle;
+//	CString fileName;
+//public:
+//	LocalSoundPlayer(CString fileName, bool startPlaying = true) {
+//		this->fileName = fileName;
+//		if(startPlaying) {
+//			PlayAsync();
+//		}
+//	}
+//	~LocalSoundPlayer() {
+//		PauseAsync();
+//		ts3Functions.closeWaveFileHandle(connection, playbackHandle);
+//	}
+//
+//	void PlayAsync() {
+//		PauseAsync();
+//		ts3Functions.playWaveFileHandle(connection, ConvertUnicodeToUTF8(fileName), FALSE, &playbackHandle);
+//	}
+//
+//	void PauseAsync() {
+//		ts3Functions.pauseWaveFileHandle(connection, playbackHandle, TRUE);
+//	}
+//};
+//
+//#include <Mmsystem.h>
+//#pragma comment(lib, "Winmm")
+//
+//class NativeLocalSoundPlayer {
+//	CString fileName;
+//public:
+//	NativeLocalSoundPlayer(CString fileName, bool startPlaying = true) {
+//		this->fileName = fileName;
+//		
+//		if(startPlaying) {
+//			//PlaySoundW();
+//		}
+//	}
+//	~NativeLocalSoundPlayer() {
+//		PauseAsync();
+//		
+//	}
+//
+//	void PlayAsync() {
+//		PauseAsync();
+//		
+//	}
+//
+//	void PauseAsync() {
+//		
+//	}
+//};
+//
 
-	void Play() {
-		Pause();
-		ts3Functions.playWaveFileHandle(connection, ConvertUnicodeToUTF8(fileName), FALSE, &playbackHandle);
-	}
 
-	void Pause() {
-		ts3Functions.pauseWaveFileHandle(connection, playbackHandle, TRUE);
-	}
-};
 //
 //class RemoteSoundPlayer {
 //	uint64 playbackHandle;
@@ -253,6 +295,54 @@ public:
 //	}
 //};
 
+#if 1
+void SoundplayerApp::PlayFile(CString fileName) {
+
+	if(!PathFileExists(fileName)) {
+		return;
+	}
+	
+#ifdef DEBUG 
+	if(playerLock.try_lock()) {
+		playerLock.unlock();
+	} else {
+		Log::Warning(L"SoundplayerApp::PlayFile(CString fileName) is locked.");
+	}
+#endif
+	std::unique_lock<std::mutex> lock(playerLock);
+	this->stop = false;
+
+	SendFileNameToChat(fileName);
+
+	this->lastFile = fileName; // csak nem akad össze...
+
+	std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+	
+
+	if(!track) {
+		Log::Warning(L"LoadWaveFile failed");
+		return;
+	}
+
+	//wprintf(L"playing %s  \n", (const wchar_t*)fileName);
+	Log::Debug(L"Playing: " + fileName);
+
+	LocalSoundPlayer localPlayer(fileName);
+
+	TSSoundPlayer player(track);
+
+	// async call
+	localPlayer.PlayAsync();
+
+	// sync call
+	player.Play(stop);
+
+
+	Log::Debug(L"    finished playing sound ");
+
+}
+
+#else
 void SoundplayerApp::PlayFile(CString fileName) {
 
 	if(!PathFileExists(fileName)) {
@@ -279,13 +369,17 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	////int    audioPeriodCounter;
 	//int    capturePeriodSize;
 
-	std::unique_ptr<WaveTrack> track = readWave(fileName);
+	//std::unique_ptr<WaveTrack> track = readWave(fileName);
+	std::unique_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+	//std::unique_ptr<WaveTrack> track;
 	
 	if( !track ) {
 		//if(!readWave(fileName, &captureFrequency, &captureChannels, &captureBuffer, &buffer_size, &captureBufferSamples)) {
-		cout << "readWave failed";
+		//cout << "readWave failed" << endl;
+		Log::Warning(L"LoadWaveFile failed");
 		return;
 	}
+
 
 
 	unsigned int error;
@@ -441,6 +535,8 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	printf("\n    finished playing sound \n");
 
 }
+
+#endif
 
 void SoundplayerApp::StopPlayback() {
 	stop = true;
@@ -673,7 +769,8 @@ void SoundplayerApp::PlayRandom() {
 }
 
 
-CString SoundplayerApp::GetLikelyFileName(CString str) {
+//CString SoundplayerApp::GetLikelyFileName(CString str) {
+bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
 	CString directory = L"";
 	bool tryAgain = false;
 	do {
@@ -685,7 +782,8 @@ CString SoundplayerApp::GetLikelyFileName(CString str) {
 			if(result == IDOK) {
 				tryAgain = true;
 			} else {
-				return L""; // TODO
+				//return L""; // TODO
+				return false;
 			}
 		}
 	} while(tryAgain);
@@ -699,21 +797,60 @@ CString SoundplayerApp::GetLikelyFileName(CString str) {
 	vector<CString> files;
 	ListFilesInDirectory(_Out_ files, directory);
 
+	int hits = 0;
+
 	for(auto& file : files) {
-		if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
-			return directory + file;
-			//AsyncPlayFile(directory + file);
+		if( EqualsIgnoreCaseAndWhitespace(file.Left(str.GetLength()), str) ) {
+		//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
+			//return directory + file;
+			result = directory + file;
+			++hits;
 		}
 	}
-	return L"";
+
+	if(hits > 1) {
+		Log::Warning(L"Multiple hits");
+	}
+
+	if(hits < 1) {
+		Log::Warning(L"Zero hits");
+	}
+
+	return (hits == 1);
 }
 
 
-// TODO ez aztán név bazmeg...
-void SoundplayerApp::ProcessRegexCommand(CString str) {
-	CString fileName = GetLikelyFileName(str);
-	if(fileName.GetLength() > 0) {
+bool SoundplayerApp::TryEnqueueFileFromCommand(CString str) {
+	CString queuePrefix = L"q ";
+	
+	if(StartsWith(str, queuePrefix)) {
+		CString command = str.Right(str.GetLength() - queuePrefix.GetLength());
+		CString fileName;
+		if(GetLikelyFileName(fileName, command)) {
+			playlist.push(fileName);
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
+
+void SoundplayerApp::ProcessCommand(CString str) {
+	if(TryEnqueueFileFromCommand(str)) {
+		return;
+	}
+
+	CString fileName;
+	if(GetLikelyFileName(fileName, str)) {
 		AsyncPlayFile(fileName);
+	} else {
+		PlaySound(
+			(LPCWSTR)SND_ALIAS_SYSTEMEXCLAMATION,
+			GetModuleHandle(0),
+			SND_ALIAS_ID
+		);
 	}
 	
 	
@@ -722,8 +859,22 @@ void SoundplayerApp::ProcessRegexCommand(CString str) {
 
 
 void SoundplayerApp::SendFileNameToChat(CString path) {
+	// TODO ide kéne idözito h pl max 10 secenként 1x küldj be, mert láárka kifagy töle...
+	const UINT minDelay = 5 * 1000;
+	static UINT lastMessageTime = 0;
+	UINT time = GetTickCount();
+
+
 	CString fileName = FileNameFromPath(path);
-	SendMessageToChannelChat(L"Playing: " + fileName);
+	CString message = L"Playing: " + fileName;
+	if(time - lastMessageTime > minDelay) {
+		SendMessageToChannelChat(message);
+		lastMessageTime = time;
+	} else {
+		Log::Debug(L"Not sending to chat to avoid spam protection: " + message);
+	}
+
+	
 }
 
 void SoundplayerApp::SendMessageToChannelChat(CString message) {
@@ -734,6 +885,21 @@ void SoundplayerApp::SendMessageToChannelChat(CString message) {
 	ts3Functions.requestSendChannelTextMsg(Global::connection, utfMessage, channelId, NULL);
 }
 
+void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited) {
+	//If the sound data will be send, (*edited | 2) is true.
+	//If the sound data is changed, set bit 1 (*edited |= 1).
+	//If the sound should not be send, clear bit 2. (*edited &= ~2)
+
+	
+	bool enabled = audioProcessor.Process(samples, sampleCount, channels);
+
+	if(!enabled) {
+		//*edited &= ~2;
+		return;
+	} else {
+		*edited |= 1;
+	}
+}
 
 
 

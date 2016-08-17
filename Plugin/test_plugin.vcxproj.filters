@@ -113,6 +113,12 @@
     <ClInclude Include="KeyboardHook\PipeHandler.h">
       <Filter>KeyboardHook</Filter>
     </ClInclude>
+    <ClInclude Include="Util\TSSoundPlayer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\AudioProcessor.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -159,6 +165,9 @@
     </ClCompile>
     <ClCompile Include="KeyboardHook\PipeHandler.cpp">
       <Filter>KeyboardHook</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\AudioProcessor.cpp">
+      <Filter>Wave</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

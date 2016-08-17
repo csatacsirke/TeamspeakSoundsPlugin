@@ -171,6 +171,7 @@
     <ClCompile Include="Util\Util.cpp" />
     <ClCompile Include="Wave\AudioClipSample.cpp" />
     <ClCompile Include="Wave\AudioDecoder.cpp" />
+    <ClCompile Include="Wave\AudioProcessor.cpp" />
     <ClCompile Include="Wave\wave.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -196,9 +197,11 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Util\HotkeyHandler.h" />
+    <ClInclude Include="Util\TSSoundPlayer.h" />
     <ClInclude Include="Util\Util.h" />
     <ClInclude Include="Wave\AudioClipSample.h" />
     <ClInclude Include="Wave\AudioDecoder.h" />
+    <ClInclude Include="Wave\AudioProcessor.h" />
     <ClInclude Include="Wave\wave.h" />
   </ItemGroup>
   <ItemGroup>

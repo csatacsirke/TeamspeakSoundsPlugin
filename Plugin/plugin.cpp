@@ -36,44 +36,20 @@ using namespace std;
 #define SLEEP(x) usleep(x*1000)
 #endif
 
-const char* version = "1.1";
-
-/*The client lib works at 48Khz internally.
-It is therefore advisable to use the same for your project */
-#define PLAYBACK_FREQUENCY 48000
-#define PLAYBACK_CHANNELS 2
-
-#define AUDIO_PROCESS_SECONDS 10
-
-namespace Global {
-	struct TS3Functions ts3Functions;
-	uint64 connection = 0;
-	char* pluginID = NULL;
-	anyID myID;
+const char* version = "1.2";
 
 
-	char appPath[PATH_BUFSIZE];
-	char resourcesPath[PATH_BUFSIZE];
-	char configPath[PATH_BUFSIZE];
-	char pluginPath[PATH_BUFSIZE];
+//#define AUDIO_PROCESS_SECONDS 10
 
-}
 
 using namespace Global;
 
 //SoundplayerApp theApp;
 std::unique_ptr<SoundplayerApp> theApp;
 
-int PlayWelcomeSound();
+//int PlayWelcomeSound();
 
 #define PLUGIN_API_VERSION 20
-
-
-#define COMMAND_BUFSIZE 128
-#define INFODATA_BUFSIZE 128
-#define SERVERINFO_BUFSIZE 256
-#define CHANNELINFO_BUFSIZE 512
-#define RETURNCODE_BUFSIZE 128
 
 
 
@@ -185,8 +161,16 @@ int ts3plugin_init() {
 		// enélkül ha konzolra írsz egy ő betűt eltörik az egész konzol....
 		std::locale::global(std::locale(""));
 
-		AllocConsole();
-		freopen("CONOUT$", "w", stdout);
+		static FILE* console = NULL;
+		if(!console) {
+			AllocConsole();
+			console = freopen("CONOUT$", "w", stdout);
+		} else {
+			FreeConsole();
+			fclose(console);
+			console = NULL;
+		}
+		
 	}
 #pragma warning( pop )
 #endif
@@ -979,6 +963,8 @@ void ts3plugin_onEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, an
 
 void ts3plugin_onEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 	//cout << "onEditPostProcessVoiceDataEvent" << endl;
+	
+
 }
 
 void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
@@ -987,6 +973,7 @@ void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerI
 
 void ts3plugin_onEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited) {
 	//cout << "ts3plugin_onEditCapturedVoiceDataEvent" << endl;
+	theApp->OnEditCapturedVoiceDataEvent(samples, sampleCount, channels, edited);
 }
 
 void ts3plugin_onCustom3dRolloffCalculationClientEvent(uint64 serverConnectionHandlerID, anyID clientID, float distance, float* volume) {
@@ -1281,112 +1268,114 @@ void ts3plugin_onHotkeyRecordedEvent(const char* keyword, const char* key) {
 void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyID clientID, const char* displayName, const char* uniqueClientIdentifier) {
 }
 
+//
+//
+//int PlayWelcomeSound() {
+//	//uint64 scHandlerID;
+//
+//	char* result_before;
+//	ts3Functions.getPreProcessorConfigValue(connection, "voiceactivation_level", &result_before);
+//
+//	printf("\n    playing welcome sound \n");
+//
+//
+//	char* previousDeviceName;
+//	char* previousMode;
+//	BOOL isDefault;
+//	ts3Functions.getCurrentCaptureDeviceName(connection, &previousDeviceName, &isDefault);
+//	ts3Functions.getCurrentCaptureMode(connection, &previousMode);
+//	
+//
+//	ts3Functions.closeCaptureDevice(connection);
+//
+//	int error;
+//	if ((error = ts3Functions.openCaptureDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
+//		printf("Error opening capture device: 0x%x\n", error);
+//		return error;
+//	} else {
+//		cout << "\tdevice id: " << myDeviceId << endl;
+//	}
+//
+//
+//	
+//	cout << "buffer size: " << buffer_size << endl;
+//
+//
+//	ts3Functions.activateCaptureDevice(connection);
+//
+//
+//	capturePeriodSize = (captureFrequency * 20) / 1000;
+//
+//	int captureAudioOffset = 0;
+//	for (audioPeriodCounter = 0; audioPeriodCounter < 50 * AUDIO_PROCESS_SECONDS; ++audioPeriodCounter) { /*50*20=1000*/
+//
+//
+//		/* make sure we dont stream past the end of our wave sample */
+//		if (captureAudioOffset + capturePeriodSize > captureBufferSamples) {
+//			captureAudioOffset = 0;
+//			break;
+//		}
+//
+//		// TODO: thread?
+//		SLEEP(20);
+//
+//		/* stream capture data to the client lib */
+//		if ((error = ts3Functions.processCustomCaptureData(myDeviceId, captureBuffer + captureAudioOffset*captureChannels, capturePeriodSize)) != ERROR_ok) {
+//			printf("Failed to get stream capture data: %d\n", error);
+//			return 1;
+//		}
+//
+//
+//		/*update buffer offsets */
+//		captureAudioOffset += capturePeriodSize;
+//	}
+//
+//
+//	if ((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
+//		printf("Error closeCaptureDevice: 0x%x\n", error);
+//		//return 1;
+//	}
+//
+//
+//
+//
+//	if((error = ts3Functions.openCaptureDevice(connection, previousMode, previousDeviceName)) != ERROR_ok) {
+//		printf("Error opening capture device: 0x%x\n", error);
+//		return error;
+//	} else {
+//		cout << "\tnew device id: " << previousDeviceName << endl;
+//	}
+//
+//	//if((error = ts3Functions.activateCaptureDevice(connection) ) != ERROR_ok) {
+//	//	printf("Error activating capture device: 0x%x\n", error);
+//	//	return error;
+//	//} 
+//
+//	char* result_after;
+//	ts3Functions.getPreProcessorConfigValue(connection, "voiceactivation_level", &result_after);
+//
+//	//cout << "results:" << std::endl;
+//	//cout << result_before << std::endl;
+//	//cout << result_after << std::endl;
+//	//cout << "" << std::endl;
+//
+//	// ts resets it to 0 db unless we do this :'(
+//	ts3Functions.setPreProcessorConfigValue(connection, "voiceactivation_level", result_before);
+//
+//	ts3Functions.freeMemory(result_before);
+//	ts3Functions.freeMemory(result_after);
+//
+//	/*
+//	If the capture device for a given server connection handler has been deactivated by the Client
+//Lib, the flag CLIENT_INPUT_HARDWARE will be set. This can be queried with the function
+//ts3client_getClientSelfVariableAsInt.
+//	*/
+//
+//
+//	printf("\n    finished playing welcome sound \n");
+//	
+//
+//	return 0;
+//}
 
 
-int PlayWelcomeSound() {
-	//uint64 scHandlerID;
-
-	char* result_before;
-	ts3Functions.getPreProcessorConfigValue(connection, "voiceactivation_level", &result_before);
-
-	printf("\n    playing welcome sound \n");
-
-
-	char* previousDeviceName;
-	char* previousMode;
-	BOOL isDefault;
-	ts3Functions.getCurrentCaptureDeviceName(connection, &previousDeviceName, &isDefault);
-	ts3Functions.getCurrentCaptureMode(connection, &previousMode);
-	
-
-	ts3Functions.closeCaptureDevice(connection);
-
-	int error;
-	if ((error = ts3Functions.openCaptureDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
-		printf("Error opening capture device: 0x%x\n", error);
-		return error;
-	} else {
-		cout << "\tdevice id: " << myDeviceId << endl;
-	}
-
-
-	
-	cout << "buffer size: " << buffer_size << endl;
-
-
-	ts3Functions.activateCaptureDevice(connection);
-
-
-	capturePeriodSize = (captureFrequency * 20) / 1000;
-
-	int captureAudioOffset = 0;
-	for (audioPeriodCounter = 0; audioPeriodCounter < 50 * AUDIO_PROCESS_SECONDS; ++audioPeriodCounter) { /*50*20=1000*/
-
-
-		/* make sure we dont stream past the end of our wave sample */
-		if (captureAudioOffset + capturePeriodSize > captureBufferSamples) {
-			captureAudioOffset = 0;
-			break;
-		}
-
-		// TODO: thread?
-		SLEEP(20);
-
-		/* stream capture data to the client lib */
-		if ((error = ts3Functions.processCustomCaptureData(myDeviceId, captureBuffer + captureAudioOffset*captureChannels, capturePeriodSize)) != ERROR_ok) {
-			printf("Failed to get stream capture data: %d\n", error);
-			return 1;
-		}
-
-
-		/*update buffer offsets */
-		captureAudioOffset += capturePeriodSize;
-	}
-
-
-	if ((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
-		printf("Error closeCaptureDevice: 0x%x\n", error);
-		//return 1;
-	}
-
-
-
-
-	if((error = ts3Functions.openCaptureDevice(connection, previousMode, previousDeviceName)) != ERROR_ok) {
-		printf("Error opening capture device: 0x%x\n", error);
-		return error;
-	} else {
-		cout << "\tnew device id: " << previousDeviceName << endl;
-	}
-
-	//if((error = ts3Functions.activateCaptureDevice(connection) ) != ERROR_ok) {
-	//	printf("Error activating capture device: 0x%x\n", error);
-	//	return error;
-	//} 
-
-	char* result_after;
-	ts3Functions.getPreProcessorConfigValue(connection, "voiceactivation_level", &result_after);
-
-	//cout << "results:" << std::endl;
-	//cout << result_before << std::endl;
-	//cout << result_after << std::endl;
-	//cout << "" << std::endl;
-
-	// ts resets it to 0 db unless we do this :'(
-	ts3Functions.setPreProcessorConfigValue(connection, "voiceactivation_level", result_before);
-
-	ts3Functions.freeMemory(result_before);
-	ts3Functions.freeMemory(result_after);
-
-	/*
-	If the capture device for a given server connection handler has been deactivated by the Client
-Lib, the flag CLIENT_INPUT_HARDWARE will be set. This can be queried with the function
-ts3client_getClientSelfVariableAsInt.
-	*/
-
-
-	printf("\n    finished playing welcome sound \n");
-	
-
-	return 0;
-}
