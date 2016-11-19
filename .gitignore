@@ -32,3 +32,4 @@ _ReSharper*/
 *.ipch
 [Tt]emp*/
 test_plugin.VC.db
+x64/TestExecutable/SoundplayerPlugin_x64.exp

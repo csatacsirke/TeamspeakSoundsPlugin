@@ -17,6 +17,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="TestExecutable|Win32">
+      <Configuration>TestExecutable</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="TestExecutable|x64">
+      <Configuration>TestExecutable</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{192D646D-748B-450B-AF3D-BF8EDD5FC897}</ProjectGuid>
@@ -44,8 +52,20 @@
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Static</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
@@ -55,15 +75,27 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="common.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="common.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="common.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="common.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="common.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="common.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -75,10 +107,23 @@
     <TargetName>$(ProjectName)_$(Platform)</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|Win32'">
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Temp\$(Platform)_$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Platform)</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
     <TargetName>$(ProjectName)_$(Platform)</TargetName>
     <IntDir>$(SolutionDir)Temp\$(Platform)_$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|x64'">
+    <IncludePath>$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
+    <TargetName>$(ProjectName)_$(Platform)</TargetName>
+    <IntDir>$(SolutionDir)Temp\$(Platform)_$(Configuration)\</IntDir>
+    <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
@@ -108,9 +153,29 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <TargetMachine>MachineX86</TargetMachine>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <Optimization>MinSpace</Optimization>
+      <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -123,6 +188,25 @@
       <SubSystem>Windows</SubSystem>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Create</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+      <EntryPointSymbol>
+      </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,6 +243,8 @@
   <ItemGroup>
     <ClCompile Include="App\SoundplayerApp.cpp" />
     <ClCompile Include="Config.cpp" />
+    <ClCompile Include="exe\main.cpp" />
+    <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
     <ClCompile Include="Gui\DlgScrollable.cpp" />
     <ClCompile Include="Gui\PresetHotkeyGroup.cpp" />
     <ClCompile Include="Gui\SettingsDialog.cpp" />
@@ -171,8 +257,12 @@
     <ClCompile Include="Util\Util.cpp" />
     <ClCompile Include="Wave\AudioClipSample.cpp" />
     <ClCompile Include="Wave\AudioDecoder.cpp" />
+    <ClCompile Include="Wave\AudioPlayer.cpp" />
     <ClCompile Include="Wave\AudioProcessor.cpp" />
+    <ClCompile Include="Wave\AudioRecorder.cpp" />
+    <ClCompile Include="Wave\OnlineMicophone.cpp" />
     <ClCompile Include="Wave\wave.cpp" />
+    <ClCompile Include="Web\FileSync.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\plugin_definitions.h" />
@@ -185,24 +275,34 @@
     <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include="App\SoundplayerApp.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />
     <ClInclude Include="Gui\PresetHotkeyGroup.h" />
     <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
+    <ClInclude Include="Http.h" />
     <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h" />
     <ClInclude Include="KeyboardHook\PipeHandler.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Util\NetUtil.h" />
+    <ClInclude Include="Util\RingBuffer.h" />
     <ClInclude Include="Util\HotkeyHandler.h" />
     <ClInclude Include="Util\TSSoundPlayer.h" />
     <ClInclude Include="Util\Util.h" />
     <ClInclude Include="Wave\AudioClipSample.h" />
     <ClInclude Include="Wave\AudioDecoder.h" />
+    <ClInclude Include="Wave\AudioPlayer.h" />
     <ClInclude Include="Wave\AudioProcessor.h" />
+    <ClInclude Include="Wave\AudioRecorder.h" />
+    <ClInclude Include="Wave\MP3Player.h" />
+    <ClInclude Include="Wave\OnlineMicrophone.h" />
+    <ClInclude Include="Wave\SignalProcessing.h" />
     <ClInclude Include="Wave\wave.h" />
+    <ClInclude Include="Web\FileSync.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="test_plugin.rc" />
@@ -211,8 +311,7 @@
     <Text Include="..\changelog.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties RESOURCE_FILE="test_plugin.rc" />

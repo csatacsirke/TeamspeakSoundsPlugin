@@ -10,8 +10,14 @@
 #include <teamspeak/clientlib_publicdefinitions.h>
 
 
+//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
+CString GetLastErrorAsString();
+
+CString ErrorToString(DWORD error);
+
 struct Exception {
 	CString errorMessage;
+	DWORD errorCode = 0;
 	Exception() {};
 	Exception(CStringW msg) {
 		errorMessage = msg;
@@ -19,6 +25,12 @@ struct Exception {
 	Exception(CStringA msg) {
 		errorMessage = msg;
 	}
+	Exception(DWORD errorCode) {
+		this->errorCode = errorCode;
+		ASSERT(0);
+		errorMessage = ErrorToString(errorCode);
+	}
+	
 };
 
 
@@ -50,6 +62,51 @@ namespace Global {
 
 }
 
+
+class Buffer : private std::unique_ptr<std::vector<byte>> {
+public:
+	Buffer() {
+		std::unique_ptr<std::vector<byte>>::reset(new std::vector<byte>());
+	}
+
+	void Append(std::vector<byte>& other) {
+		Append(other.data(), other.size());
+	}
+
+	void Append(void* data, size_t length) {
+		size_t offset = (*this)->size();
+		(*this)->resize(offset + length);
+		memcpy((*this)->data() + offset, data, length);
+	}
+
+	void Truncate(size_t size, Buffer& overflow) {
+		if((*this)->size() > size) {
+			size_t overflowSize = (*this)->size() - size;
+			overflow.Append(this->get()->data() + size, overflowSize);
+			this->get()->resize(size);
+		}
+	}
+
+	size_t Size() {
+		return (*this)->size();
+	}
+
+	operator void* () {
+		return (*this)->data();
+	}
+
+	operator const byte* () {
+		return (*this)->data();
+	}
+
+	void* Data() {
+		return (*this)->data();
+	}
+
+	void Swap(std::vector<byte>& other) {
+		(*this)->swap(other);
+	}
+};
 
 
 // https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
@@ -119,6 +176,13 @@ template<typename T>
 CString ToString(T value) {
 	return CString(std::to_string(value).c_str());
 }
+
+//
+//template<>
+//CString ToString<const char*>(const char* value) {
+//	return CString(value);
+//}
+
 //
 //template<>
 //CString ToString<char*>(char* value) {
@@ -129,19 +193,19 @@ CString ToString(T value) {
 //CString ToString<const char*>(const char* value) {
 //	return CString(value);
 //}
+//
+//template<typename T>
+//CString operator+(const CString& str, T value) {
+//	return str + ToString(value);
+//}
+//
+//template<typename T>
+//CString operator+(T value, const CString& str) {
+//	return ToString(value) + str;
+//}
 
 template<typename T>
-CString operator+(const CString& str, T value) {
-	return str + ToString(value);
-}
-
-template<typename T>
-CString operator+(T value, const CString& str) {
-	return ToString(value) + str;
-}
-
-template<typename T>
-T Clamp(T x, T lowerBound, T upperBound) {
+inline T Clamp(T x, T lowerBound, T upperBound) {
 	if(x < lowerBound) return lowerBound;
 	if(x > upperBound) return upperBound;
 	return x;
@@ -221,6 +285,10 @@ inline CWnd* NoParent() {
 
 void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
 CString FileNameFromPath(CString path);
+
+
+
+
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)

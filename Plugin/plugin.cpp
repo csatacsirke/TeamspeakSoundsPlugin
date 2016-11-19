@@ -640,7 +640,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon) {
 	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_CHANNEL, MENU_ID_CHANNEL_3, "Channel item 3", "3.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_1,  "Play sound from file...",  "1.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "Enqueue sound from file...", "2.png");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_3,  "Play sound from file...(unstable)",  "3.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_GLOBAL_3,  "Audio Processor Dialog",  "3.png");
 	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_4, "Open debug console", "4.png");
 	//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_SETTINGS, "Play sound from file...(unstable)", "4.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
@@ -1203,7 +1203,8 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 					break;
 				case MENU_ID_GLOBAL_3:
 					/* Menu global 2 was triggered */
-					theApp->AsyncOpenAndPlayFile_advanced();
+					//theApp->AsyncOpenAndPlayFile_advanced();
+					theApp->AsyncOpenAudioProcessorDialog();
 					break;
 				case MENU_ID_GLOBAL_4:
 					/* Menu global 2 was triggered */

@@ -11,7 +11,10 @@
 
 #include "Config.h"
 #include "Util\HotkeyHandler.h"
+#include "Wave\OnlineMicrophone.h"
 #include "Wave\AudioProcessor.h"
+#include "Wave\AudioPlayer.h"
+
 
 class SoundplayerApp  {
 
@@ -29,18 +32,25 @@ public:
 	void OnHotkey(CStringA keyword);
 
 	void OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited);
+	void OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
+
+	//void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
+	//void OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
+	//void OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited);
+
 
 	void OpenSettingsDialog(void* handle, void* qParentWidget);
 	void OpenSoundsFolderSelectorDialog();
 
+	void AsyncOpenAudioProcessorDialog();
 	
 	void AsyncOpenAndPlayFile();
 	void AsyncPlayFile(CString fileName);
 	void PlayFile(CString fileName);
 	void StopPlayback();
 
-	void AsyncOpenAndPlayFile_advanced();
-	void PlayFile_advanced(CString fileName);
+	//void AsyncOpenAndPlayFile_advanced();
+	//void PlayFile_advanced(CString fileName);
 
 	void AsyncEnqueueFile();
 	void PlayQueued();
@@ -68,6 +78,9 @@ private:
 
 	PipeHandler pipeHandler;
 
+	//OnlineMicrophone onlineMicrophone;
+
+	//AudioPlayer audioPlayer;
 	AudioProcessor audioProcessor;
 
 	bool commandInProgress = false;

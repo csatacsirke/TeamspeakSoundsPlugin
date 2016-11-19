@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_plugin", "Plugin\test_plugin.vcxproj", "{192D646D-748B-450B-AF3D-BF8EDD5FC897}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundplayerPlugin", "Plugin\test_plugin.vcxproj", "{192D646D-748B-450B-AF3D-BF8EDD5FC897}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginInstaller", "PluginInstaller\PluginInstaller.csproj", "{C286915A-7669-4708-AC86-9DBB02CC2727}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -13,16 +13,24 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM = Debug|ARM
 		Debug|Win32 = Debug|Win32
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
 		Release|Any CPU = Release|Any CPU
+		Release|ARM = Release|ARM
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
+		TestExecutable|Any CPU = TestExecutable|Any CPU
+		TestExecutable|ARM = TestExecutable|ARM
+		TestExecutable|Win32 = TestExecutable|Win32
+		TestExecutable|x64 = TestExecutable|x64
+		TestExecutable|x86 = TestExecutable|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|ARM.ActiveCfg = Debug|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|Win32.ActiveCfg = Debug|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|Win32.Build.0 = Debug|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|x64.ActiveCfg = Debug|x64
@@ -30,14 +38,25 @@ Global
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|x86.ActiveCfg = Debug|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Debug|x86.Build.0 = Debug|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|Any CPU.ActiveCfg = Release|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|ARM.ActiveCfg = Release|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|Win32.ActiveCfg = Release|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|Win32.Build.0 = Release|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|x64.ActiveCfg = Release|x64
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|x64.Build.0 = Release|x64
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|x86.ActiveCfg = Release|Win32
 		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.Release|x86.Build.0 = Release|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|Any CPU.ActiveCfg = TestExecutable|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|ARM.ActiveCfg = TestExecutable|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|Win32.ActiveCfg = TestExecutable|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|Win32.Build.0 = TestExecutable|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|x64.ActiveCfg = TestExecutable|x64
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|x64.Build.0 = TestExecutable|x64
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|x86.ActiveCfg = TestExecutable|Win32
+		{192D646D-748B-450B-AF3D-BF8EDD5FC897}.TestExecutable|x86.Build.0 = TestExecutable|Win32
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|ARM.Build.0 = Debug|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|Win32.ActiveCfg = Debug|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|Win32.Build.0 = Debug|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -46,12 +65,24 @@ Global
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Debug|x86.Build.0 = Debug|x86
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|ARM.ActiveCfg = Release|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|ARM.Build.0 = Release|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|Win32.ActiveCfg = Release|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|Win32.Build.0 = Release|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|x64.ActiveCfg = Release|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|x64.Build.0 = Release|Any CPU
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|x86.ActiveCfg = Release|x86
 		{C286915A-7669-4708-AC86-9DBB02CC2727}.Release|x86.Build.0 = Release|x86
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|Any CPU.ActiveCfg = TestExecutable|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|Any CPU.Build.0 = TestExecutable|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|ARM.ActiveCfg = TestExecutable|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|ARM.Build.0 = TestExecutable|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|Win32.ActiveCfg = TestExecutable|x86
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|Win32.Build.0 = TestExecutable|x86
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|x64.ActiveCfg = TestExecutable|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|x64.Build.0 = TestExecutable|Any CPU
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|x86.ActiveCfg = TestExecutable|x86
+		{C286915A-7669-4708-AC86-9DBB02CC2727}.TestExecutable|x86.Build.0 = TestExecutable|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

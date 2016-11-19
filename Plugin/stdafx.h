@@ -36,6 +36,7 @@
 #include <thread>
 #include <string>
 #include <iostream>
+#include <queue>
 #include <map>
 #include <unordered_map>
 #include <stdio.h>

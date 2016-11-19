@@ -33,6 +33,12 @@
     <Filter Include="KeyboardHook">
       <UniqueIdentifier>{6de0aabc-593a-460f-8fbe-3ca8c8608563}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Exe">
+      <UniqueIdentifier>{3fd804c7-baea-47cb-b5af-b34222702022}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Web">
+      <UniqueIdentifier>{b9996207-9094-4f39-8ce9-b404232c1d21}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="plugin.h">
@@ -119,6 +125,36 @@
     <ClInclude Include="Wave\AudioProcessor.h">
       <Filter>Wave</Filter>
     </ClInclude>
+    <ClInclude Include="Gui\AudioProcessorDialog.h">
+      <Filter>Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Web\FileSync.h">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Http.h">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\MP3Player.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\SignalProcessing.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\AudioRecorder.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\AudioPlayer.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\OnlineMicrophone.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\RingBuffer.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\NetUtil.h">
+      <Filter>Util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -167,6 +203,24 @@
       <Filter>KeyboardHook</Filter>
     </ClCompile>
     <ClCompile Include="Wave\AudioProcessor.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="exe\main.cpp">
+      <Filter>Exe</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\AudioProcessorDialog.cpp">
+      <Filter>Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Web\FileSync.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\AudioRecorder.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\AudioPlayer.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\OnlineMicophone.cpp">
       <Filter>Wave</Filter>
     </ClCompile>
   </ItemGroup>
