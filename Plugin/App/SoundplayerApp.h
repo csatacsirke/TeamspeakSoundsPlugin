@@ -14,6 +14,7 @@
 #include "Wave\OnlineMicrophone.h"
 #include "Wave\AudioProcessor.h"
 #include "Wave\AudioPlayer.h"
+#include "Wave\AudioBuffer.h"
 
 
 class SoundplayerApp  {
@@ -47,6 +48,7 @@ public:
 	void AsyncOpenAndPlayFile();
 	void AsyncPlayFile(CString fileName);
 	void PlayFile(CString fileName);
+	void PlayFile_old(CString fileName);
 	void StopPlayback();
 
 	//void AsyncOpenAndPlayFile_advanced();
@@ -72,13 +74,13 @@ private:
 
 	std::mutex playerLock;
 	volatile bool stop;
-
+	
 	//KeyboardHookInstaller hookInstaller;
 	LocalKeyboardHookInstaller localHookInstaller;
 
 	PipeHandler pipeHandler;
 
-	//OnlineMicrophone onlineMicrophone;
+	OnlineMicrophone onlineMicrophone;
 
 	//AudioPlayer audioPlayer;
 	AudioProcessor audioProcessor;
@@ -87,7 +89,10 @@ private:
 	CString inputBuffer;
 
 	concurrency::concurrent_queue<CString> playlist;
+	
 	CString lastFile;
+
+	AudioBuffer audioBuffer;
 
 	//// Teamspeak sound related config
 	//const char* myDeviceId = "BattlechickensId"; 

@@ -1,7 +1,12 @@
 #pragma once
 
 
+
 #include <Mmsystem.h>
+
+
+#include <Wave/SignalProcessing.h>
+
 
 class SmartWaveOutHandle {
 	HWAVEOUT hWaveOut = NULL;
@@ -52,3 +57,4 @@ public:
 	
 	
 };
+

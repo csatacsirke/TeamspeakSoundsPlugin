@@ -15,6 +15,20 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Define output format
 static WAVEFORMATEX defaultPcmFormat = {
 	WAVE_FORMAT_PCM, // WORD        wFormatTag;         /* format type */
@@ -27,7 +41,7 @@ static WAVEFORMATEX defaultPcmFormat = {
 };
 
 AudioPlayer::AudioPlayer() : AudioPlayer(defaultPcmFormat) {
-	void;
+	NULL;
 }
 
 AudioPlayer::AudioPlayer(WAVEFORMATEX pcmFormat) {
@@ -57,7 +71,7 @@ void AudioPlayer::SetPcmFormat(WAVEFORMATEX pcmFormat) {
 }
 
 void AudioPlayer::AddSamples(short* samples, size_t sampleCount) {
-	static WAVEHDR WaveHDR = { (char*)samples,  sampleCount*sizeof(*samples) };
+	static WAVEHDR WaveHDR = { (char*)samples,  (DWORD)sampleCount*sizeof(*samples) };
 	waveOutPrepareHeader(hWaveOut, &WaveHDR, sizeof(WaveHDR));
 	waveOutWrite(hWaveOut, &WaveHDR, sizeof(WaveHDR));
 

@@ -155,6 +155,12 @@
     <ClInclude Include="Util\NetUtil.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\Log.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\AudioBuffer.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -221,6 +227,12 @@
       <Filter>Wave</Filter>
     </ClCompile>
     <ClCompile Include="Wave\OnlineMicophone.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Log.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\AudioBuffer.cpp">
       <Filter>Wave</Filter>
     </ClCompile>
   </ItemGroup>

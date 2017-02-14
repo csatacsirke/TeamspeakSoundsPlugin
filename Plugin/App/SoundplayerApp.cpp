@@ -12,6 +12,7 @@
 #include "Util\TSSoundPlayer.h"
 
 #include <Mmsystem.h>
+#include <atlpath.h>
 
 /*
 TODO LIST
@@ -25,8 +26,8 @@ reload plugin ne fagyjon szét
 hangtorzitás :^)
 *nem létező fájlnál ne pampogjon
 hangfelvétel
-A Sleep paraméterét normálisan kiszámolni
-
+A Sleep paraméterét normálisan kiszámolni ????
+cachelni a reasamplezott cuccokat
 
 */
 
@@ -55,10 +56,14 @@ void SoundplayerApp::InitKeyboardHook() {
 }
 
 void SoundplayerApp::Init() {
-
+	CPath path = CString(Global::configPath);
+	path.Append(Global::config.defaultFileName);
 	
 	InitKeyboardHook();
-	CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
+	//PathAppend()
+	//PathCchAppend()
+	//CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
+	
 	Global::config.LoadFromFile(path);
 }
 
@@ -209,6 +214,49 @@ void SoundplayerApp::AsyncOpenAndPlayFile() {
 
 
 void SoundplayerApp::PlayFile(CString fileName) {
+
+	if(!PathFileExists(fileName)) {
+		return;
+	}
+
+#ifdef DEBUG 
+	if(playerLock.try_lock()) {
+		playerLock.unlock();
+	} else {
+		Log::Warning(L"SoundplayerApp::PlayFile(CString fileName) is locked.");
+	}
+#endif
+	std::unique_lock<std::mutex> lock(playerLock);
+	this->stop = false;
+
+	SendFileNameToChat(fileName);
+
+	this->lastFile = fileName; // csak nem akad össze...
+
+	std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+
+	
+	if(!track) {
+		Log::Warning(L"LoadWaveFile failed");
+		return;
+	}
+
+	//void AddSamples(short* samples, size_t sampleCount, int channels)
+	// TODO EZ IGY GECIRONDA
+	//const int sampleCountOf20ms = outputFrequency*outputChannels*frameLengthMillisecs / 1000;
+	//const int sampleCountOf20ms = track->header.nSamplesPerSec * track->header.nChannels * 20 / 1000;
+
+	//audioBuffer.AddSamples((short*)track->buffer.data(), track->numberOfSamples, track->header.nChannels);
+	//audioBuffer.AddSamples((short*)track->buffer.data(), track->header);
+
+	audioBuffer.AddSamples(*track);
+
+	
+
+}
+
+
+void SoundplayerApp::PlayFile_old(CString fileName) {
 
 	if(!PathFileExists(fileName)) {
 		return;
@@ -480,27 +528,89 @@ void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampl
 
 void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited) {
 
+	//if(GetKeyState(VK_CONTROL) < 0) {
+	//	ts3Functions.ts3client_setLocalTestMode(Global::connection, 1);
+	//} else {
+	//	ts3Functions.ts3client_setLocalTestMode(Global::connection, 0);
+	//	
+	//}
+	
+
+
+	//unsigned int ts3client_setLocalTestMode(serverConnectionHandlerID, status);
+	
+	assert(channels == 1);
+
+	//static std::vector<byte> buffer;
+	//if(onlineMicrophone.TryGetSamples(buffer)) {
+	//	memcpy(samples, buffer.data(), buffer.size()*sizeof(short));
+	//}
+
+
+	//if(onlineMicrophone.TryGetSamples(buffer)) {
+	//	memcpy(samples, buffer.data(), buffer.size() * sizeof(short));
+	//}
+	
 	//pcmFormat
 	//audioPlayer.SetPcmFormat(pcmFormat);
 	//audioPlayer.AddSamples(samples, sampleCount);
+
+
+	CachedAudioSample48k playbackSamples;
+	bool success = audioBuffer.TryGetSamples20ms(playbackSamples);
+	if(success) {
+		
+		if(!(*edited &= 2)) {
+			// ha nincs küldendö adat
+			memset(samples, 0, sizeof(short)*sampleCount*channels);
+		}
+
+		assert(sampleCount == playbackSamples->size());
+		SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
+		//*edited |= 2;
+		*edited |= 1;
+	} else { 
+		//*edited &= ~1;
+	}
 
 	//If the sound data will be send, (*edited | 2) is true.
 	//If the sound data is changed, set bit 1 (*edited |= 1).
 	//If the sound should not be send, clear bit 2. (*edited &= ~2)
 
-	if(*edited & 0x2) {
-		bool enabled = audioProcessor.Process(samples, sampleCount, channels);
+	//if(*edited & 0x2) {
+	//	bool enabled = audioProcessor.Process(samples, sampleCount, channels);
 
-		if(enabled) {
-			*edited |= 1;
-		} else {
-			*edited &= ~1;
-		}
-	}
+	//	if(enabled) {
+	//		*edited |= 1;
+	//	} else {
+	//		*edited &= ~1;
+	//	}
+	//}
 	
 	
 }
 
+// TODO ezt kéne megcsinálni
+bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state) {
+	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
+		(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
 
+	if(scHandlerID == 0 || state == TS_INVALID)
+		return false;
 
+	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
+	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;
+
+	if(checkError(ts3Functions.setPreProcessorConfigValue(
+		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
+		return false;
+
+	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
+		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
+		return false;
+
+	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
+	currentTalkState = state;
+	return true;
+}
 

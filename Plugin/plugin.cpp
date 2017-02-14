@@ -17,12 +17,12 @@ using namespace std;
 //#include <afxwin.h>
 #endif
 
-#include "teamspeak/public_errors.h"
-#include "teamspeak/public_errors_rare.h"
-#include "teamspeak/public_definitions.h"
-#include "teamspeak/public_rare_definitions.h"
-#include "teamspeak/clientlib_publicdefinitions.h"
-#include "ts3_functions.h"
+#include "pluginsdk/include/teamspeak/public_errors.h"
+#include "pluginsdk/include/teamspeak/public_errors_rare.h"
+#include "pluginsdk/include/teamspeak/public_definitions.h"
+#include "pluginsdk/include/teamspeak/public_rare_definitions.h"
+#include "pluginsdk/include/teamspeak/clientlib_publicdefinitions.h"
+#include "pluginsdk/include/ts3_functions.h"
 #include "plugin.h"
 
 #include "Wave\wave.h"
@@ -49,7 +49,7 @@ std::unique_ptr<SoundplayerApp> theApp;
 
 //int PlayWelcomeSound();
 
-#define PLUGIN_API_VERSION 20
+#define PLUGIN_API_VERSION 21
 
 
 
@@ -183,7 +183,7 @@ int ts3plugin_init() {
     ts3Functions.getAppPath(appPath, PATH_BUFSIZE);
     ts3Functions.getResourcesPath(resourcesPath, PATH_BUFSIZE);
     ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
-	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE);
+	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, Global::pluginID);
 
 	printf("PLUGIN: App path: %s\nResources path: %s\nConfig path: %s\nPlugin path: %s\n", appPath, resourcesPath, configPath, pluginPath);
 
@@ -1211,7 +1211,9 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 					std::locale::global(std::locale(""));
 
 					AllocConsole();
-					freopen("CONOUT$", "w", stdout);
+					FILE* dummy; // nem tudom hogy lehet e itt NULL-t átadni
+					freopen_s(&dummy, "CONOUT$", "w", stdout);
+					//freopen("CONOUT$", "w", stdout);
 					break;
 				case MENU_ID_GLOBAL_SETTINGS:
 					theApp->OpenSettingsDialog(0, 0);

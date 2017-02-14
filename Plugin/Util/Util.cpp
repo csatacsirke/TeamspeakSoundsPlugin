@@ -59,12 +59,14 @@ CStringA GetHotkey(CStringA key) {
 	};
 
 
-	const int length = 2;
+	const int length = 1;
 	const int size = 256;
 	//char hotkeys[length][size];
 	char buffer1[size];
 	char buffer2[size];
-	char* hotkeys[length] = { buffer1, buffer2};
+	char* hotkeys[2] = { buffer1, buffer2};
+
+	const int asd = sizeof hotkeys;
 
 
 	Global::ts3Functions.getHotkeyFromKeyword(Global::pluginID, keywords, hotkeys, length, size);

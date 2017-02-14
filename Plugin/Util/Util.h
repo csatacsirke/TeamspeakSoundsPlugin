@@ -3,11 +3,11 @@
 #include <string>
 
 
-#include <teamspeak/public_errors.h>
-#include <teamspeak/public_errors_rare.h>
-#include <teamspeak/public_definitions.h>
-#include <teamspeak/public_rare_definitions.h>
-#include <teamspeak/clientlib_publicdefinitions.h>
+#include <pluginsdk\include\teamspeak/public_errors.h>
+#include <pluginsdk\include\teamspeak/public_errors_rare.h>
+#include <pluginsdk\include\teamspeak/public_definitions.h>
+#include <pluginsdk\include\teamspeak/public_rare_definitions.h>
+#include <pluginsdk\include\teamspeak/clientlib_publicdefinitions.h>
 
 
 //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
@@ -113,62 +113,10 @@ public:
 CStringA ConvertUnicodeToUTF8(const CStringW& uni);
 BOOL DirectoryExists(CString szPath);
 
-namespace Log {
-
-	enum Level {
-		Level_Debug, Level_Error, Level_Warning
-	};
-
-
-	static void Write(const wchar_t* msg, Log::Level level) {
-
-		if(std::wcout.fail()) {
-			std::wcout.clear();
-		}
-
-		if(level == Level_Error) {
-			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // Get handle to standard output
-			CONSOLE_SCREEN_BUFFER_INFO attributes;
-			GetConsoleScreenBufferInfo(hConsole, &attributes);
-
-			SetConsoleTextAttribute(hConsole, FOREGROUND_RED);
-			std::wcout << msg;
-			SetConsoleTextAttribute(hConsole, attributes.wAttributes);
-		} else if(level == Level_Warning) {
-			HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);  // Get handle to standard output
-			CONSOLE_SCREEN_BUFFER_INFO attributes;
-			GetConsoleScreenBufferInfo(hConsole, &attributes);
-			
-			// sájga
-			SetConsoleTextAttribute(hConsole, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
-			std::wcout << msg;
-			SetConsoleTextAttribute(hConsole, attributes.wAttributes);
-		} else {
-			std::wcout << msg;
-		}
-
-		std::wcout << std::endl;
-
-
-		if(std::wcout.fail()) {
-			std::wcout.clear();
-		}
-	}
-
-	static void Error(CString error) {
-		Write(error, Log::Level_Error);
-		MessageBox(0, error, L"Error", 0);
-	}
-
-	static void Debug(CString msg) {
-		Write(msg, Log::Level_Debug);
-	}
-
-	static void Warning(CString msg) {
-		Write(msg, Log::Level_Warning);
-	}
-};
-
+template<typename T>
+static inline size_t GetDataSizeInBytes(const typename std::vector<T>& vec) {
+	return sizeof(T) * vec.size();
+}
 
 
 

@@ -16,7 +16,7 @@ void Config::LoadFromFile(CString fileName) {
 
 	std::wifstream in(fileName);
 
-	assert((bool)in);
+	ASSERT((bool)in);
 
 	while(in) {
 		std::wstring line;

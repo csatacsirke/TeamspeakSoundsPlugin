@@ -254,7 +254,9 @@
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Util\HotkeyHandler.cpp" />
+    <ClCompile Include="Util\Log.cpp" />
     <ClCompile Include="Util\Util.cpp" />
+    <ClCompile Include="Wave\AudioBuffer.cpp" />
     <ClCompile Include="Wave\AudioClipSample.cpp" />
     <ClCompile Include="Wave\AudioDecoder.cpp" />
     <ClCompile Include="Wave\AudioPlayer.cpp" />
@@ -288,11 +290,13 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Util\Log.h" />
     <ClInclude Include="Util\NetUtil.h" />
     <ClInclude Include="Util\RingBuffer.h" />
     <ClInclude Include="Util\HotkeyHandler.h" />
     <ClInclude Include="Util\TSSoundPlayer.h" />
     <ClInclude Include="Util\Util.h" />
+    <ClInclude Include="Wave\AudioBuffer.h" />
     <ClInclude Include="Wave\AudioClipSample.h" />
     <ClInclude Include="Wave\AudioDecoder.h" />
     <ClInclude Include="Wave\AudioPlayer.h" />

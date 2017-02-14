@@ -39,6 +39,8 @@
 #include <queue>
 #include <map>
 #include <unordered_map>
+#include <unordered_set>
+#include <set>
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
@@ -48,9 +50,10 @@
 #include <concurrent_queue.h>
 #include <functional>
 
-#include "ts3_functions.h"
+#include <pluginsdk\include\ts3_functions.h>
 
 #include <Util\Util.h>
+#include <Util\Log.h>
 #include <Config.h>
 
 enum Messages {
