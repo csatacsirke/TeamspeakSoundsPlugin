@@ -590,27 +590,27 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 	
 }
 
-// TODO ezt kéne megcsinálni
-bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state) {
-	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
-		(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
-
-	if(scHandlerID == 0 || state == TS_INVALID)
-		return false;
-
-	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
-	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;
-
-	if(checkError(ts3Functions.setPreProcessorConfigValue(
-		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
-		return false;
-
-	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
-		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
-		return false;
-
-	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
-	currentTalkState = state;
-	return true;
-}
-
+//// TODO ezt kéne megcsinálni
+//bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state) {
+//	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
+//		(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
+//
+//	if(scHandlerID == 0 || state == TS_INVALID)
+//		return false;
+//
+//	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
+//	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;
+//
+//	if(checkError(ts3Functions.setPreProcessorConfigValue(
+//		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
+//		return false;
+//
+//	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
+//		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
+//		return false;
+//
+//	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
+//	currentTalkState = state;
+//	return true;
+//}
+//
