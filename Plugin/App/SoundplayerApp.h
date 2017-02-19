@@ -48,7 +48,7 @@ public:
 	void AsyncOpenAndPlayFile();
 	void AsyncPlayFile(CString fileName);
 	void PlayFile(CString fileName);
-	void PlayFile_old(CString fileName);
+	//void PlayFile_old(CString fileName);
 	void StopPlayback();
 
 	//void AsyncOpenAndPlayFile_advanced();
@@ -92,7 +92,11 @@ private:
 	
 	CString lastFile;
 
-	AudioBuffer audioBuffer;
+	// TODO : EZ KIBASZOTT ANTIHATÉKONY, CSAK ELÖSZÖR MUKODJON EGYALTALAN
+	AudioBuffer audioBufferForCapture;
+	AudioBuffer audioBufferForPlayback;
+
+	//TsVoiceHandler tsVoiceHandler;
 
 	//// Teamspeak sound related config
 	//const char* myDeviceId = "BattlechickensId"; 

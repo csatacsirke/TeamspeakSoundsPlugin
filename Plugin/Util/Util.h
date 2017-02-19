@@ -9,6 +9,8 @@
 #include <pluginsdk\include\teamspeak/public_rare_definitions.h>
 #include <pluginsdk\include\teamspeak/clientlib_publicdefinitions.h>
 
+#include "Log.h"
+
 
 //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 CString GetLastErrorAsString();
@@ -167,9 +169,18 @@ T Relu(T x) {
 }
 
 
-namespace Global {
+namespace Ts {
+	using namespace Global;
 
-	static CString TsErrorToString(unsigned int error) {
+	static inline void CheckAndLogError(UINT error) {
+		if(error != ERROR_ok) {
+			CString strError = ErrorToString(error);
+			Log::Warning(strError);
+			assert(0 && strError);
+		}
+	}
+
+	static inline CString ErrorToString(unsigned int error) {
 		char* errormsg;
 		if(ts3Functions.getErrorMessage(error, &errormsg) == ERROR_ok) {
 			CString result(errormsg);
@@ -179,6 +190,44 @@ namespace Global {
 			return CString("Unknown error");
 		}
 	}
+
+	static inline CStringA GetPreProcessorConfigValue(CStringA key) {
+		char* ptr;
+		CStringA result;
+		unsigned int error = ts3Functions.getPreProcessorConfigValue(Global::connection, key, &ptr);
+		CheckAndLogError(error);
+		if(error == ERROR_ok) {
+			result = ptr;
+			ts3Functions.freeMemory(ptr);
+		} 
+		return result;
+	}
+
+	static inline void SetPreProcessorConfigValue(CStringA key, CStringA value) {
+		unsigned int error = ts3Functions.setPreProcessorConfigValue(Global::connection, key, value);
+		CheckAndLogError(error);
+	}
+
+	static inline void SetClientSelfVariableAsInt(size_t key, int value) {
+		UINT error = ts3Functions.setClientSelfVariableAsInt(Global::connection, key, value);
+		CheckAndLogError(error);
+	}
+
+	static inline int GetClientSelfVariableAsInt(size_t key) {
+		int value;
+		UINT error = ts3Functions.getClientSelfVariableAsInt(Global::connection, key, &value);
+		CheckAndLogError(error);
+		return value;
+	}
+
+
+	static const char* VoiceActivation = "vad";
+	static const char* True = "true";
+	static const char* False = "false";
+
+	
+
+
 
 }
 

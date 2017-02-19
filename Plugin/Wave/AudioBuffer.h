@@ -35,16 +35,16 @@ public:
 		}
 	}
 private:
-	void Initialize(size_t size) {
+	void Initialize(size_t sampleCount) {
 
 		if (!this->get()) {
-			this->reset(new AudioSample48k(size));
+			this->reset(new AudioSample48k(sampleCount));
 		}
 
 		// ha nem jó a méret, akkor nicns értelme a cachelésnek
-		assert((*this)->size() == size && "AudioSample48k GetNewBuffer(size_t size) : más a méret...");
-		if ((*this)->size() != size) {
-			(*this)->resize(size);
+		assert((*this)->size() == sampleCount && "AudioSample48k GetNewBuffer(size_t size) : más a méret...");
+		if ((*this)->size() != sampleCount) {
+			(*this)->resize(sampleCount);
 		}
 
 		this->used = true;
@@ -56,7 +56,7 @@ private:
 
 };
 
-
+// TODO különbözõ méretekre is jó legyen
 // Annyi lenne a lényege a cuccnak, hogy mikor a bufferekkel zsonglörködünk akkor ne kelljen 
 // pár kilobájtos buffereket ujra-ujra allokálni amikor ugyis mindegyik ugyanakkor meretu
 class AudioBufferCache : public IAudioBufferCache {
@@ -70,10 +70,10 @@ class AudioBufferCache : public IAudioBufferCache {
 	friend class CachedAudioSample48k;
 public:
 
-	CachedAudioSample48k GetNewBuffer(size_t size) {
+	CachedAudioSample48k GetNewBuffer(size_t sampleCount) {
 		CachedAudioSample48k sample = GetNewUninitializedBuffer();
 
-		sample.Initialize(size);
+		sample.Initialize(sampleCount);
 
 		return sample;
 	}
@@ -114,6 +114,8 @@ private:
 
 namespace Global {
 	extern AudioBufferCache audioBufferCache;
+	//extern AudioBufferCache audioBufferCacheForCapture;
+	//extern AudioBufferCache audioBufferCacheForPlayback;
 
 }
 
@@ -126,31 +128,42 @@ namespace Global {
 
 
 class AudioBuffer {
+public:
+	int outputChannels = 1;
+private:
 	const int frameLengthMillisecs = 20;
 	const int outputFrequency = 48000;
-	int outputChannels = 1;
+	
 	std::mutex mutex;
 	//std::queue<std::shared_ptr<std::vector<short>>> buffers;
 	std::queue<CachedAudioSample48k> buffers;
+
+
 public:
-	// 20 ms adatot vár
-	void AddSamples20ms(short* samples, size_t sampleCount, int channels) {
-		
-		//ASSERT(channels == 1);
-		int newSampleCount = outputFrequency*outputChannels*frameLengthMillisecs / 1000;
-		CachedAudioSample48k buffer = Global::audioBufferCache.GetNewBuffer(newSampleCount);
-		if (newSampleCount != sampleCount) {
 
-			SgnProc::Resample(samples, sampleCount, channels, buffer->data(), buffer->size(), outputChannels);
-			
-		} else {
-			memcpy(buffer->data(), samples, sampleCount * sizeof(short));
-
-		}
-
-		std::unique_lock<std::mutex> lock;
-		buffers.push(buffer);
+	AudioBuffer(int channels = 1) {
+		this->outputChannels = channels;
 	}
+
+
+	// 20 ms adatot vár
+	//void AddSamples20ms(short* samples, size_t sampleCount, int channels) {
+	//	
+	//	//ASSERT(channels == 1);
+	//	int newSampleCount = outputFrequency*outputChannels*frameLengthMillisecs / 1000;
+	//	CachedAudioSample48k buffer = Global::audioBufferCache.GetNewBuffer(newSampleCount);
+	//	if (newSampleCount != sampleCount) {
+
+	//		SgnProc::Resample(samples, sampleCount, channels, buffer->data(), buffer->size(), outputChannels);
+	//		
+	//	} else {
+	//		memcpy(buffer->data(), samples, sampleCount * sizeof(short));
+
+	//	}
+
+	//	std::unique_lock<std::mutex> lock;
+	//	buffers.push(buffer);
+	//}
 
 	// ms adatot ad vissza 48khz sample freq.en
 	bool TryGetSamples20ms(OUT CachedAudioSample48k& sample) {
@@ -169,14 +182,13 @@ public:
 		const WAVEFORMATEX& header = track.header;
 
 
-
-		const int inputSampleCountOf20ms = header.nSamplesPerSec * header.nChannels * 20 / 1000;
+		const int inputSampleCountOf20ms = header.nSamplesPerSec * header.nChannels * frameLengthMillisecs / 1000;
 		const int outputSampleCountof20ms = outputFrequency * outputChannels * frameLengthMillisecs / 1000;
 
-		short* const start = (short*)track.buffer.data();
-		short* const end = start + track.numberOfSamples;
+		const short* const start = (short*)track.buffer.data();
+		const short* const end = start + track.numberOfSamples;
 
-		short* offset = start;
+		const short* offset = start;
 		for(offset = start; offset < end - inputSampleCountOf20ms; offset += inputSampleCountOf20ms) {
 
 			

@@ -51,14 +51,14 @@ public:
 		unsigned int error;
 		//if((error = ts3Functions.registerCustomDevice(id, "Nice displayable wave device name", frequency, channels, frequency, channels)) != ERROR_ok) {
 		if((error = ts3Functions.registerCustomDevice(id, "Nice displayable wave device name", frequency, channels, PLAYBACK_FREQUENCY, PLAYBACK_CHANNELS)) != ERROR_ok) {
-			Log::Warning(CString("Error registering custom sound device: ") + TsErrorToString(error));
+			Log::Warning(CString("Error registering custom sound device: ") + Ts::ErrorToString(error));
 		}
 	}
 
 	void Unregister() {
 		unsigned int error;
 		if((error = ts3Functions.unregisterCustomDevice(id) != ERROR_ok)) {
-			Log::Warning(L"Error unregisterCustomDevice: " + TsErrorToString(error));
+			Log::Warning(L"Error unregisterCustomDevice: " + Ts::ErrorToString(error));
 		}
 	}
 
@@ -134,7 +134,7 @@ public:
 
 		unsigned int error;
 		if((error = ts3Functions.openCaptureDevice(connection, "custom", myDeviceId)) != ERROR_ok) {
-			Log::Warning(CString(L"Error opening capture device: ") + TsErrorToString(error));
+			Log::Warning(CString(L"Error opening capture device: ") + Ts::ErrorToString(error));
 			return;
 		}
 
@@ -166,7 +166,7 @@ public:
 			unsigned int error;
 			// stream capture data to the client lib 
 			if((error = ts3Functions.processCustomCaptureData(myDeviceId, ((short*)track->buffer.data()) + captureAudioOffset*track->header.nChannels, capturePeriodSize)) != ERROR_ok) {
-				Log::Warning(CString("Failed to get stream capture data: ") + TsErrorToString(error));
+				Log::Warning(CString("Failed to get stream capture data: ") + Ts::ErrorToString(error));
 				return;
 			}
 			//#if 1
@@ -181,7 +181,7 @@ public:
 
 
 		if((error = ts3Functions.closeCaptureDevice(connection) != ERROR_ok)) {
-			Log::Warning(CString("Error closeCaptureDevice: ") + TsErrorToString(error));
+			Log::Warning(CString("Error closeCaptureDevice: ") + Ts::ErrorToString(error));
 		}
 
 		//if((error = ts3Functions.closePlaybackDevice(connection) != ERROR_ok)) {
@@ -211,7 +211,7 @@ public:
 
 		if((error = ts3Functions.openCaptureDevice(connection, previousCaptureMode, previousCaptureDeviceName)) != ERROR_ok) {
 			//printf("Error (re)opening capture device: 0x%x\n", error);
-			Log::Warning(CString(L"Error (re)opening capture device: ") + TsErrorToString(error));
+			Log::Warning(CString(L"Error (re)opening capture device: ") + Ts::ErrorToString(error));
 			return;
 		} else {
 			//cout << "\tnew device id: " << previousDeviceName << endl;

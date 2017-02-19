@@ -29,26 +29,32 @@
 
 #include "resource.h"
 
+
 #include <vector>
 #include <deque>
-#include <mutex>
-#include <condition_variable>
-#include <thread>
-#include <string>
-#include <iostream>
 #include <queue>
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
+#include <stack>
+
+#include <concurrent_queue.h>
+
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 #include <string.h>
 #include <time.h>
 #include <assert.h>
-#include <concurrent_queue.h>
+
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include <functional>
+
+
 
 #include <pluginsdk\include\ts3_functions.h>
 
@@ -56,10 +62,13 @@
 #include <Util\Log.h>
 #include <Config.h>
 
-enum Messages {
-	WM_PIPE_MESSAGE = WM_USER+1
 
-};
+#define OLD_VERSION 1
+
+//enum Messages {
+//	WM_PIPE_MESSAGE = WM_USER+1
+//
+//};
 
 #define USE_KEYBOARDHOOK TRUE
 //#define USE_KEYBOARDHOOK FALSE

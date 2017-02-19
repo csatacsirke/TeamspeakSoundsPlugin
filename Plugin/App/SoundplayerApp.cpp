@@ -20,7 +20,7 @@ első futtatásnál 0x707 hiba a lejátszásnál
 normálisan beálíltani a lejátszás paramétereket, új soundpalyer osztály?
 megnézni hogy lehet e használni a acquiredata függvényt
 update jelzö
-backspace
+*backspace - ez mitnha meglenne
 reload plugin ne fagyjon szét
 *chatbe küldés
 hangtorzitás :^)
@@ -28,6 +28,10 @@ hangtorzitás :^)
 hangfelvétel
 A Sleep paraméterét normálisan kiszámolni ????
 cachelni a reasamplezott cuccokat
+a connectiont hozzárendelni az apphoz, mert az a szar simán változhat a az ipse két fület nyit T_T
+	arra viszont vigyázni kell hogy a keyboardhook az singleton!!!!
+az audiocache-nek kéne egy map a különböző méretekhez
+a resample-t be kéne tenni az onlófasz eventbe
 
 */
 
@@ -213,6 +217,8 @@ void SoundplayerApp::AsyncOpenAndPlayFile() {
 }
 
 
+#if OLD_VERSION
+
 void SoundplayerApp::PlayFile(CString fileName) {
 
 	if(!PathFileExists(fileName)) {
@@ -249,14 +255,15 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	//audioBuffer.AddSamples((short*)track->buffer.data(), track->numberOfSamples, track->header.nChannels);
 	//audioBuffer.AddSamples((short*)track->buffer.data(), track->header);
 
-	audioBuffer.AddSamples(*track);
+	audioBufferForCapture.AddSamples(*track);
+	audioBufferForPlayback.AddSamples(*track);
 
 	
 
 }
 
-
-void SoundplayerApp::PlayFile_old(CString fileName) {
+#else 
+void SoundplayerApp::PlayFile(CString fileName) {
 
 	if(!PathFileExists(fileName)) {
 		return;
@@ -302,6 +309,7 @@ void SoundplayerApp::PlayFile_old(CString fileName) {
 
 }
 
+#endif
 
 
 void SoundplayerApp::StopPlayback() {
@@ -522,9 +530,48 @@ void SoundplayerApp::AsyncOpenAudioProcessorDialog() {
 	dialogThread.detach();
 }
 
-void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+#if OLD_VERSION
+class TsVoiceHandler {
 
-}
+
+private:
+	bool soundPlaying = false;
+	CStringA defaultVadState;
+public:
+	void ForceEnableMicrophone() {
+		//logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
+		//	(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
+		assert(Global::connection);
+
+
+		if(!soundPlaying) {
+			soundPlaying = true;
+			defaultVadState = Ts::GetPreProcessorConfigValue(Ts::VoiceActivation);
+			Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, Ts::False);
+
+			//ts3Functions.flushClientSelfUpdates(Global::connection, NULL);
+			// ezt lehet hogy célszerubb nem baszogatni
+			//Ts::GetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED);
+		}
+
+
+
+	}
+
+	void ResetMicrophone() {
+		if(soundPlaying) {
+			soundPlaying = false;
+			Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, defaultVadState);
+			// ez kel
+			//ts3Functions.flushClientSelfUpdates(Global::connection, NULL);
+		}
+	}
+	//void SetState(CStringA key, CStringA value) {
+	//	ts3Functions.setPreProcessorConfigValue(Global::connection, key, value);
+	//}
+} tsVoiceHandler;
+
+#endif
 
 void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited) {
 
@@ -538,7 +585,7 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 
 
 	//unsigned int ts3client_setLocalTestMode(serverConnectionHandlerID, status);
-	
+#if OLD_VERSION
 	assert(channels == 1);
 
 	//static std::vector<byte> buffer;
@@ -557,22 +604,29 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 
 
 	CachedAudioSample48k playbackSamples;
-	bool success = audioBuffer.TryGetSamples20ms(playbackSamples);
+	bool success = audioBufferForCapture.TryGetSamples20ms(playbackSamples);
 	if(success) {
 		
+		// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
+		tsVoiceHandler.ForceEnableMicrophone();
+
 		if(!(*edited &= 2)) {
 			// ha nincs küldendö adat
 			memset(samples, 0, sizeof(short)*sampleCount*channels);
 		}
 
 		assert(sampleCount == playbackSamples->size());
+		if(sampleCount != playbackSamples->size()) {
+			Log::Warning(L"if(sampleCount != playbackSamples->size()) {");
+		}
 		SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
 		//*edited |= 2;
 		*edited |= 1;
 	} else { 
+		tsVoiceHandler.ResetMicrophone();
 		//*edited &= ~1;
 	}
-
+#endif
 	//If the sound data will be send, (*edited | 2) is true.
 	//If the sound data is changed, set bit 1 (*edited |= 1).
 	//If the sound should not be send, clear bit 2. (*edited &= ~2)
@@ -589,6 +643,41 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 	
 	
 }
+
+
+void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
+#if OLD_VERSION
+	
+	audioBufferForPlayback.outputChannels = channels;
+	
+	
+	CachedAudioSample48k playbackSamples;
+	
+	bool success = audioBufferForPlayback.TryGetSamples20ms(playbackSamples);
+	
+	//assert(sampleCount == playbackSamples->size() && "Ha ezt látod akkor ne ijedj meg..., hosszu történet....majd egyszer kijavitom");
+	
+	if(success) {
+		// ez is gecikulturált lett.... TODO
+		*channelFillMask |= 3;
+
+		if(sampleCount == playbackSamples->size()) {
+			SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
+		} else {
+			static int asdf = 0;
+			if(!asdf) {
+				asdf = 1;
+				Log::Error(L".......... anyád");
+			}
+		}
+		
+	}
+#endif
+}
+
+
+
+// stolen from someone's soundboard solution on github
 
 //// TODO ezt kéne megcsinálni
 //bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state) {

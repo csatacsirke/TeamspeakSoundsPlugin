@@ -12,17 +12,22 @@ namespace SgnProc {
 		std::vector<int> channelMap(outputChannels);
 		if(channels == outputChannels) {
 			for(int i = 0; i < outputChannels; ++i) {
-				channelMap.push_back(i);
+				channelMap[i] = i;
+				//channelMap.push_back(i);
 			}
 		} else {
 			for(int i = 0; i < outputChannels; ++i) {
-				channelMap.push_back(0);
+				channelMap[i] = 0;
+				//channelMap.push_back(0);
 			}
 		}
 
+		assert(outputChannels == channelMap.size());
+
 		for(int channel = 0; channel < outputChannels; ++channel) {
-			for(int i = 0; i < outputCount; ++i) {
-				output[i*outputChannels + channel] = samples[i*sampleCount / outputCount*channelMap.size() + channelMap[channel]];
+			for(int i = 0; i < outputCount / outputChannels; ++i) {
+				output[i*outputChannels + channel] = samples[i*sampleCount / outputCount * outputChannels + channelMap[channel]];
+				//output[i*outputChannels + channel] = samples[i*sampleCount / outputCount * outputChannels / channels + channelMap[channel]];
 			}
 		}
 		
