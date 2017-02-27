@@ -116,7 +116,7 @@ CStringA ConvertUnicodeToUTF8(const CStringW& uni);
 BOOL DirectoryExists(CString szPath);
 
 template<typename T>
-static inline size_t GetDataSizeInBytes(const typename std::vector<T>& vec) {
+static inline size_t GetDataSizeInBytes(const std::vector<T>& vec) {
 	return sizeof(T) * vec.size();
 }
 

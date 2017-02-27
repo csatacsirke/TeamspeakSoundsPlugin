@@ -6,10 +6,10 @@
 
 
 
-
-namespace Global {
-	AudioBufferCache audioBufferCache;
-}
+//
+//namespace Global {
+//	AudioBufferCache audioBufferCache;
+//}
 
 
 

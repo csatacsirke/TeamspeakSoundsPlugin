@@ -24,9 +24,10 @@ namespace SgnProc {
 
 		assert(outputChannels == channelMap.size());
 
+
 		for(int channel = 0; channel < outputChannels; ++channel) {
 			for(int i = 0; i < outputCount / outputChannels; ++i) {
-				output[i*outputChannels + channel] = samples[i*sampleCount / outputCount * outputChannels + channelMap[channel]];
+				output[i*outputChannels + channel] = samples[i*sampleCount / channels / outputCount * channels * outputChannels + channelMap[channel]];
 				//output[i*outputChannels + channel] = samples[i*sampleCount / outputCount * outputChannels / channels + channelMap[channel]];
 			}
 		}

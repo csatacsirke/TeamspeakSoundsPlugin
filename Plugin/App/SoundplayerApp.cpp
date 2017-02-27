@@ -63,7 +63,7 @@ void SoundplayerApp::Init() {
 	CPath path = CString(Global::configPath);
 	path.Append(Global::config.defaultFileName);
 	
-	InitKeyboardHook();
+	//InitKeyboardHook();
 	//PathAppend()
 	//PathCchAppend()
 	//CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
@@ -255,8 +255,8 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	//audioBuffer.AddSamples((short*)track->buffer.data(), track->numberOfSamples, track->header.nChannels);
 	//audioBuffer.AddSamples((short*)track->buffer.data(), track->header);
 
-	audioBufferForCapture.AddSamples(*track);
-	audioBufferForPlayback.AddSamples(*track);
+	audioBufferForCapture.AddSamples(track);
+	audioBufferForPlayback.AddSamples(track);
 
 	
 
@@ -603,9 +603,10 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 	//audioPlayer.AddSamples(samples, sampleCount);
 
 
-	CachedAudioSample48k playbackSamples;
-	bool success = audioBufferForCapture.TryGetSamples20ms(playbackSamples);
-	if(success) {
+	//CachedAudioSample48k playbackSamples;
+	//bool success = audioBufferForCapture.TryGetSamples20ms(playbackSamples);
+	CachedAudioSample48k playbackSamples = audioBufferForCapture.TryGetSamples20ms(channels);
+	if(playbackSamples) {
 		
 		// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
 		tsVoiceHandler.ForceEnableMicrophone();
@@ -615,8 +616,8 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 			memset(samples, 0, sizeof(short)*sampleCount*channels);
 		}
 
-		assert(sampleCount == playbackSamples->size());
-		if(sampleCount != playbackSamples->size()) {
+		assert(sampleCount*channels == playbackSamples->size());
+		if(sampleCount*channels != playbackSamples->size()) {
 			Log::Warning(L"if(sampleCount != playbackSamples->size()) {");
 		}
 		SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
@@ -624,7 +625,7 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 		*edited |= 1;
 	} else { 
 		tsVoiceHandler.ResetMicrophone();
-		//*edited &= ~1;
+		*edited &= ~1;
 	}
 #endif
 	//If the sound data will be send, (*edited | 2) is true.
@@ -648,21 +649,31 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 #if OLD_VERSION
 	
-	audioBufferForPlayback.outputChannels = channels;
+	//audioBufferForPlayback.outputChannels = channels;
 	
 	
-	CachedAudioSample48k playbackSamples;
+	//CachedAudioSample48k playbackSamples;
 	
-	bool success = audioBufferForPlayback.TryGetSamples20ms(playbackSamples);
+	//bool success = audioBufferForPlayback.TryGetSamples20ms(playbackSamples);
+	CachedAudioSample48k playbackSamples = audioBufferForPlayback.TryGetSamples20ms(channels);
 	
 	//assert(sampleCount == playbackSamples->size() && "Ha ezt látod akkor ne ijedj meg..., hosszu történet....majd egyszer kijavitom");
-	
-	if(success) {
-		// ez is gecikulturált lett.... TODO
-		*channelFillMask |= 3;
 
-		if(sampleCount == playbackSamples->size()) {
-			SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
+	
+
+
+	
+	if(playbackSamples) {
+
+		if(!(*channelFillMask & 0x3)) {
+			*channelFillMask |= 3;
+			memset(samples, 0, sampleCount*channels*sizeof(short));
+		}
+		// ez is gecikulturált lett.... TODO
+		
+
+		if(sampleCount*channels == playbackSamples->size()) {
+			SgnProc::Mix(samples, playbackSamples->data(), sampleCount*channels);
 		} else {
 			static int asdf = 0;
 			if(!asdf) {

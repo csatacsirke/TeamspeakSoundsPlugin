@@ -7,57 +7,87 @@
 
 #include "http.h"
 #include <Wave\MP3Player.h>
-//#include <HttpRequest.idl>
+#include <Wave\SignalProcessing.h>
 
 void wmain() {
 
-
-	MP3Player player;
-
-	// Open the mp3 from a file...
-	CString fileName = L"d:/Documents/AudioRaw/Zilean voice Hungarian.mp3";
-	player.OpenFromFile(fileName);
-	// or From a memory location!
-	//player.OpenFromMemory(ptrToMP3Song, bytesLength);
-
-	player.Play();
+	const short input[] = {1, -1 ,2 ,-2, 3, -3,  4, -4, 5, -5, 6, -6 , 7, -7 };
+	const int count = sizeof input / sizeof(short);
 
 
-	MessageBoxA(0, 0, 0, 0);
-	player.Close();
+	//short* output = new short[count];
+	//outputCount = 
 
-	return;
-
-	try {
-
-		//GET https ://www.googleapis.com/drive/v2/files?corpus=DEFAULT&key={YOUR_API_KEY}
-		//CString apiKey = L"AIzaSyBaej6ehWdKsFbN6REzFA2cXrBXU21e7S4";
-		//CString apiKey = L" AIzaSyA8XQeh5ZEqc4z64uY5g_H1luwLEbW4qjs";
-		CString apiKey = L"w7a6BOxi_m5hLnIJZYT9gVoO";
-		//CString url = L"www.googleapis.com/drive/v2/files?corpus=DOMAIN&key=" + apiKey;
-		//CString url = L"www.googleapis.com/drive/v2/files";
-		CString url = L"www.googleapis.com";
-		CString object = L"drive/v2/files?corpus=DOMAIN&key=" + apiKey;
-
-		//"http://users.atw.hu/battlechicken/ts/downloads/szarhazi.wav"
-
-
-		url = L"users.atw.hu";
-		object = L"battlechicken/ts/downloads/szarhazi.wav";
-
-
-		Web::Http http(url);
-
-		Web::Buffer buffer = http.Get(object);
-
-		MessageBoxA(0, (char*)buffer.Data(), 0, 0);
-		
-
-	} catch(Exception e) {
-		MessageBox(0, e.errorMessage == L"" ? ToString((int)e.errorCode) : e.errorMessage , 0, 0);
+	//short output[] = { -1, -1, -1, -1, -1 , -1 };
+	short output[30];
+	for(short& s : output) {
+		s = -1;
 	}
-	
+	//memset(output, -1, sizeof(output), );
+
+	SgnProc::Resample(input, count, 2, output, 22, 2);
+
+
+	for(short& s : output) {
+		s = -1;
+	}
+	SgnProc::Resample(input, count, 2, output, 22, 1);
+
+
+	int asdf = 234 + 43;
+
 }
+//#include <HttpRequest.idl>
+//
+//void wmain() {
+//
+//
+//	MP3Player player;
+//
+//	// Open the mp3 from a file...
+//	CString fileName = L"d:/Documents/AudioRaw/Zilean voice Hungarian.mp3";
+//	player.OpenFromFile(fileName);
+//	// or From a memory location!
+//	//player.OpenFromMemory(ptrToMP3Song, bytesLength);
+//
+//	player.Play();
+//
+//
+//	MessageBoxA(0, 0, 0, 0);
+//	player.Close();
+//
+//	return;
+//
+//	try {
+//
+//		//GET https ://www.googleapis.com/drive/v2/files?corpus=DEFAULT&key={YOUR_API_KEY}
+//		//CString apiKey = L"AIzaSyBaej6ehWdKsFbN6REzFA2cXrBXU21e7S4";
+//		//CString apiKey = L" AIzaSyA8XQeh5ZEqc4z64uY5g_H1luwLEbW4qjs";
+//		CString apiKey = L"w7a6BOxi_m5hLnIJZYT9gVoO";
+//		//CString url = L"www.googleapis.com/drive/v2/files?corpus=DOMAIN&key=" + apiKey;
+//		//CString url = L"www.googleapis.com/drive/v2/files";
+//		CString url = L"www.googleapis.com";
+//		CString object = L"drive/v2/files?corpus=DOMAIN&key=" + apiKey;
+//
+//		//"http://users.atw.hu/battlechicken/ts/downloads/szarhazi.wav"
+//
+//
+//		url = L"users.atw.hu";
+//		object = L"battlechicken/ts/downloads/szarhazi.wav";
+//
+//
+//		Web::Http http(url);
+//
+//		Web::Buffer buffer = http.Get(object);
+//
+//		MessageBoxA(0, (char*)buffer.Data(), 0, 0);
+//		
+//
+//	} catch(Exception e) {
+//		MessageBox(0, e.errorMessage == L"" ? ToString((int)e.errorCode) : e.errorMessage , 0, 0);
+//	}
+//	
+//}
 
 // basic-http-client.cpp
 //#include <packages\cpprestsdk.v140.windesktop.msvcstl.dyn.rt-dyn.2.8.0\>
