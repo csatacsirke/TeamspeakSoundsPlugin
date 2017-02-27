@@ -306,6 +306,11 @@ public:
 		return nullptr;
 	}
 
+	void Clear() {
+		std::unique_lock<std::mutex> lock(mutex);
+
+		trackQueue = std::queue<WaveTrackPtr>();
+	}
 
 	//void TryGetSamples20ms(_Out_ CachedAudioSample48k) {
 	//void lofasz() {

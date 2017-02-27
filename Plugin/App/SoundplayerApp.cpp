@@ -14,6 +14,8 @@
 #include <Mmsystem.h>
 #include <atlpath.h>
 
+#define USE_KEYBOARD_HOOK TRUE
+
 /*
 TODO LIST
 első futtatásnál 0x707 hiba a lejátszásnál
@@ -62,8 +64,10 @@ void SoundplayerApp::InitKeyboardHook() {
 void SoundplayerApp::Init() {
 	CPath path = CString(Global::configPath);
 	path.Append(Global::config.defaultFileName);
-	
-	//InitKeyboardHook();
+#if USE_KEYBOARD_HOOK
+	InitKeyboardHook();
+#endif
+
 	//PathAppend()
 	//PathCchAppend()
 	//CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
@@ -118,6 +122,12 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 		commandInProgress = false;
 		inputBuffer = "";
 		stop = true;
+
+		// TODO
+
+		audioBufferForCapture.Clear();
+		audioBufferForPlayback.Clear();
+
 		return;
 	}
 
