@@ -72,7 +72,7 @@ void SoundplayerApp::Init() {
 #endif
 
 
-	PresenceBroadcaster broadcaster;
+	//PresenceBroadcaster broadcaster;
 	//PresenceListener listener;
 	//
 	//TcpStreamer tcpStreamer;
@@ -124,7 +124,40 @@ void SoundplayerApp::InitHotkeys(struct PluginHotkey*** hotkeys) {
 void SoundplayerApp::OnHotkey(CStringA keyword) {
 	hotkeyHandler.OnHotkeyEvent(keyword);
 }
-
+//
+//
+//class QuickVoiceChatHandler {
+//	vector<CString> keys;
+//	bool inProgress = false;
+//public:
+//
+//
+//	function<void(vector<CString>& keys)> OnCommandCompleted;
+//
+//public:
+//	void Process(const KeyboardHook::KeyData& keyData) {
+//		if(inProgress) {
+//			if(CString("1234567890").Find(keyData.unicodeLiteral) >= 0) {
+//				keys.push_back(keyData.unicodeLiteral);
+//				if(keys.size() >= 2) {
+//					OnCommandCompleted ? OnCommandCompleted(keys) : NULL;
+//					keys.clear();
+//				}
+//			} else {
+//				inProgress = false;
+//				keys.clear();
+//			}
+//
+//
+//		} else {
+//			if(CString(keyData.unicodeLiteral).CompareNoCase(L"v") == 0) {
+//				inProgress = true;
+//			}
+//		}
+//	}
+//
+//
+//};
 
 
 void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
@@ -148,6 +181,13 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 		return;
 	}
 
+	//quickVoiceChatHandler.OnCommandCompleted = [&](vector<CString>& keys) {
+	//
+	//	commandInProgress = false;
+	//	inputBuffer = "";
+	//};
+	//
+	//quickVoiceChatHandler.process(keyData);
 	
 	CString unicodeLiteral = keyData.unicodeLiteral;
 	if(unicodeLiteral == CString("/")) {
@@ -159,7 +199,7 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 				
 				std::wcout << std::endl << ">>" << (const wchar_t*)inputBuffer << "<<" << std::endl;
 
-				this->ProcessCommand(inputBuffer);
+				ProcessCommand(inputBuffer);
 
 				inputBuffer = "";
 
@@ -410,12 +450,13 @@ void SoundplayerApp::PlayPreset(int ordinal) {
 void SoundplayerApp::PlayRandom() {
 	CString folder;
 	if(Global::config.TryGet(ConfigKey::SoundFolder, folder)) {
-		vector<CString> files;
+		
 
 		if(folder.Right(1) != "\\" && folder.Right(1) != "/") {
 			folder += "\\";
 		}
 
+		vector<CString> files;
 		ListFilesInDirectory(_Out_ files, folder);
 
 		srand((unsigned int)time(0));
@@ -493,8 +534,42 @@ bool SoundplayerApp::TryEnqueueFileFromCommand(CString str) {
 
 
 
+bool SoundplayerApp::TryPlayCodQuickSound(CString str) {
+	
+	if(str.GetLength() != 3) return false;
+	if(str[0] != L'V' && str[0] != L'v') return false;
+	if(!iswdigit(str[1]) ) return false;
+	if(!iswdigit(str[2])) return false;
+
+	
+	int n = _wtoi(static_cast<const wchar_t*>(str) + 1);
+
+	CString dir1 = ToString(n / 10);
+	CString dir2 = ToString(n % 10);
+	
+	//CString path = 
+	CPath directory = Global::config.Get(ConfigKey::SoundFolder, L"");
+	directory.Append(L"cod");
+	directory.Append(dir1);
+	directory.Append(dir2);
+	
+	if(DirectoryExists(directory)) {
+		CPath file = directory;
+		file += PickRandomFile(directory);
+		AsyncPlayFile(file);
+		return true;
+	}
+	return false;
+}
+
 
 void SoundplayerApp::ProcessCommand(CString str) {
+
+	if(TryPlayCodQuickSound(str)) {
+		return;
+	}
+
+
 	if(TryEnqueueFileFromCommand(str)) {
 		return;
 	}
@@ -537,7 +612,6 @@ void SoundplayerApp::SendFileNameToChat(CString path) {
 void SoundplayerApp::SendMessageToChannelChat(CString message) {
 	anyID myID;
 	ts3Functions.getClientID(Global::connection, &myID);
-	
 
 	uint64 channelId;
 	ts3Functions.getChannelOfClient(Global::connection, myID, &channelId);
@@ -773,7 +847,7 @@ void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 n
 	} else {
 		Log::Debug(CString("masik channel: ") + CString(name));
 	}
-#if 0
+
 	bool nameMatchHodi = (strcmp(name, "Hodi") == 0);
 	bool nameMatchTomi = (strcmp(name, "Ugyis") == 0);
 	if(ownChannelId == clientChannelId) {
@@ -801,7 +875,7 @@ void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 n
 
 
 	}
-#endif
+
 
 }
 

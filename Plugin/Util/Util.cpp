@@ -89,12 +89,15 @@ void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CStri
 
 	if((hFind = FindFirstFile(path, &FindFileData)) == INVALID_HANDLE_VALUE) {
 		printf("FindFirstFile failed (%d)\n", GetLastError());
+		return;
 	} else {
 		CString fileName(FindFileData.cFileName);
 
 		//if(filter == 0 || fileName.find(filter) == fileName.length() -lstrlen(filter) ){
 		if(fileName.Right(filter.GetLength()) == filter) {
-			files.push_back(FindFileData.cFileName);
+			if(fileName != L"." && fileName != L"..") {
+				files.push_back(FindFileData.cFileName);
+			}
 		}
 
 	}
@@ -103,9 +106,21 @@ void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CStri
 		CString fileName(FindFileData.cFileName);
 		//if(filter == 0 || fileName.find(filter) == fileName.length() -lstrlen(filter) ){
 		if(fileName.Right(filter.GetLength()) == filter) {
-			files.push_back(FindFileData.cFileName);
+			if(fileName != L"." && fileName != L"..") {
+				files.push_back(FindFileData.cFileName);
+			}
 		}
 	}
+
+}
+
+CString PickRandomFile(CString directory) {
+	std::vector<CString> files;
+	ListFilesInDirectory(_Out_ files, directory);
+
+	if(files.size() == 0) return L"";
+
+	return files[rand() % files.size()];
 
 }
 

@@ -828,9 +828,8 @@ void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clien
 
 
 void ts3plugin_onClientMoveEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, const char* moveMessage) {
-	theApp->OnClientMoved(serverConnectionHandlerID, clientID, oldChannelID, newChannelID, visibility, moveMessage)
-	
-	
+	//void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, CString moveMessage) {
+	theApp->OnClientMoved(clientID, oldChannelID, newChannelID, visibility, CString(moveMessage));
 }
 
 void ts3plugin_onClientMoveSubscriptionEvent(uint64 serverConnectionHandlerID, anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility) {

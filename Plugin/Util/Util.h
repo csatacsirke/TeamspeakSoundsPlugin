@@ -284,8 +284,7 @@ inline CWnd* NoParent() {
 
 void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
 CString FileNameFromPath(CString path);
-
-
+CString PickRandomFile(CString path);
 
 
 

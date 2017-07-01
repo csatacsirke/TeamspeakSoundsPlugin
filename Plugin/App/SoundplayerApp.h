@@ -16,7 +16,7 @@
 #include "Wave\AudioPlayer.h"
 #include "Wave\AudioBuffer.h"
 
-#include <Web/SoundBroadcaster.h>
+//#include <Web/SoundBroadcaster.h>
 
 
 class SoundplayerApp  {
@@ -75,6 +75,7 @@ public:
 	void ProcessCommand(CString str);
 private:
 	bool TryEnqueueFileFromCommand(CString str);
+	bool TryPlayCodQuickSound(CString str);
 	//CString GetLikelyFileName(CString str);
 	
 	void SendFileNameToChat(CString fileName);
@@ -111,7 +112,7 @@ private:
 	AudioBuffer audioBufferForPlayback;
 
 
-
+	//QuickVoiceChatHandler quickVoiceChatHandler;
 
 	
 	//TsVoiceHandler tsVoiceHandler;
