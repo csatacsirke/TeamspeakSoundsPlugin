@@ -1,6 +1,6 @@
 #pragma once
 
-extern std::ofstream logFile;
+
 
 #include <fstream>
 #include <iostream>
@@ -9,12 +9,13 @@ extern std::ofstream logFile;
 namespace Log {
 
 	enum Level {
-		Level_Debug, Level_Error, Level_Warning
+		Level_Debug, Level_Error, Level_Warning	
 	};
 
-	extern std::ofstream logFile;
-
-	static void Write(const wchar_t* msg, std::ostream& stream) {
+	//extern std::wofstream logFile;
+	extern std::wofstream logFile;
+	
+	static void Write(const wchar_t* msg, std::wostream& stream) {
 
 		if (stream.fail()) {
 			stream.clear();
@@ -28,9 +29,9 @@ namespace Log {
 		}
 	}
 
-	static void Write(const wchar_t* msg) {
-		Write(msg, logFile);
-		Write(msg, std::cout);
+	static inline void Write(const wchar_t* msg) {
+		Write(msg, Log::logFile);
+		Write(msg, std::wcout);
 	}
 
 	static void Write(const wchar_t* msg, Log::Level level) {

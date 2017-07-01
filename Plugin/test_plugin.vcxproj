@@ -83,7 +83,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Static</UseOfMfc>
-    <CLRSupport>Pure</CLRSupport>
+    <CLRSupport>false</CLRSupport>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -158,7 +158,7 @@
     <IncludePath>$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
     <TargetName>$(ProjectName)_$(Platform)</TargetName>
     <IntDir>$(SolutionDir)Temp\$(Platform)_$(Configuration)\</IntDir>
-    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
+    <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='TestExecutable|x64'">
     <IncludePath>$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
@@ -322,6 +322,7 @@
     <ClCompile Include="exe\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
     <ClCompile Include="Gui\DlgScrollable.cpp" />
+    <ClCompile Include="Gui\NetworkDialog.cpp" />
     <ClCompile Include="Gui\PresetHotkeyGroup.cpp" />
     <ClCompile Include="Gui\SettingsDialog.cpp" />
     <ClCompile Include="Gui\SoundFolderSelector.cpp" />
@@ -341,6 +342,7 @@
     <ClCompile Include="Wave\OnlineMicophone.cpp" />
     <ClCompile Include="Wave\wave.cpp" />
     <ClCompile Include="Web\FileSync.cpp" />
+    <ClCompile Include="Web\SoundBroadcaster.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\plugin_definitions.h" />
@@ -355,6 +357,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />
+    <ClInclude Include="Gui\NetworkDialog.h" />
     <ClInclude Include="Gui\PresetHotkeyGroup.h" />
     <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="Gui\SoundFolderSelector.h" />
@@ -366,6 +369,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="TcpAudioStreamer.h" />
     <ClInclude Include="Util\Log.h" />
     <ClInclude Include="Util\NetUtil.h" />
     <ClInclude Include="Util\RingBuffer.h" />
@@ -381,8 +385,10 @@
     <ClInclude Include="Wave\MP3Player.h" />
     <ClInclude Include="Wave\OnlineMicrophone.h" />
     <ClInclude Include="Wave\SignalProcessing.h" />
+    <ClInclude Include="Wave\Steganography.h" />
     <ClInclude Include="Wave\wave.h" />
     <ClInclude Include="Web\FileSync.h" />
+    <ClInclude Include="Web\SoundBroadcaster.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="test_plugin.rc" />

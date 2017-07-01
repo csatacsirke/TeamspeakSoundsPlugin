@@ -16,6 +16,8 @@
 #include "Wave\AudioPlayer.h"
 #include "Wave\AudioBuffer.h"
 
+#include <Web/SoundBroadcaster.h>
+
 
 class SoundplayerApp  {
 
@@ -32,13 +34,22 @@ public:
 	void InitHotkeys(struct PluginHotkey*** hotkeys);
 	void OnHotkey(CStringA keyword);
 
+	
+	// for sending sounds and playing for ourselves
 	void OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited);
 	void OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
+
+
+	// for Steganography
+	void OnEditPlaybackVoiceDataEvent(anyID clientID, short* samples, int sampleCount, int channels);
+	bool steganographyEnabled = true;
 
 	//void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
 	//void OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
 	//void OnEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited);
 
+
+	void OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, CString moveMessage);
 
 	void OpenSettingsDialog(void* handle, void* qParentWidget);
 	void OpenSoundsFolderSelectorDialog();
@@ -65,9 +76,12 @@ public:
 private:
 	bool TryEnqueueFileFromCommand(CString str);
 	//CString GetLikelyFileName(CString str);
-	bool GetLikelyFileName(_Out_ CString& result, CString str);
+	
 	void SendFileNameToChat(CString fileName);
 	void SendMessageToChannelChat(CString message);
+
+public:
+	static bool GetLikelyFileName(_Out_ CString& result, CString str);
 
 private:
 	HotkeyHandler hotkeyHandler;
@@ -80,7 +94,7 @@ private:
 
 	PipeHandler pipeHandler;
 
-	OnlineMicrophone onlineMicrophone;
+	//OnlineMicrophone onlineMicrophone;
 
 	//AudioPlayer audioPlayer;
 	AudioProcessor audioProcessor;
@@ -96,6 +110,10 @@ private:
 	AudioBuffer audioBufferForCapture;
 	AudioBuffer audioBufferForPlayback;
 
+
+
+
+	
 	//TsVoiceHandler tsVoiceHandler;
 
 	//// Teamspeak sound related config

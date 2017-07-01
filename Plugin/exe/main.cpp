@@ -8,35 +8,200 @@
 #include "http.h"
 #include <Wave\MP3Player.h>
 #include <Wave\SignalProcessing.h>
+#include <Web/SoundBroadcaster.h>
+#include <Gui/NetworkDialog.h>
+#include <conio.h>
+#include <stdio.h>
+#include <Wave/Steganography.h>
+
+
+using namespace std;
 
 void wmain() {
 
-	const short input[] = {1, -1 ,2 ,-2, 3, -3,  4, -4, 5, -5, 6, -6 , 7, -7 };
-	const int count = sizeof input / sizeof(short);
+	AllocConsole();
+	FILE* console_write = freopen("CONIN$", "r", stdin);
+	FILE* console_read = freopen("CONOUT$", "w", stdout);
+	
+	const size_t size = 8000;
+	short data[size];
 
 
-	//short* output = new short[count];
-	//outputCount = 
+	CStringA secret_orig = "lofasz";
+	Steganography::WriteSecret(data, size, secret_orig);
 
-	//short output[] = { -1, -1, -1, -1, -1 , -1 };
-	short output[30];
-	for(short& s : output) {
-		s = -1;
+
+	CStringA secret_result = Steganography::ReadSecret(data, size);
+
+	bool success = secret_result == secret_orig;
+
+	std::cout << success ? "jo" : "nem";
+
+
+
+	getch();
+}
+
+
+
+void wmain__() {
+
+
+	AllocConsole();
+	FILE* console_write = freopen("CONIN$", "r", stdin);
+	FILE* console_read = freopen("CONOUT$", "w", stdout);
+	
+
+	const short port = 27017;
+	PresenceBroadcaster broadcaster;
+	PresenceListener listener;
+
+	listener.OnPresenceQuery = [&](PresenceListener::Packet& packet) {
+		broadcaster.RespondToQuery(port);
+	};
+
+
+	listener.OnPresenceResponse = [&](PresenceListener::Packet& packet) {
+		sockaddr_in& sender = (sockaddr_in&)packet.sender;
+
+		TCHAR ip_str[INET_ADDRSTRLEN];
+		
+		InetNtop(AF_INET, &(sender.sin_addr), ip_str, INET_ADDRSTRLEN);
+
+		std::wcout << ip_str << ":" << sender.sin_port << " " << (const wchar_t*)packet.message << std::endl;
+	};
+
+	listener.ListenAsyc(port);
+
+	//gethostbyaddr("localhost", )
+
+
+
+	const short tcpPort = 27018;
+
+	TcpStreamer tcpStreamer;
+	tcpStreamer.Listen(tcpPort);
+	Sleep(100);
+
+
+
+	TcpReceiver tcpReveiver;
+
+	tcpReveiver.Connect("127.0.0.1", tcpPort, [&] (TcpReceiver::Packet packet){
+		std::cout << packet->data() << endl;
+	});
+	
+
+
+	Sleep(500);
+	char* msg = "lofasz";
+	tcpStreamer.SendToAllClients(msg, strlen(msg) + 1);
+
+
+
+	NetworkDialog networkDialog;
+
+	networkDialog.DoModal();
+
+
+	//SOCKET clientSocket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	//if(clientSocket == INVALID_SOCKET) {
+	//	int errorCode = WSAGetLastError();
+	//}
+
+
+
+	//sockaddr_in serverAddress;
+	//serverAddress.sin_family = AF_INET;
+	////serverAddress.sin_addr.s_addr = inet_addr("localhost");
+	//serverAddress.sin_addr.s_addr = inet_addr("127.0.0.1");
+	//serverAddress.sin_port = htons(tcpPort);
+	//
+	//int result = ::connect(clientSocket, (sockaddr*)&serverAddress, sizeof(serverAddress));
+	//if(result != 0) {
+	//	int errorCode = WSAGetLastError();
+	//	int asd = 43;
+	//}
+
+	//Sleep(40);
+
+	//const char* msg = "lofasz";
+	//tcpStreamer.SendToAllClients((void*)msg, strlen(msg)+1);
+
+	//char buffer[200];
+	//result = ::recv(clientSocket, buffer, sizeof(buffer), 0);
+	//if(SOCKET_ERROR == 0) {
+	//	int errorCode = WSAGetLastError();
+	//	int asd = 43;
+	//} else {
+	//	std::cout << buffer;
+	//}
+
+
+	//std::thread t1([]{
+	//	while(GetKeyState(VK_ESCAPE) >= 0) Sleep(20);
+	//});
+	//
+
+	//std::thread t2([&] {
+	//	
+	//});
+
+	while(GetKeyState(VK_ESCAPE) >= 0) {
+		//int ch = getchar();
+		int ch = _getch();
+
+		if(ch == VK_ESCAPE) break;
+
+		if(ch == ' ') {
+			broadcaster.QueryDevices(port);
+			cout << "Sending query...." << endl;
+		}
+
+		if(ch == 'm') {
+
+			tcpStreamer.SendToAllClients(msg, strlen(msg) + 1);
+			cout << "sending message..." << endl;
+		}
 	}
-	//memset(output, -1, sizeof(output), );
 
-	SgnProc::Resample(input, count, 2, output, 22, 2);
+	cout << "press esc" << endl;
 
+	//t1.join();
+	//t2.join();
 
-	for(short& s : output) {
-		s = -1;
-	}
-	SgnProc::Resample(input, count, 2, output, 22, 1);
-
-
-	int asdf = 234 + 43;
 
 }
+
+//
+//void wmain() {
+//
+//	const short input[] = {1, -1 ,2 ,-2, 3, -3,  4, -4, 5, -5, 6, -6 , 7, -7 };
+//	const int count = sizeof input / sizeof(short);
+//
+//
+//	//short* output = new short[count];
+//	//outputCount = 
+//
+//	//short output[] = { -1, -1, -1, -1, -1 , -1 };
+//	short output[30];
+//	for(short& s : output) {
+//		s = -1;
+//	}
+//	//memset(output, -1, sizeof(output), );
+//
+//	SgnProc::Resample(input, count, 2, output, 22, 2);
+//
+//
+//	for(short& s : output) {
+//		s = -1;
+//	}
+//	SgnProc::Resample(input, count, 2, output, 22, 1);
+//
+//
+//	int asdf = 234 + 43;
+//
+//}
 //#include <HttpRequest.idl>
 //
 //void wmain() {
@@ -253,9 +418,9 @@ class CMyApp : public CWinApp {
 
 			audioPorcessor.Process((short*)track->buffer.data(), track->numberOfSamples, track->header.nChannels);
 
-			CString resultFileName = CString() + L"d:/Documents/temp/wave/test" + ToString(time(NULL)) + L".wav";
+			//CString resultFileName = CString() + L"d:/Documents/temp/wave/test" + ToString(time(NULL)) + L".wav";
 
-			track->Save(resultFileName);
+			//track->Save(resultFileName);
 		}
 
 

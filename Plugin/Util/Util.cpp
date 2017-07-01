@@ -10,7 +10,7 @@ namespace Global {
 	struct TS3Functions ts3Functions;
 	uint64 connection = 0;
 	char* pluginID = NULL;
-	anyID myID;
+	//anyID myID;
 
 
 	char appPath[PATH_BUFSIZE];

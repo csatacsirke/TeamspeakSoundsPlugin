@@ -22,7 +22,7 @@ public:
 	size_t dataLength;
 public:
 	static std::shared_ptr<WaveTrack> LoadWaveFile(const wchar_t* fileName);
-	void Save(CString fileName);
+	//void Save(CString fileName);
 	
 };
 

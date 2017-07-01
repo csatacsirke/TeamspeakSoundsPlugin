@@ -4,6 +4,7 @@
 #include "afxdlgs.h"
 #include "Wave\wave.h"
 #include "Wave\AudioDecoder.h"
+#include "Wave\Steganography.h"
 
 #include "Gui\SettingsDialog.h"
 #include "Gui\SoundFolderSelector.h"
@@ -13,6 +14,8 @@
 
 #include <Mmsystem.h>
 #include <atlpath.h>
+
+
 
 #define USE_KEYBOARD_HOOK TRUE
 
@@ -67,6 +70,13 @@ void SoundplayerApp::Init() {
 #if USE_KEYBOARD_HOOK
 	InitKeyboardHook();
 #endif
+
+
+	PresenceBroadcaster broadcaster;
+	//PresenceListener listener;
+	//
+	//TcpStreamer tcpStreamer;
+	//TcpReceiver tcpReveiver;
 
 	//PathAppend()
 	//PathCchAppend()
@@ -227,7 +237,7 @@ void SoundplayerApp::AsyncOpenAndPlayFile() {
 }
 
 
-#if OLD_VERSION
+#if NEW_SOUND_PROCESSING_VERSION
 
 void SoundplayerApp::PlayFile(CString fileName) {
 
@@ -525,8 +535,12 @@ void SoundplayerApp::SendFileNameToChat(CString path) {
 }
 
 void SoundplayerApp::SendMessageToChannelChat(CString message) {
+	anyID myID;
+	ts3Functions.getClientID(Global::connection, &myID);
+	
+
 	uint64 channelId;
-	ts3Functions.getChannelOfClient(Global::connection, Global::myID, &channelId);
+	ts3Functions.getChannelOfClient(Global::connection, myID, &channelId);
 	CStringA utfMessage(message);
 	
 	ts3Functions.requestSendChannelTextMsg(Global::connection, utfMessage, channelId, NULL);
@@ -540,7 +554,7 @@ void SoundplayerApp::AsyncOpenAudioProcessorDialog() {
 	dialogThread.detach();
 }
 
-#if OLD_VERSION
+#if NEW_SOUND_PROCESSING_VERSION
 class TsVoiceHandler {
 
 
@@ -583,6 +597,12 @@ public:
 
 #endif
 
+
+static const CStringA testSecret = "looofasz";
+
+
+
+
 void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited) {
 
 	//if(GetKeyState(VK_CONTROL) < 0) {
@@ -595,7 +615,7 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 
 
 	//unsigned int ts3client_setLocalTestMode(serverConnectionHandlerID, status);
-#if OLD_VERSION
+#if NEW_SOUND_PROCESSING_VERSION
 	assert(channels == 1);
 
 	//static std::vector<byte> buffer;
@@ -652,12 +672,18 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 	//	}
 	//}
 	
+
+	if(steganographyEnabled) {
+		Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
+		ONCE(Log::Debug(CString("Channels - write") + ToString(channels)));
+	}
 	
 }
 
 
+
 void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
-#if OLD_VERSION
+#if NEW_SOUND_PROCESSING_VERSION
 	
 	//audioBufferForPlayback.outputChannels = channels;
 	
@@ -693,34 +719,95 @@ void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampl
 		}
 		
 	}
+
+	
 #endif
+}
+
+void SoundplayerApp::OnEditPlaybackVoiceDataEvent(anyID clientID, short* samples, int sampleCount, int channels) {
+	ONCE(Log::Debug(CString("Channels - read") + ToString(channels)));
+	if(steganographyEnabled) {
+		CStringA receivedSecret = Steganography::ReadSecret(samples, sampleCount*channels);
+		bool success = receivedSecret == testSecret;
+
+		if(success ) {
+			ONCE(MessageBoxA(0, "megvan+", 0, 0));
+		}
+		//Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
+	}
+}
+
+#ifdef _DEBUG
+#define MARCI_VERZIO TRUE
+#else
+#define MARCI_VERZIO FALSE
+#endif
+
+void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 newChannelID, int visibility, CString moveMessage) {
+
+	// ez csak az én gépemen legyen
+	if(!MARCI_VERZIO) return;
+
+	//if (clientID == Global::connection) {
+	anyID myID;
+	// ezt a globalozást kurva gyorsan meg kéne szüntetni
+	ts3Functions.getClientID(Global::connection, &myID);
+
+	if(clientID == myID) {
+		cout << "Moved to channel id " << newChannelID << endl;
+		cout << moveMessage << endl;
+
+	}
+
+	char name[256];
+	ts3Functions.getClientDisplayName(Global::connection, clientID, name, sizeof(name));
+
+	uint64 clientChannelId;
+	ts3Functions.getChannelOfClient(Global::connection, clientID, &clientChannelId);
+
+	uint64 ownChannelId;
+	ts3Functions.getChannelOfClient(Global::connection, myID, &ownChannelId);
+
+	if(ownChannelId == clientChannelId) {
+		Log::Debug(CString(name));
+	} else {
+		Log::Debug(CString("masik channel: ") + CString(name));
+	}
+#if 0
+	bool nameMatchHodi = (strcmp(name, "Hodi") == 0);
+	bool nameMatchTomi = (strcmp(name, "Ugyis") == 0);
+	if(ownChannelId == clientChannelId) {
+		std::thread playAndSleepThread = std::thread([=] {
+			CString fileName;
+
+
+			if(nameMatchHodi) {
+				Sleep(500);
+				if(GetLikelyFileName(fileName, L"szar")) {
+					AsyncPlayFile(fileName);
+				}
+			}
+
+			if(nameMatchTomi) {
+				Sleep(500);
+				if(GetLikelyFileName(fileName, L"itt a ku")) {
+					AsyncPlayFile(fileName);
+				}
+			}
+		});
+		playAndSleepThread.detach();
+
+
+
+
+	}
+#endif
+
 }
 
 
 
-// stolen from someone's soundboard solution on github
 
-//// TODO ezt kéne megcsinálni
-//bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state) {
-//	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
-//		(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
-//
-//	if(scHandlerID == 0 || state == TS_INVALID)
-//		return false;
-//
-//	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
-//	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;
-//
-//	if(checkError(ts3Functions.setPreProcessorConfigValue(
-//		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
-//		return false;
-//
-//	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
-//		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
-//		return false;
-//
-//	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
-//	currentTalkState = state;
-//	return true;
-//}
-//
+
+
+

@@ -63,7 +63,7 @@
 #include <Config.h>
 
 
-#define OLD_VERSION 1
+#define NEW_SOUND_PROCESSING_VERSION 1
 
 //enum Messages {
 //	WM_PIPE_MESSAGE = WM_USER+1

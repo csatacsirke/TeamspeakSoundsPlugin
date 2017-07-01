@@ -161,6 +161,18 @@
     <ClInclude Include="Wave\AudioBuffer.h">
       <Filter>Wave</Filter>
     </ClInclude>
+    <ClInclude Include="Web\SoundBroadcaster.h">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="TcpAudioStreamer.h">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\NetworkDialog.h">
+      <Filter>Gui</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\Steganography.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -234,6 +246,12 @@
     </ClCompile>
     <ClCompile Include="Wave\AudioBuffer.cpp">
       <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Web\SoundBroadcaster.cpp">
+      <Filter>Web</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\NetworkDialog.cpp">
+      <Filter>Gui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

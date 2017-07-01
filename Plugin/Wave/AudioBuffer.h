@@ -38,6 +38,14 @@ public:
 	operator bool() {
 		return std::shared_ptr<AudioSample48k>::operator bool();
 	}
+
+	const char* GetData() {
+		return (const char*)this->get()->data();
+	}
+
+	size_t GetDataSize() {
+		return GetDataSizeInBytes(*this->get());
+	}
 private:
 	void Initialize(size_t sampleCount) {
 

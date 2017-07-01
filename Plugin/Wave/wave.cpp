@@ -291,48 +291,48 @@ static char dat[4] = { 'd', 'a', 't', 'a' };
 //}
 //
 //
-
-
-void WaveTrack::Save(CString fileName) {
-	struct WaveHeader wh;
-	int i;
-	int elemWritten;
-	FILE *f;
-
-	for(i = 0; i < 4; i++) {
-		wh.riffId[i] = riff[i];
-		wh.riffType[i] = wave[i];
-		wh.fmtId[i] = fmt[i];
-		wh.dataId[i] = dat[i];
-	}
-
-	/* Format chunk */
-	wh.fmtLen = 16;
-	wh.formatTag = 1;  /* PCM */
-	wh.channels = header.nChannels;
-	wh.samplesPerSec = header.nSamplesPerSec;
-	wh.avgBytesPerSec = header.nSamplesPerSec * header.nChannels * sizeof(short);
-	wh.blockAlign = header.nChannels * sizeof(short);
-	wh.bitsPerSample = sizeof(short) * 8;
-	wh.dataLen = this->numberOfSamples * header.nChannels * sizeof(short);
-	wh.len = 36 + wh.dataLen;
-
-	f = _wfopen(fileName, L"wb");
-	if(!f) {
-		//printf("error: could not write wave\n");
-		Log::Error(L"error: could not write wave");
-		return;
-	}
-
-	elemWritten = fwrite(&wh, sizeof(wh), 1, f);
-	if(elemWritten) elemWritten = fwrite(buffer.data(), wh.dataLen, 1, f);
-	fclose(f);
-
-	if(!elemWritten) {
-		//printf("error: could not write wave\n");
-		Log::Error(L"error: could not write wave");
-	}
-}
+//
+//
+//void WaveTrack::Save(CString fileName) {
+//	struct WaveHeader wh;
+//	int i;
+//	int elemWritten;
+//	FILE *f;
+//
+//	for(i = 0; i < 4; i++) {
+//		wh.riffId[i] = riff[i];
+//		wh.riffType[i] = wave[i];
+//		wh.fmtId[i] = fmt[i];
+//		wh.dataId[i] = dat[i];
+//	}
+//
+//	/* Format chunk */
+//	wh.fmtLen = 16;
+//	wh.formatTag = 1;  /* PCM */
+//	wh.channels = header.nChannels;
+//	wh.samplesPerSec = header.nSamplesPerSec;
+//	wh.avgBytesPerSec = header.nSamplesPerSec * header.nChannels * sizeof(short);
+//	wh.blockAlign = header.nChannels * sizeof(short);
+//	wh.bitsPerSample = sizeof(short) * 8;
+//	wh.dataLen = this->numberOfSamples * header.nChannels * sizeof(short);
+//	wh.len = 36 + wh.dataLen;
+//
+//	f = _wfopen(fileName, L"wb");
+//	if(!f) {
+//		//printf("error: could not write wave\n");
+//		Log::Error(L"error: could not write wave");
+//		return;
+//	}
+//
+//	elemWritten = fwrite(&wh, sizeof(wh), 1, f);
+//	if(elemWritten) elemWritten = fwrite(buffer.data(), wh.dataLen, 1, f);
+//	fclose(f);
+//
+//	if(!elemWritten) {
+//		//printf("error: could not write wave\n");
+//		Log::Error(L"error: could not write wave");
+//	}
+//}
 
 //void writeWave(const char* filename, int freq, int channels, short* buffer, int samples) {
 //	struct WaveHeader wh;
