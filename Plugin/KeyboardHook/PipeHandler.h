@@ -27,7 +27,7 @@ public:
 	//update: lehet hogy megoldódott
 	~PipeHandler(void);
 	
-	bool ListenPipe(CString pipeName = KeyboardHook::defaultPipeName);
+	bool ListenPipe(CString pipeName/* = KeyboardHook::defaultPipeName*/);
 	void Stop();
 
 	void SetOnNewEntryListener(std::function<void(PipeHandler&)> callback);

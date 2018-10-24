@@ -48,20 +48,16 @@ void SoundplayerApp::InitKeyboardHook() {
 
 	localHookInstaller.Attach();
 
-	pipeHandler.SetOnNewEntryListener([&](PipeHandler& pipeHandler) {
-		KeyboardHook::KeyData keyData;
+}
 
-		while(pipeHandler.TryPop(keyData)) {
-			OnKeyData(keyData);
-		}
-	});
 
-	if(!pipeHandler.ListenPipe()) {
-		//MessageBoxA(0, "ListenPipeload failed", 0, 0);
-		Log::Error(L"ListenPipeload failed");
-		return;
-	}
-
+void CreateConsole() {
+	AllocConsole();
+		FILE* pCout;
+		freopen_s(&pCout, "CONOUT$", "w", stdout);
+		std::cout.clear();
+		std::wcout.clear();
+	
 }
 
 void SoundplayerApp::Init() {
@@ -71,6 +67,7 @@ void SoundplayerApp::Init() {
 	InitKeyboardHook();
 #endif
 
+	//CreateConsole();
 
 	//PresenceBroadcaster broadcaster;
 	//PresenceListener listener;
@@ -295,7 +292,7 @@ void SoundplayerApp::PlayFile(CString fileName) {
 	std::unique_lock<std::mutex> lock(playerLock);
 	this->stop = false;
 
-	SendFileNameToChat(fileName);
+	//SendFileNameToChat(fileName);
 
 	this->lastFile = fileName; // csak nem akad össze...
 
@@ -709,7 +706,7 @@ void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCoun
 
 	//CachedAudioSample48k playbackSamples;
 	//bool success = audioBufferForCapture.TryGetSamples20ms(playbackSamples);
-	CachedAudioSample48k playbackSamples = audioBufferForCapture.TryGetSamples20ms(channels);
+	CachedAudioSample48k playbackSamples = audioBufferForCapture.TryGetSamples(sampleCount, channels);
 	if(playbackSamples) {
 		
 		// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
@@ -765,7 +762,7 @@ void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampl
 	//CachedAudioSample48k playbackSamples;
 	
 	//bool success = audioBufferForPlayback.TryGetSamples20ms(playbackSamples);
-	CachedAudioSample48k playbackSamples = audioBufferForPlayback.TryGetSamples20ms(channels);
+	CachedAudioSample48k playbackSamples = audioBufferForPlayback.TryGetSamples(sampleCount, channels);
 	
 	//assert(sampleCount == playbackSamples->size() && "Ha ezt látod akkor ne ijedj meg..., hosszu történet....majd egyszer kijavitom");
 
@@ -871,12 +868,21 @@ void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 n
 		});
 		playAndSleepThread.detach();
 
-
-
-
 	}
+}
 
+BOOL SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) {
+	bool commandWasInProgressBeforeProcessing = commandInProgress;
 
+	OnKeyData(keyData);
+
+	bool shouldDiscardEvent = commandWasInProgressBeforeProcessing || commandInProgress;
+
+	return shouldDiscardEvent ? TRUE : FALSE;
+}
+
+void SoundplayerApp::OnMessage(const CString& message) {
+	std::wcout << message << std::endl;
 }
 
 

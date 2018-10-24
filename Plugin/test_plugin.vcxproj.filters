@@ -167,6 +167,9 @@
     <ClInclude Include="Wave\Steganography.h">
       <Filter>Wave</Filter>
     </ClInclude>
+    <ClInclude Include="KeyboardHook\KeyboardHookUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">

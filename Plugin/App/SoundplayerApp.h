@@ -7,7 +7,7 @@
 //#include <HookInstaller\Hook\PipeHandler.h>
 
 #include "KeyboardHook\LocalKeyboardHookInstaller.h"
-#include "KeyboardHook\PipeHandler.h"
+//#include "KeyboardHook\PipeHandler.h"
 
 #include "Config.h"
 #include "Util\HotkeyHandler.h"
@@ -19,7 +19,7 @@
 //#include <Web/SoundBroadcaster.h>
 
 
-class SoundplayerApp  {
+class SoundplayerApp : public LocalKeyboardHookInstallerDelegate {
 
 public:
 
@@ -73,6 +73,11 @@ public:
 
 
 	void ProcessCommand(CString str);
+
+protected:
+	BOOL LocalKeyboardHookInstallerDelegate::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) override;
+	void LocalKeyboardHookInstallerDelegate::OnMessage(const CString& message) override;
+
 private:
 	bool TryEnqueueFileFromCommand(CString str);
 	bool TryPlayCodQuickSound(CString str);
@@ -91,9 +96,8 @@ private:
 	volatile bool stop;
 	
 	//KeyboardHookInstaller hookInstaller;
-	LocalKeyboardHookInstaller localHookInstaller;
+	LocalKeyboardHookInstaller localHookInstaller = *this;
 
-	PipeHandler pipeHandler;
 
 	//OnlineMicrophone onlineMicrophone;
 

@@ -194,7 +194,7 @@ int ts3plugin_init() {
 	//	return 1;
 	//}
 
-	theApp.reset(new SoundplayerApp);
+	theApp.reset(new SoundplayerApp());
 	theApp->Init();
 
 	return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */

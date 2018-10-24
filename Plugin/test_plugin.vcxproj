@@ -362,6 +362,7 @@
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
     <ClInclude Include="Http.h" />
+    <ClInclude Include="KeyboardHook\KeyboardHookUtils.h" />
     <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h" />
     <ClInclude Include="KeyboardHook\PipeHandler.h" />
     <ClInclude Include="plugin.h" />
