@@ -170,6 +170,15 @@
     <ClInclude Include="KeyboardHook\KeyboardHookUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Gui\InputObserverDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\MenuHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Maybe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="plugin.cpp">
@@ -246,6 +255,12 @@
     </ClCompile>
     <ClCompile Include="Gui\NetworkDialog.cpp">
       <Filter>Gui</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\InputObserverDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\MenuHandler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

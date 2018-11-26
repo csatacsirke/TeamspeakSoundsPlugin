@@ -36,15 +36,15 @@ BOOL SettingsDialog::OnInitDialog() {
 	AddHotkeyButton(L"Play queued", Hotkey::PLAY_QUEUED);
 	AddHotkeyButton(L"Play random", Hotkey::PLAY_RANDOM);
 
-	for(int i = 0; i < soundHotkeyCount; ++i) {
-		CStringA hotkey;
-		hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
-
-		CString title;
-		title.Format(L"Play sound #%d", i);
-
-		AddPresetHotkeyButton(title, hotkey);
-	}
+//for(int i = 0; i < soundHotkeyCount; ++i) {
+//	CStringA hotkey;
+//	hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
+//
+//	CString title;
+//	title.Format(L"Play sound #%d", i);
+//
+//	AddPresetHotkeyButton(title, hotkey);
+//}
 
 	// amig ki nem találok valamit ennek a végén kell lennie mert csak... 
 	CRect rect;

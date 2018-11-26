@@ -41,7 +41,7 @@ namespace Net {
 		bool Receive(std::vector<byte>& buffer) {
 			uint64_t packetSize;
 			int iResult = recv(clientSocket, (char*)&packetSize, sizeof(packetSize), 0);
-			packetSize = ntohl(packetSize);
+			packetSize = ntohll(packetSize);
 			if(iResult > 0) {
 				buffer.resize(packetSize);
 				iResult = recv(clientSocket, (char*)buffer.data(), (int)packetSize, 0);

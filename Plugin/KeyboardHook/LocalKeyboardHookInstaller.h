@@ -3,10 +3,12 @@
 #include "KeyboardHookUtils.h"
 
 
+enum HookResult : BOOL {PassEvent = FALSE, ConsumeEvent = TRUE};
+
 
 class LocalKeyboardHookInstallerDelegate {
 public:
-	virtual BOOL OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) = NULL;
+	virtual HookResult OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) = NULL;
 	virtual void OnMessage(const CString& message) = NULL;
 };
 

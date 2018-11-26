@@ -10,6 +10,7 @@
 #include <pluginsdk\include\teamspeak/clientlib_publicdefinitions.h>
 
 #include "Log.h"
+#include "Maybe.h"
 
 
 //Returns the last Win32 error, in string format. Returns an empty string if there is no error.
@@ -33,6 +34,25 @@ struct Exception {
 		errorMessage = ErrorToString(errorCode);
 	}
 	
+};
+
+class Finally {
+	std::function<void()> func;
+public:
+	//Finally(const std::function<void()>& func) { 
+	//
+	//}
+
+	Finally(const std::function<void()>&& _func) {
+		func = _func;
+	}
+
+	~Finally() {
+		if(func) {
+			func();
+		}
+		
+	}
 };
 
 #define ONCE(X) {static bool first = true; if(first) { first = false; X; }}

@@ -11,10 +11,12 @@
 
 #include "Config.h"
 #include "Util\HotkeyHandler.h"
+#include "Util\MenuHandler.h"
 #include "Wave\OnlineMicrophone.h"
 #include "Wave\AudioProcessor.h"
 #include "Wave\AudioPlayer.h"
 #include "Wave\AudioBuffer.h"
+#include "Gui/InputObserverDialog.h"
 
 //#include <Web/SoundBroadcaster.h>
 
@@ -30,6 +32,8 @@ public:
 	void InitKeyboardHook();
 	void OnKeyData(const KeyboardHook::KeyData& keyData);
 
+	void InitMenus(struct PluginMenuItem*** menuItems, char** menuIcon);
+	void OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 selectedItemID);
 
 	void InitHotkeys(struct PluginHotkey*** hotkeys);
 	void OnHotkey(CStringA keyword);
@@ -72,10 +76,22 @@ public:
 	void PlayPreset(int ordinal);
 
 
-	void ProcessCommand(CString str);
+	void ProcessCommand(const CString& inputString);
+	void UpdateObserverDialog();
+	
+
+	unique_ptr<CString> TryGetSoundsDirectory();
+	unique_ptr<CString> TryGetLikelyFileName(const CString& inputString);
+	//bool GetLikelyFileName(_Out_ CString& result, CString str);
+
+	void PlayAlarmSound();
+	void OpenObserverDialog();
+private:
+	std::vector<CString> files;
+	std::vector<CString> GetPossibleFiles(const CString& inputString);
 
 protected:
-	BOOL LocalKeyboardHookInstallerDelegate::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) override;
+	HookResult LocalKeyboardHookInstallerDelegate::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) override;
 	void LocalKeyboardHookInstallerDelegate::OnMessage(const CString& message) override;
 
 private:
@@ -86,18 +102,22 @@ private:
 	void SendFileNameToChat(CString fileName);
 	void SendMessageToChannelChat(CString message);
 
+	void SetScrollLockState();
+
+
 public:
-	static bool GetLikelyFileName(_Out_ CString& result, CString str);
+	
 
 private:
-	HotkeyHandler hotkeyHandler;
+	//HotkeyHandler hotkeyHandler;
+	MenuHandler menuHandler;
 
 	std::mutex playerLock;
 	volatile bool stop;
 	
 	//KeyboardHookInstaller hookInstaller;
-	LocalKeyboardHookInstaller localHookInstaller = *this;
-
+	LocalKeyboardHookInstaller localHookInstaller = LocalKeyboardHookInstaller(*this);
+	bool shouldDisableHookWhenScrollLockIsEnabled = true;
 
 	//OnlineMicrophone onlineMicrophone;
 
@@ -115,6 +135,10 @@ private:
 	AudioBuffer audioBufferForCapture;
 	AudioBuffer audioBufferForPlayback;
 
+	InputObserverDialog inputObserverDialog;
+
+
+	
 
 	//QuickVoiceChatHandler quickVoiceChatHandler;
 

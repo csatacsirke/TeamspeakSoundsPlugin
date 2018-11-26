@@ -9,7 +9,7 @@ using namespace KeyboardHook;
 
 
 LocalKeyboardHookInstallerDelegate* g_KeyboardHookDelegate = nullptr;
-static BOOL ProcessKeystroke(KBDLLHOOKSTRUCT* pKeyBoardHookStruct) {
+static HookResult ProcessKeystroke(KBDLLHOOKSTRUCT* pKeyBoardHookStruct) {
 
 	KeyboardHook::KeyData data = KeyboardHook::KeyData::CreateFromHookData(*pKeyBoardHookStruct);
 
@@ -18,7 +18,7 @@ static BOOL ProcessKeystroke(KBDLLHOOKSTRUCT* pKeyBoardHookStruct) {
 		return g_KeyboardHookDelegate->OnKeyboardHookEvent(data);
 	}
 
-	return FALSE;
+	return HookResult::PassEvent;
 }
 
 
@@ -36,8 +36,8 @@ CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam) {
 
 
 		if (isPressed) {
-			BOOL result = ProcessKeystroke(pLLKeyboardHookEvent);
-			if (result) {
+			HookResult result = ProcessKeystroke(pLLKeyboardHookEvent);
+			if (result == HookResult::ConsumeEvent) {
 				// feldolgoztuk az üzenetet, és nem akarjuk tovább adni
 				return TRUE;
 			}

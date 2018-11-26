@@ -36,7 +36,7 @@ namespace SgnProc {
 				short sample1 = samples[index1 / channels * channels * outputChannels + channelMap[channel]];
 				short sample2 = samples[(index1+1) / channels * channels * outputChannels + channelMap[channel]];
 
-				output[i*outputChannels + channel] = (1-t) * sample1 + t * sample2;
+				output[i*outputChannels + channel] = short((1-t) * sample1 + t * sample2);
 
 				//output[i*outputChannels + channel] = samples[i*sampleCount / channels / outputCount * channels * outputChannels + channelMap[channel]];
 				//output[i*outputChannels + channel] = samples[i*sampleCount / outputCount * outputChannels / channels + channelMap[channel]];

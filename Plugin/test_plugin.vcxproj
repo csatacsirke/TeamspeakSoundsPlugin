@@ -326,8 +326,10 @@
     <ClCompile Include="Gui\PresetHotkeyGroup.cpp" />
     <ClCompile Include="Gui\SettingsDialog.cpp" />
     <ClCompile Include="Gui\SoundFolderSelector.cpp" />
+    <ClCompile Include="Gui\InputObserverDialog.cpp" />
     <ClCompile Include="KeyboardHook\LocalKeyboardHookInstaller.cpp" />
     <ClCompile Include="KeyboardHook\PipeHandler.cpp" />
+    <ClCompile Include="Util\MenuHandler.cpp" />
     <ClCompile Include="plugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Util\HotkeyHandler.cpp" />
@@ -362,9 +364,12 @@
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
     <ClInclude Include="Http.h" />
+    <ClInclude Include="Gui\InputObserverDialog.h" />
     <ClInclude Include="KeyboardHook\KeyboardHookUtils.h" />
     <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h" />
     <ClInclude Include="KeyboardHook\PipeHandler.h" />
+    <ClInclude Include="Util\Maybe.h" />
+    <ClInclude Include="Util\MenuHandler.h" />
     <ClInclude Include="plugin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />

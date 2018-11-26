@@ -1,7 +1,6 @@
 ﻿#include "stdafx.h"
 
 #include "SoundplayerApp.h"
-#include "afxdlgs.h"
 #include "Wave\wave.h"
 #include "Wave\AudioDecoder.h"
 #include "Wave\Steganography.h"
@@ -11,7 +10,10 @@
 #include <gui/AudioProcessorDialog.h>
 
 #include "Util\TSSoundPlayer.h"
+#include "Util\Util.h"
 
+
+#include "afxdlgs.h"
 #include <Mmsystem.h>
 #include <atlpath.h>
 
@@ -90,36 +92,37 @@ void SoundplayerApp::Init() {
 * This function is automatically called by the client after ts3plugin_init.
 */
 void SoundplayerApp::InitHotkeys(struct PluginHotkey*** hotkeys) {
+	*hotkeys = nullptr;
 	/* Register hotkeys giving a keyword and a description.
 	* The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
 	* The description is shown in the clients hotkey dialog. */
 
-	hotkeyHandler.Add(Hotkey::STOP, "Stop playback", [this]{StopPlayback();});
-	hotkeyHandler.Add(Hotkey::PLAY_QUEUED, "Play queued", [this] {PlayQueued(); });
-	hotkeyHandler.Add(Hotkey::REPLAY, "Replay", [this] {Replay(); });
-	hotkeyHandler.Add(Hotkey::PLAY_RANDOM, "Play random", [this] {PlayRandom(); });
-
-	for(int i = 0; i < soundHotkeyCount; ++i) {
-		CStringA hotkey;
-		hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
-
-		CStringA title;
-		title.Format("Play sound #%d", i);
-
-		hotkeyHandler.Add(hotkey, title, [this, i] {PlayPreset(i); });
-		//CREATE_HOTKEY(Hotkey::REPLAY, "Replay");
-	}
-
-
-	//Config::Get(ConfigKey::SoundHotkeyCount, soundHotkeyCount)
-
-	hotkeyHandler.Configure(hotkeys);
+	//hotkeyHandler.Add(Hotkey::STOP, "Stop playback", [this]{StopPlayback();});
+	//hotkeyHandler.Add(Hotkey::PLAY_QUEUED, "Play queued", [this] {PlayQueued(); });
+	//hotkeyHandler.Add(Hotkey::REPLAY, "Replay", [this] {Replay(); });
+	//hotkeyHandler.Add(Hotkey::PLAY_RANDOM, "Play random", [this] {PlayRandom(); });
+	//
+	//for(int i = 0; i < soundHotkeyCount; ++i) {
+	//	CStringA hotkey;
+	//	hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
+	//
+	//	CStringA title;
+	//	title.Format("Play sound #%d", i);
+	//
+	//	hotkeyHandler.Add(hotkey, title, [this, i] {PlayPreset(i); });
+	//	//CREATE_HOTKEY(Hotkey::REPLAY, "Replay");
+	//}
+	//
+	//
+	////Config::Get(ConfigKey::SoundHotkeyCount, soundHotkeyCount)
+	//
+	//hotkeyHandler.Configure(hotkeys);
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
 }
 
 void SoundplayerApp::OnHotkey(CStringA keyword) {
-	hotkeyHandler.OnHotkeyEvent(keyword);
+	//hotkeyHandler.OnHotkeyEvent(keyword);
 }
 //
 //
@@ -155,9 +158,22 @@ void SoundplayerApp::OnHotkey(CStringA keyword) {
 //
 //
 //};
+static inline void _Log(const CString& inputBuffer) {
+	std::wcout << std::endl << ">>" << (const wchar_t*)inputBuffer << "<<" << std::endl;
 
+	if (wcout.fail()) {
+		wcout.clear();
+	}
+
+}
 
 void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
+
+	Finally finally = [&]{
+		UpdateObserverDialog();
+	};
+
+
 	if(keyData.hookData.vkCode == VK_ESCAPE) {
 		commandInProgress = false;
 		inputBuffer = "";
@@ -194,15 +210,12 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 		if(commandInProgress) {
 			if(keyData.hookData.vkCode == VK_RETURN) {
 				
-				std::wcout << std::endl << ">>" << (const wchar_t*)inputBuffer << "<<" << std::endl;
+				_Log(inputBuffer);
 
 				ProcessCommand(inputBuffer);
 
 				inputBuffer = "";
 
-				if(wcout.fail()) {
-					wcout.clear();
-				}
 
 				commandInProgress = false;
 			} else {
@@ -210,9 +223,66 @@ void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 				//Log::Debug(unicodeLiteral);
 			}
 		}
-		
-		
 	}
+
+
+	//SetScrollLockState();
+}
+
+/*
+ * Initialize plugin menus.
+ * This function is called after ts3plugin_init and ts3plugin_registerPluginID. A pluginID is required for plugin menus to work.
+ * Both ts3plugin_registerPluginID and ts3plugin_freeMemory must be implemented to use menus.
+ * If plugin menus are not used by a plugin, do not implement this function or return NULL.
+ */
+void SoundplayerApp::InitMenus(PluginMenuItem *** menuItems, char ** menuIcon) {
+	/*
+	 * Create the menus
+	 * There are three types of menu items:
+	 * - PLUGIN_MENU_TYPE_CLIENT:  Client context menu
+	 * - PLUGIN_MENU_TYPE_CHANNEL: Channel context menu
+	 * - PLUGIN_MENU_TYPE_GLOBAL:  "Plugins" menu in menu bar of main window
+	 *
+	 * Menu IDs are used to identify the menu item when ts3plugin_onMenuItemEvent is called
+	 *
+	 * The menu text is required, max length is 128 characters
+	 *
+	 * The icon is optional, max length is 128 characters. When not using icons, just pass an empty string.
+	 * Icons are loaded from a subdirectory in the TeamSpeak client plugins folder. The subdirectory must be named like the
+	 * plugin filename, without dll/so/dylib suffix
+	 * e.g. for "test_plugin.dll", icon "1.png" is loaded from <TeamSpeak 3 Client install dir>\plugins\test_plugin\1.png
+	 */
+
+	menuHandler.Add("Play sound from file...", [&] { this->AsyncOpenAndPlayFile(); });
+	menuHandler.Add("Enqueue sound from file...", [&] { this->AsyncEnqueueFile(); });
+	menuHandler.Add("Open observer...", [&] { this->OpenObserverDialog(); });
+
+	menuHandler.Configure(menuItems);
+	//
+
+
+	// * Specify an optional icon for the plugin. This icon is used for the plugins submenu within context and main menus
+	// * If unused, set menuIcon to NULL
+	// */
+	*menuIcon = (char*)malloc(PLUGIN_MENU_BUFSZ * sizeof(char));
+	_strcpy(*menuIcon, PLUGIN_MENU_BUFSZ, "t.png");
+
+	/*
+	 * Menus can be enabled or disabled with: ts3Functions.setPluginMenuEnabled(pluginID, menuID, 0|1);
+	 * Test it with plugin command: /test enablemenu <menuID> <0|1>
+	 * Menus are enabled by default. Please note that shown menus will not automatically enable or disable when calling this function to
+	 * ensure Qt menus are not modified by any thread other the UI thread. The enabled or disable state will change the next time a
+	 * menu is displayed.
+	 */
+	 /* For example, this would disable MENU_ID_GLOBAL_2: */
+	 /* ts3Functions.setPluginMenuEnabled(pluginID, MENU_ID_GLOBAL_2, 0); */
+
+	 /* All memory allocated in this function will be automatically released by the TeamSpeak client later by calling ts3plugin_freeMemory */
+
+}
+
+void SoundplayerApp::OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 selectedItemID) {
+	menuHandler.OnMenuItemEvent(type, menuItemID, selectedItemID);
 }
 
 
@@ -277,6 +347,10 @@ void SoundplayerApp::AsyncOpenAndPlayFile() {
 #if NEW_SOUND_PROCESSING_VERSION
 
 void SoundplayerApp::PlayFile(CString fileName) {
+
+	if (fileName.Find(L".mp3") >= 0) {
+		return;
+	}
 
 	if(!PathFileExists(fileName)) {
 		return;
@@ -463,28 +537,117 @@ void SoundplayerApp::PlayRandom() {
 	}
 }
 
+unique_ptr<CString> SoundplayerApp::TryGetSoundsDirectory() {
+	
+	while (true) {
 
-//CString SoundplayerApp::GetLikelyFileName(CString str) {
-bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
-	CString directory = L"";
-	bool tryAgain = false;
-	do {
-		tryAgain = false;
-		directory = Global::config.Get(ConfigKey::SoundFolder, L"");
-		if(!DirectoryExists(directory)) {
+		CString directory = Global::config.Get(ConfigKey::SoundFolder, L"");
+		if (DirectoryExists(directory)) {
+			return make_unique<CString>(directory);
+		} else {
 			SoundFolderSelector dialog;
 			auto result = dialog.DoModal();
-			if(result == IDOK) {
-				tryAgain = true;
+			if (result == IDOK) {
+				continue;
 			} else {
-				//return L""; // TODO
-				return false;
+				return nullptr;
 			}
 		}
-	} while(tryAgain);
+	}
+
+	return nullptr;
+}
 
 
-	if(directory.Right(1) != "\\" && directory.Right(1) != "/") {
+
+unique_ptr<CString> SoundplayerApp::TryGetLikelyFileName(const CString& inputString) {
+
+	vector<CString> possibleFiles = GetPossibleFiles(inputString);
+	if (possibleFiles.size() == 1) {
+		return as_unqiue(possibleFiles.front());
+	}
+
+	return nullptr;
+}
+
+
+void SoundplayerApp::PlayAlarmSound() {
+	PlaySound(
+		(LPCWSTR)SND_ALIAS_SYSTEMEXCLAMATION,
+		GetModuleHandle(0),
+		SND_ALIAS_ID
+	);
+}
+void SoundplayerApp::OpenObserverDialog() {
+	inputObserverDialog.CreateIfNecessary();
+	inputObserverDialog.ShowWindow(TRUE);
+}
+//
+////CString SoundplayerApp::GetLikelyFileName(CString str) {
+//bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
+//	CString directory = L"";
+//	bool tryAgain = false;
+//	do {
+//		tryAgain = false;
+//		directory = Global::config.Get(ConfigKey::SoundFolder, L"");
+//		if(!DirectoryExists(directory)) {
+//			SoundFolderSelector dialog;
+//			auto result = dialog.DoModal();
+//			if(result == IDOK) {
+//				tryAgain = true;
+//			} else {
+//				//return L""; // TODO
+//				return false;
+//			}
+//		}
+//	} while(tryAgain);
+//
+//
+//	if(directory.Right(1) != "\\" && directory.Right(1) != "/") {
+//		directory += "\\";
+//	}
+//
+//
+//	vector<CString> files;
+//	ListFilesInDirectory(_Out_ files, directory);
+//
+//	int hits = 0;
+//
+//	for(auto& file : files) {
+//		if( EqualsIgnoreCaseAndWhitespace(file.Left(str.GetLength()), str) ) {
+//		//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
+//			//return directory + file;
+//			result = directory + file;
+//			++hits;
+//		}
+//	}
+//
+//	if(hits > 1) {
+//		Log::Warning(L"Multiple hits");
+//	}
+//
+//	if(hits < 1) {
+//		Log::Warning(L"Zero hits");
+//	}
+//
+//	return (hits == 1);
+//}
+
+std::vector<CString> SoundplayerApp::GetPossibleFiles(const CString & inputString) {
+
+	if (inputString.GetLength() == 0) {
+		return std::vector<CString>();
+	}
+	
+	unique_ptr<CString> directoryOrNull = TryGetSoundsDirectory();
+	if (!directoryOrNull) {
+		return std::vector<CString>();
+	}
+
+	CString directory = *directoryOrNull;
+
+
+	if (directory.Right(1) != "\\" && directory.Right(1) != "/") {
 		directory += "\\";
 	}
 
@@ -492,26 +655,19 @@ bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
 	vector<CString> files;
 	ListFilesInDirectory(_Out_ files, directory);
 
-	int hits = 0;
 
-	for(auto& file : files) {
-		if( EqualsIgnoreCaseAndWhitespace(file.Left(str.GetLength()), str) ) {
-		//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
-			//return directory + file;
-			result = directory + file;
-			++hits;
+	std::vector<CString> results;
+	
+	for (auto& file : files) {
+		if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
+			//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
+				//return directory + file;
+			CString result = directory + file;
+			results.push_back(result);
 		}
 	}
 
-	if(hits > 1) {
-		Log::Warning(L"Multiple hits");
-	}
-
-	if(hits < 1) {
-		Log::Warning(L"Zero hits");
-	}
-
-	return (hits == 1);
+	return results;
 }
 
 
@@ -521,10 +677,11 @@ bool SoundplayerApp::TryEnqueueFileFromCommand(CString str) {
 	if(StartsWith(str, queuePrefix)) {
 		CString command = str.Right(str.GetLength() - queuePrefix.GetLength());
 		CString fileName;
-		if(GetLikelyFileName(fileName, command)) {
-			playlist.push(fileName);
-			return true;
+		if(auto fileName = TryGetLikelyFileName(command)) {
+			playlist.push(*fileName);
 		}
+
+		return true;
 	}
 	return false;
 }
@@ -560,29 +717,31 @@ bool SoundplayerApp::TryPlayCodQuickSound(CString str) {
 }
 
 
-void SoundplayerApp::ProcessCommand(CString str) {
+void SoundplayerApp::ProcessCommand(const CString& inputString) {
 
-	if(TryPlayCodQuickSound(str)) {
+	if(TryPlayCodQuickSound(inputString)) {
 		return;
 	}
 
 
-	if(TryEnqueueFileFromCommand(str)) {
+	if(TryEnqueueFileFromCommand(inputString)) {
 		return;
 	}
 
-	CString fileName;
-	if(GetLikelyFileName(fileName, str)) {
-		AsyncPlayFile(fileName);
+	
+	if(auto fileName = TryGetLikelyFileName(inputString)) {
+		AsyncPlayFile(*fileName);
 	} else {
-		PlaySound(
-			(LPCWSTR)SND_ALIAS_SYSTEMEXCLAMATION,
-			GetModuleHandle(0),
-			SND_ALIAS_ID
-		);
+		PlayAlarmSound();
 	}
 	
 	
+}
+
+void SoundplayerApp::UpdateObserverDialog() {
+	vector<CString> possibleFiles = GetPossibleFiles(inputBuffer);
+	inputObserverDialog.SetFiles(possibleFiles);
+
 }
 
 
@@ -615,6 +774,34 @@ void SoundplayerApp::SendMessageToChannelChat(CString message) {
 	CStringA utfMessage(message);
 	
 	ts3Functions.requestSendChannelTextMsg(Global::connection, utfMessage, channelId, NULL);
+}
+
+
+// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-keybd_event
+static void SetScrollLock(BOOL bState) {
+	BYTE keyState[256];
+
+	GetKeyboardState((LPBYTE)&keyState);
+	if ((bState && !(keyState[VK_NUMLOCK] & 1)) ||
+		(!bState && (keyState[VK_NUMLOCK] & 1))) {
+		// Simulate a key press
+		keybd_event(VK_NUMLOCK,
+			0x45,
+			KEYEVENTF_EXTENDEDKEY | 0,
+			0);
+
+		// Simulate a key release
+		keybd_event(VK_NUMLOCK,
+			0x45,
+			KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
+			0);
+	}
+
+}
+
+void SoundplayerApp::SetScrollLockState() {
+	::SetScrollLock(this->commandInProgress);
+
 }
 
 void SoundplayerApp::AsyncOpenAudioProcessorDialog() {
@@ -849,20 +1036,18 @@ void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 n
 	bool nameMatchTomi = (strcmp(name, "Ugyis") == 0);
 	if(ownChannelId == clientChannelId) {
 		std::thread playAndSleepThread = std::thread([=] {
-			CString fileName;
-
-
+			
 			if(nameMatchHodi) {
 				Sleep(500);
-				if(GetLikelyFileName(fileName, L"szar")) {
-					AsyncPlayFile(fileName);
+				if(auto fileName = TryGetLikelyFileName(L"szar")) {
+					AsyncPlayFile(*fileName);
 				}
 			}
 
 			if(nameMatchTomi) {
 				Sleep(500);
-				if(GetLikelyFileName(fileName, L"itt a ku")) {
-					AsyncPlayFile(fileName);
+				if(auto fileName = TryGetLikelyFileName(L"itt a ku")) {
+					AsyncPlayFile(*fileName);
 				}
 			}
 		});
@@ -871,14 +1056,24 @@ void SoundplayerApp::OnClientMoved(anyID clientID, uint64 oldChannelID, uint64 n
 	}
 }
 
-BOOL SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) {
+
+static inline bool IsScrollLockPressed() {
+	return (GetKeyState(VK_SCROLL) & 0x1) != 0;
+}
+
+
+HookResult SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) {
+	if (shouldDisableHookWhenScrollLockIsEnabled && IsScrollLockPressed()) {
+		return HookResult::PassEvent;
+	}
+
 	bool commandWasInProgressBeforeProcessing = commandInProgress;
 
 	OnKeyData(keyData);
 
-	bool shouldDiscardEvent = commandWasInProgressBeforeProcessing || commandInProgress;
+	bool shouldConsumeEvent = commandWasInProgressBeforeProcessing || commandInProgress;
 
-	return shouldDiscardEvent ? TRUE : FALSE;
+	return shouldConsumeEvent ? HookResult::ConsumeEvent : HookResult::PassEvent;
 }
 
 void SoundplayerApp::OnMessage(const CString& message) {

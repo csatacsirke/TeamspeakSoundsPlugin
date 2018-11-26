@@ -53,7 +53,9 @@
 #include <condition_variable>
 #include <thread>
 #include <functional>
+#include <memory>
 
+using namespace std;
 
 
 #include <pluginsdk\include\ts3_functions.h>
@@ -61,6 +63,7 @@
 #include <Util\Util.h>
 #include <Util\Log.h>
 #include <Config.h>
+
 
 
 #define NEW_SOUND_PROCESSING_VERSION 1
@@ -89,6 +92,7 @@
 
 
 #include <Gui\WindowUtil.h>
+#include <afxcontrolbars.h>
 
 
 

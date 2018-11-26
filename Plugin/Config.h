@@ -34,7 +34,7 @@ namespace Global {
 }
 
 // TODO config file
-static const int soundHotkeyCount = 9;
+//static const int soundHotkeyCount = 9;
 
 
 namespace Hotkey {
@@ -44,3 +44,5 @@ namespace Hotkey {
 	static const CStringA PLAY_RANDOM = "keyword_play_random";
 	static const CStringA PLAY_PRESET_TEMPLATE = "keyword_play_preset_%d";
 }
+
+
