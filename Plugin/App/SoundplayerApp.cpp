@@ -158,76 +158,108 @@ void SoundplayerApp::OnHotkey(CStringA keyword) {
 //
 //
 //};
-static inline void _Log(const CString& inputBuffer) {
-	std::wcout << std::endl << ">>" << (const wchar_t*)inputBuffer << "<<" << std::endl;
+//
 
-	if (wcout.fail()) {
-		wcout.clear();
-	}
 
-}
+HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 
-void SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
-
-	Finally finally = [&]{
+	Finally finally = [&] {
 		UpdateObserverDialog();
 	};
 
 
-	if(keyData.hookData.vkCode == VK_ESCAPE) {
-		commandInProgress = false;
-		inputBuffer = "";
-		stop = true;
-
-		// TODO
-
-		audioBufferForCapture.Clear();
-		audioBufferForPlayback.Clear();
-
-		return;
+	if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
+		return HookResult::ConsumeEvent;
 	}
 
-	if(keyData.hookData.vkCode == VK_BACK) {
-		if(inputBuffer.GetLength() > 0) {
-			inputBuffer.Truncate(inputBuffer.GetLength() - 1);
-		}
-		return;
+	if (quickSoundHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
+		return HookResult::ConsumeEvent;
 	}
 
-	//quickVoiceChatHandler.OnCommandCompleted = [&](vector<CString>& keys) {
-	//
-	//	commandInProgress = false;
-	//	inputBuffer = "";
-	//};
-	//
-	//quickVoiceChatHandler.process(keyData);
-	
-	CString unicodeLiteral = keyData.unicodeLiteral;
-	if(unicodeLiteral == CString("/")) {
-		commandInProgress = true;
-		inputBuffer = "";
-	} else {
-		if(commandInProgress) {
-			if(keyData.hookData.vkCode == VK_RETURN) {
-				
-				_Log(inputBuffer);
-
-				ProcessCommand(inputBuffer);
-
-				inputBuffer = "";
-
-
-				commandInProgress = false;
-			} else {
-				inputBuffer += unicodeLiteral;
-				//Log::Debug(unicodeLiteral);
-			}
-		}
-	}
-
-
-	//SetScrollLockState();
+	return HookResult::PassEvent;
 }
+
+
+
+//HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
+//
+//	Finally finally = [&]{
+//		UpdateObserverDialog();
+//	};
+//
+//
+//
+//
+//	if (keyData.hookData.vkCode == VK_ESCAPE) {
+//		stop = true;
+//
+//		audioBufferForCapture.Clear();
+//		audioBufferForPlayback.Clear();
+//	}
+//
+//
+//
+//	if(keyData.hookData.vkCode == VK_ESCAPE) {
+//
+//		if (!commandInProgress) {
+//			return HookResult::PassEvent;
+//		}
+//
+//		commandInProgress = false;
+//		inputBuffer = "";
+//		stop = true;
+//
+//		// TODO
+//
+//		return HookResult::ConsumeEvent;
+//	}
+//
+//	if(keyData.hookData.vkCode == VK_BACK) {
+//		if(inputBuffer.GetLength() > 0) {
+//			inputBuffer.Truncate(inputBuffer.GetLength() - 1);
+//		}
+//		return commandInProgress ? HookResult::ConsumeEvent : HookResult::PassEvent;
+//	}
+//
+//	//quickVoiceChatHandler.OnCommandCompleted = [&](vector<CString>& keys) {
+//	//
+//	//	commandInProgress = false;
+//	//	inputBuffer = "";
+//	//};
+//	//
+//	//quickVoiceChatHandler.process(keyData);
+//	
+//	CString unicodeLiteral = keyData.unicodeLiteral;
+//	if(unicodeLiteral == CString("/")) {
+//		commandInProgress = true;
+//		inputBuffer = "";
+//	} else {
+//		if(commandInProgress) {
+//			if(keyData.hookData.vkCode == VK_RETURN) {
+//				
+//				_Log(inputBuffer);
+//
+//				ProcessCommand(inputBuffer);
+//
+//				inputBuffer = "";
+//
+//
+//				commandInProgress = false;
+//			} else {
+//				inputBuffer += unicodeLiteral;
+//				//Log::Debug(unicodeLiteral);
+//			}
+//		}
+//	}
+//
+//	//if (TryPlayQuickSound(inputBuffer)) {
+//	//	return;
+//	//}
+//
+//	return commandInProgress ? HookResult::ConsumeEvent : HookResult::PassEvent;
+//
+//	//SetScrollLockState();
+//}
 
 /*
  * Initialize plugin menus.
@@ -571,11 +603,13 @@ unique_ptr<CString> SoundplayerApp::TryGetLikelyFileName(const CString& inputStr
 
 
 void SoundplayerApp::PlayAlarmSound() {
-	PlaySound(
-		(LPCWSTR)SND_ALIAS_SYSTEMEXCLAMATION,
-		GetModuleHandle(0),
-		SND_ALIAS_ID
-	);
+	std::thread([&] {
+		PlaySound(
+			(LPCWSTR)SND_ALIAS_SYSTEMEXCLAMATION,
+			GetModuleHandle(0),
+			SND_ALIAS_ID
+		);
+	}).detach();
 }
 
 void SoundplayerApp::OpenObserverDialog() {
@@ -688,7 +722,9 @@ bool SoundplayerApp::TryEnqueueFileFromCommand(CString str) {
 
 
 
-bool SoundplayerApp::TryPlayCodQuickSound(CString str) {
+bool SoundplayerApp::TryPlayQuickSound(CString str) {
+
+	//quicksoundhandler.
 	
 	if(str.GetLength() != 3) return false;
 	if(str[0] != L'V' && str[0] != L'v') return false;
@@ -719,10 +755,6 @@ bool SoundplayerApp::TryPlayCodQuickSound(CString str) {
 
 void SoundplayerApp::ProcessCommand(const CString& inputString) {
 
-	if(TryPlayCodQuickSound(inputString)) {
-		return;
-	}
-
 
 	if(TryEnqueueFileFromCommand(inputString)) {
 		return;
@@ -740,7 +772,7 @@ void SoundplayerApp::ProcessCommand(const CString& inputString) {
 
 void SoundplayerApp::UpdateObserverDialog() {
 	if (inputObserverDialog) {
-		vector<CString> possibleFiles = GetPossibleFiles(inputBuffer);
+		vector<CString> possibleFiles = GetPossibleFiles(inputHandler.GetBuffer());
 		inputObserverDialog->SetFiles(possibleFiles);
 	}
 
@@ -778,33 +810,29 @@ void SoundplayerApp::SendMessageToChannelChat(CString message) {
 	ts3Functions.requestSendChannelTextMsg(Global::connection, utfMessage, channelId, NULL);
 }
 
+//
+//// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-keybd_event
+//static void SetScrollLock(BOOL bState) {
+//	BYTE keyState[256];
+//
+//	GetKeyboardState((LPBYTE)&keyState);
+//	if ((bState && !(keyState[VK_NUMLOCK] & 1)) ||
+//		(!bState && (keyState[VK_NUMLOCK] & 1))) {
+//		// Simulate a key press
+//		keybd_event(VK_NUMLOCK,
+//			0x45,
+//			KEYEVENTF_EXTENDEDKEY | 0,
+//			0);
+//
+//		// Simulate a key release
+//		keybd_event(VK_NUMLOCK,
+//			0x45,
+//			KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
+//			0);
+//	}
+//
+//}
 
-// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-keybd_event
-static void SetScrollLock(BOOL bState) {
-	BYTE keyState[256];
-
-	GetKeyboardState((LPBYTE)&keyState);
-	if ((bState && !(keyState[VK_NUMLOCK] & 1)) ||
-		(!bState && (keyState[VK_NUMLOCK] & 1))) {
-		// Simulate a key press
-		keybd_event(VK_NUMLOCK,
-			0x45,
-			KEYEVENTF_EXTENDEDKEY | 0,
-			0);
-
-		// Simulate a key release
-		keybd_event(VK_NUMLOCK,
-			0x45,
-			KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
-			0);
-	}
-
-}
-
-void SoundplayerApp::SetScrollLockState() {
-	::SetScrollLock(this->commandInProgress);
-
-}
 
 void SoundplayerApp::AsyncOpenAudioProcessorDialog() {
 	std::thread dialogThread([&] {
@@ -1069,18 +1097,33 @@ HookResult SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyD
 		return HookResult::PassEvent;
 	}
 
-	bool commandWasInProgressBeforeProcessing = commandInProgress;
+	//bool commandWasInProgressBeforeProcessing = commandInProgress;
 
-	OnKeyData(keyData);
+	return OnKeyData(keyData);
 
-	bool shouldConsumeEvent = commandWasInProgressBeforeProcessing || commandInProgress;
-
-	return shouldConsumeEvent ? HookResult::ConsumeEvent : HookResult::PassEvent;
+	//if (OnKeyData(keyData) == HookResult::ConsumeEvent) {
+	//	return HookResult::ConsumeEvent;
+	//}
+	//
+	//
+	////bool shouldConsumeEvent = commandWasInProgressBeforeProcessing || commandInProgress;
+	//
+	//return shouldConsumeEvent ? HookResult::ConsumeEvent : HookResult::PassEvent;
 }
 
 void SoundplayerApp::OnMessage(const CString& message) {
 	std::wcout << message << std::endl;
 }
+
+void SoundplayerApp::OnCommand(const CString& command) {
+	ProcessCommand(command);
+}
+
+void SoundplayerApp::OnQuickSoundMatch(const CString& path) {
+
+}
+
+
 
 
 

@@ -2,9 +2,14 @@
 
 
 
-
 namespace KeyboardHook {
 	//static const TCHAR* defaultPipeName = TEXT("\\\\.\\pipe\\soundplayer_pipe");
+
+
+	enum HookResult : BOOL { PassEvent = FALSE, ConsumeEvent = TRUE };
+
+
+
 
 
 	struct KeyData {

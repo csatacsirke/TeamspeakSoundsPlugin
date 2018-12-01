@@ -1,6 +1,6 @@
 #pragma once
 
-
+#if 0
 #include <memory>
 
 using namespace Global;
@@ -234,3 +234,6 @@ public:
 	}
 
 };
+
+#endif
+

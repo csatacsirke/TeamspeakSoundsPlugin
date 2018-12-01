@@ -9,6 +9,11 @@
 #include <pluginsdk\include\teamspeak/public_rare_definitions.h>
 #include <pluginsdk\include\teamspeak/clientlib_publicdefinitions.h>
 
+
+#include <KeyboardHook/KeyboardHookUtils.h>
+
+using namespace KeyboardHook;
+
 #include "Log.h"
 #include "Maybe.h"
 

@@ -12,6 +12,8 @@
 #include <Util\Config.h>
 #include <Util\HotkeyHandler.h>
 #include <Util\MenuHandler.h>
+#include <Util\QuickSoundHandler.h>
+#include <Util\InputHandler.h>
 #include <Wave\OnlineMicrophone.h>
 #include <Wave\AudioProcessor.h>
 #include <Wave\AudioPlayer.h>
@@ -21,7 +23,7 @@
 //#include <Web/SoundBroadcaster.h>
 
 
-class SoundplayerApp : public LocalKeyboardHookInstallerDelegate {
+class SoundplayerApp : public LocalKeyboardHookInstallerDelegate, InputHandlerDelegate, QuickSoundHandlerDelegate {
 
 public:
 
@@ -30,7 +32,7 @@ public:
 	// and thus from constructor... :(
 	void Init();
 	void InitKeyboardHook();
-	void OnKeyData(const KeyboardHook::KeyData& keyData);
+	HookResult OnKeyData(const KeyboardHook::KeyData& keyData);
 
 	void InitMenus(struct PluginMenuItem*** menuItems, char** menuIcon);
 	void OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 selectedItemID);
@@ -94,15 +96,18 @@ protected:
 	HookResult LocalKeyboardHookInstallerDelegate::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) override;
 	void LocalKeyboardHookInstallerDelegate::OnMessage(const CString& message) override;
 
+	void InputHandlerDelegate::OnCommand(const CString& command);
+
+	void QuickSoundHandlerDelegate::OnQuickSoundMatch(const CString& path);
+
 private:
 	bool TryEnqueueFileFromCommand(CString str);
-	bool TryPlayCodQuickSound(CString str);
+	bool TryPlayQuickSound(CString str);
 	//CString GetLikelyFileName(CString str);
 	
 	void SendFileNameToChat(CString fileName);
 	void SendMessageToChannelChat(CString message);
 
-	void SetScrollLockState();
 
 
 public:
@@ -116,16 +121,14 @@ private:
 	volatile bool stop;
 	
 	//KeyboardHookInstaller hookInstaller;
-	LocalKeyboardHookInstaller localHookInstaller = LocalKeyboardHookInstaller(*this);
-	bool shouldDisableHookWhenScrollLockIsEnabled = true;
+	
 
 	//OnlineMicrophone onlineMicrophone;
 
 	//AudioPlayer audioPlayer;
 	AudioProcessor audioProcessor;
 
-	bool commandInProgress = false;
-	CString inputBuffer;
+	
 
 	concurrency::concurrent_queue<CString> playlist;
 	
@@ -137,6 +140,11 @@ private:
 
 	unique_ptr<InputObserverDialog> inputObserverDialog;
 
+	LocalKeyboardHookInstaller localHookInstaller = LocalKeyboardHookInstaller(*this);
+	bool shouldDisableHookWhenScrollLockIsEnabled = true;
+
+	QuickSoundHandler quickSoundHandler = QuickSoundHandler(*this);
+	InputHandler inputHandler = InputHandler(*this);
 
 	
 

@@ -318,6 +318,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App\SoundplayerApp.cpp" />
+    <ClCompile Include="Util\InputHandler.cpp" />
+    <ClCompile Include="Util\QuickSoundHandler.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="App\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
@@ -347,6 +349,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\SoundplayerApp.h" />
+    <ClInclude Include="Util\InputHandler.h" />
+    <ClInclude Include="Util\QuickSoundHandler.h" />
     <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />
