@@ -2,8 +2,11 @@
 //
 
 #include "stdafx.h"
-#include "Gui/SoundFolderSelector.h"
+#include "SoundFolderSelector.h"
 #include "afxdialogex.h"
+
+
+#include <Util\Config.h>
 
 
 // SoundFolderSelector dialog

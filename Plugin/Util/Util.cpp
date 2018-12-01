@@ -75,7 +75,8 @@ CStringA GetHotkey(CStringA key) {
 }
 
 // TODO test
-void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter/* = L""*/) {
+std::vector<CString> ListFilesInDirectory(CString path, CString filter/* = L""*/) {
+	std::vector<CString> files;
 
 	if(path.Right(1) != "\\" && path.Right(1) != "/") {
 		path += "\\";
@@ -83,40 +84,37 @@ void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CStri
 	path += "*";
 
 
-	WIN32_FIND_DATA FindFileData;
+	WIN32_FIND_DATA findFileData;
 	HANDLE hFind;
 
 
-	if((hFind = FindFirstFile(path, &FindFileData)) == INVALID_HANDLE_VALUE) {
-		printf("FindFirstFile failed (%d)\n", GetLastError());
-		return;
-	} else {
-		CString fileName(FindFileData.cFileName);
+	if((hFind = FindFirstFile(path, &findFileData)) != INVALID_HANDLE_VALUE) {
+		CString fileName(findFileData.cFileName);
 
 		//if(filter == 0 || fileName.find(filter) == fileName.length() -lstrlen(filter) ){
 		if(fileName.Right(filter.GetLength()) == filter) {
 			if(fileName != L"." && fileName != L"..") {
-				files.push_back(FindFileData.cFileName);
+				files.push_back(findFileData.cFileName);
 			}
 		}
 
 	}
 
-	while(FindNextFile(hFind, &FindFileData)) {
-		CString fileName(FindFileData.cFileName);
+	while(FindNextFile(hFind, &findFileData)) {
+		CString fileName(findFileData.cFileName);
 		//if(filter == 0 || fileName.find(filter) == fileName.length() -lstrlen(filter) ){
 		if(fileName.Right(filter.GetLength()) == filter) {
 			if(fileName != L"." && fileName != L"..") {
-				files.push_back(FindFileData.cFileName);
+				files.push_back(findFileData.cFileName);
 			}
 		}
 	}
 
+	return files;
 }
 
 CString PickRandomFile(CString directory) {
-	std::vector<CString> files;
-	ListFilesInDirectory(_Out_ files, directory);
+	std::vector<CString> files = ListFilesInDirectory(directory);
 
 	if(files.size() == 0) return L"";
 

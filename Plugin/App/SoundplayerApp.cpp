@@ -527,8 +527,7 @@ void SoundplayerApp::PlayRandom() {
 			folder += "\\";
 		}
 
-		vector<CString> files;
-		ListFilesInDirectory(_Out_ files, folder);
+		vector<CString> files = ListFilesInDirectory(folder);
 
 		srand((unsigned int)time(0));
 		int random = rand() % files.size();
@@ -578,10 +577,12 @@ void SoundplayerApp::PlayAlarmSound() {
 		SND_ALIAS_ID
 	);
 }
+
 void SoundplayerApp::OpenObserverDialog() {
-	inputObserverDialog.CreateIfNecessary();
-	inputObserverDialog.ShowWindow(TRUE);
+	inputObserverDialog = make_unique<InputObserverDialog>();
+	//inputObserverDialog.ShowWindow(TRUE);
 }
+
 //
 ////CString SoundplayerApp::GetLikelyFileName(CString str) {
 //bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
@@ -652,8 +653,7 @@ std::vector<CString> SoundplayerApp::GetPossibleFiles(const CString & inputStrin
 	}
 
 
-	vector<CString> files;
-	ListFilesInDirectory(_Out_ files, directory);
+	vector<CString> files = ListFilesInDirectory(directory);
 
 
 	std::vector<CString> results;
@@ -739,8 +739,10 @@ void SoundplayerApp::ProcessCommand(const CString& inputString) {
 }
 
 void SoundplayerApp::UpdateObserverDialog() {
-	vector<CString> possibleFiles = GetPossibleFiles(inputBuffer);
-	inputObserverDialog.SetFiles(possibleFiles);
+	if (inputObserverDialog) {
+		vector<CString> possibleFiles = GetPossibleFiles(inputBuffer);
+		inputObserverDialog->SetFiles(possibleFiles);
+	}
 
 }
 

@@ -1,1 +1,0 @@
-Steganography::WriteSecret : secret too long

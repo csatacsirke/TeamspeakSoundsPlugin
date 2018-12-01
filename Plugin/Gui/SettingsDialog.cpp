@@ -2,13 +2,13 @@
 //
 
 #include "stdafx.h"
-#include "Gui/SettingsDialog.h"
-#include "Gui/SoundFolderSelector.h"
-#include "Gui/PresetHotkeyGroup.h"
+#include "SettingsDialog.h"
+#include "SoundFolderSelector.h"
+#include "PresetHotkeyGroup.h"
 #include "afxdialogex.h"
 
 
-#include "Config.h"
+#include <Util\Config.h>
 // SettingsDialog dialog
 
 IMPLEMENT_DYNAMIC(SettingsDialog, CDialogEx)

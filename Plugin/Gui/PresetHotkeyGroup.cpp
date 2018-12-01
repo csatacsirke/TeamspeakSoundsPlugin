@@ -2,8 +2,12 @@
 //
 
 #include "stdafx.h"
-#include "Gui\PresetHotkeyGroup.h"
+#include "PresetHotkeyGroup.h"
 #include "afxdialogex.h"
+
+
+#include <Util\Config.h>
+
 
 
 // PresetHotkeyGroup dialog

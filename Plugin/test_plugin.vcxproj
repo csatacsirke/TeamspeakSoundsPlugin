@@ -318,8 +318,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App\SoundplayerApp.cpp" />
-    <ClCompile Include="Config.cpp" />
-    <ClCompile Include="exe\main.cpp" />
+    <ClCompile Include="Util\Config.cpp" />
+    <ClCompile Include="App\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
     <ClCompile Include="Gui\DlgScrollable.cpp" />
     <ClCompile Include="Gui\NetworkDialog.cpp" />
@@ -330,7 +330,7 @@
     <ClCompile Include="KeyboardHook\LocalKeyboardHookInstaller.cpp" />
     <ClCompile Include="KeyboardHook\PipeHandler.cpp" />
     <ClCompile Include="Util\MenuHandler.cpp" />
-    <ClCompile Include="plugin.cpp" />
+    <ClCompile Include="App\plugin.cpp" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="Util\HotkeyHandler.cpp" />
     <ClCompile Include="Util\Log.cpp" />
@@ -346,16 +346,8 @@
     <ClCompile Include="Web\FileSync.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\plugin_definitions.h" />
-    <ClInclude Include="..\include\teamlog\logtypes.h" />
-    <ClInclude Include="..\include\teamspeak\clientlib_publicdefinitions.h" />
-    <ClInclude Include="..\include\teamspeak\public_definitions.h" />
-    <ClInclude Include="..\include\teamspeak\public_errors.h" />
-    <ClInclude Include="..\include\teamspeak\public_errors_rare.h" />
-    <ClInclude Include="..\include\teamspeak\public_rare_definitions.h" />
-    <ClInclude Include="..\include\ts3_functions.h" />
     <ClInclude Include="App\SoundplayerApp.h" />
-    <ClInclude Include="Config.h" />
+    <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />
     <ClInclude Include="Gui\NetworkDialog.h" />
@@ -363,14 +355,14 @@
     <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
-    <ClInclude Include="Http.h" />
+    <ClInclude Include="Web\Http.h" />
     <ClInclude Include="Gui\InputObserverDialog.h" />
     <ClInclude Include="KeyboardHook\KeyboardHookUtils.h" />
     <ClInclude Include="KeyboardHook\LocalKeyboardHookInstaller.h" />
     <ClInclude Include="KeyboardHook\PipeHandler.h" />
     <ClInclude Include="Util\Maybe.h" />
     <ClInclude Include="Util\MenuHandler.h" />
-    <ClInclude Include="plugin.h" />
+    <ClInclude Include="App\plugin.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

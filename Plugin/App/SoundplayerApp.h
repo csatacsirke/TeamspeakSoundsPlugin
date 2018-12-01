@@ -9,14 +9,14 @@
 #include "KeyboardHook\LocalKeyboardHookInstaller.h"
 //#include "KeyboardHook\PipeHandler.h"
 
-#include "Config.h"
-#include "Util\HotkeyHandler.h"
-#include "Util\MenuHandler.h"
-#include "Wave\OnlineMicrophone.h"
-#include "Wave\AudioProcessor.h"
-#include "Wave\AudioPlayer.h"
-#include "Wave\AudioBuffer.h"
-#include "Gui/InputObserverDialog.h"
+#include <Util\Config.h>
+#include <Util\HotkeyHandler.h>
+#include <Util\MenuHandler.h>
+#include <Wave\OnlineMicrophone.h>
+#include <Wave\AudioProcessor.h>
+#include <Wave\AudioPlayer.h>
+#include <Wave\AudioBuffer.h>
+#include <Gui\InputObserverDialog.h>
 
 //#include <Web/SoundBroadcaster.h>
 
@@ -135,7 +135,7 @@ private:
 	AudioBuffer audioBufferForCapture;
 	AudioBuffer audioBufferForPlayback;
 
-	InputObserverDialog inputObserverDialog;
+	unique_ptr<InputObserverDialog> inputObserverDialog;
 
 
 	

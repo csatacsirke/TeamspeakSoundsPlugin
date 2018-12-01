@@ -41,33 +41,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="plugin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ts3_functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\clientlib_publicdefinitions.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_definitions.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_errors.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_errors_rare.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamspeak\public_rare_definitions.h">
-      <Filter>Header Files\teamspeak</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\teamlog\logtypes.h">
-      <Filter>Header Files\teamlog</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\plugin_definitions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>StdAfx</Filter>
     </ClInclude>
@@ -79,9 +52,6 @@
     </ClInclude>
     <ClInclude Include="App\SoundplayerApp.h">
       <Filter>App</Filter>
-    </ClInclude>
-    <ClInclude Include="Config.h">
-      <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
@@ -131,9 +101,6 @@
     <ClInclude Include="Web\FileSync.h">
       <Filter>Web</Filter>
     </ClInclude>
-    <ClInclude Include="Http.h">
-      <Filter>Web</Filter>
-    </ClInclude>
     <ClInclude Include="Wave\MP3Player.h">
       <Filter>Wave</Filter>
     </ClInclude>
@@ -179,11 +146,17 @@
     <ClInclude Include="Util\Maybe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Web\Http.h">
+      <Filter>Web</Filter>
+    </ClInclude>
+    <ClInclude Include="Util\Config.h">
+      <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="App\plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="plugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>StdAfx</Filter>
     </ClCompile>
@@ -192,9 +165,6 @@
     </ClCompile>
     <ClCompile Include="App\SoundplayerApp.cpp">
       <Filter>App</Filter>
-    </ClCompile>
-    <ClCompile Include="Config.cpp">
-      <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Util\Util.cpp">
       <Filter>Util</Filter>
@@ -229,9 +199,6 @@
     <ClCompile Include="Wave\AudioProcessor.cpp">
       <Filter>Wave</Filter>
     </ClCompile>
-    <ClCompile Include="exe\main.cpp">
-      <Filter>Exe</Filter>
-    </ClCompile>
     <ClCompile Include="Gui\AudioProcessorDialog.cpp">
       <Filter>Gui</Filter>
     </ClCompile>
@@ -260,6 +227,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Util\MenuHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\Config.cpp">
+      <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="App\main.cpp">
+      <Filter>Exe</Filter>
+    </ClCompile>
+    <ClCompile Include="App\plugin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
