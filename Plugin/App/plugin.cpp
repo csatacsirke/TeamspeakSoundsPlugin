@@ -30,6 +30,10 @@ using namespace std;
 #include "App\SoundplayerApp.h"
 
 
+#include <atlpath.h>
+
+
+
 #ifdef _WIN32
 #define SLEEP(x) Sleep(x)
 #else
@@ -193,6 +197,12 @@ int ts3plugin_init() {
 	//	cout << "readWave failed";
 	//	return 1;
 	//}
+
+	CPath path = CString(Global::configPath);
+	path.Append(Global::config.defaultFileName);
+	Global::config.LoadFromFile(path);
+
+	
 
 	theApp.reset(new SoundplayerApp());
 	theApp->Init();

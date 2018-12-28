@@ -303,8 +303,19 @@ static bool EqualsIgnoreCaseAndWhitespace(CString a, CString b) {
 	return a == b;
 }
 
-inline CWnd* NoParent() {
+static inline CWnd* NoParent() {
 	return NULL;
+}
+
+
+
+static inline void CreateConsole() {
+	AllocConsole();
+	FILE* pCout;
+	freopen_s(&pCout, "CONOUT$", "w", stdout);
+	std::cout.clear();
+	std::wcout.clear();
+
 }
 
 //void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");

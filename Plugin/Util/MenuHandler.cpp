@@ -39,7 +39,6 @@ void MenuHandler::OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 se
 }
 
 void MenuHandler::Configure(PluginMenuItem *** pluginMenuItems) {
-	//PLUGIN_MENU_TYPE_GLOBAL, menuItemId, title, 0
 
 	BEGIN_CREATE_MENUS(menuItems.size());  /* IMPORTANT: Number of menu items must be correct! */
 
@@ -47,9 +46,6 @@ void MenuHandler::Configure(PluginMenuItem *** pluginMenuItems) {
 	for (auto& menuItem : menuItems) {
 		int id = currentId++;
 		CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, id, menuItem.title, "");
-		//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_2, "Enqueue sound from file...", "2.png");
-		//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_3, "Audio Processor Dialog", "3.png");
-		//CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL, MENU_ID_GLOBAL_4, "Open debug console", "4.png");
 	}
 	
 	

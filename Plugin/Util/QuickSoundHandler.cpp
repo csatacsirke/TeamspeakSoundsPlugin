@@ -4,11 +4,5 @@
 
 
 
-HookResult QuickSoundHandler::TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
-
-
-	return HookResult::PassEvent;
-}
-
 
 

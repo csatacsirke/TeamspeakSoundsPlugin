@@ -53,18 +53,8 @@ void SoundplayerApp::InitKeyboardHook() {
 }
 
 
-void CreateConsole() {
-	AllocConsole();
-		FILE* pCout;
-		freopen_s(&pCout, "CONOUT$", "w", stdout);
-		std::cout.clear();
-		std::wcout.clear();
-	
-}
-
 void SoundplayerApp::Init() {
-	CPath path = CString(Global::configPath);
-	path.Append(Global::config.defaultFileName);
+	
 #if USE_KEYBOARD_HOOK
 	InitKeyboardHook();
 #endif
@@ -81,7 +71,6 @@ void SoundplayerApp::Init() {
 	//PathCchAppend()
 	//CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
 	
-	Global::config.LoadFromFile(path);
 }
 
 
@@ -288,6 +277,10 @@ void SoundplayerApp::InitMenus(PluginMenuItem *** menuItems, char ** menuIcon) {
 	menuHandler.Add("Play sound from file...", [&] { this->AsyncOpenAndPlayFile(); });
 	menuHandler.Add("Enqueue sound from file...", [&] { this->AsyncEnqueueFile(); });
 	menuHandler.Add("Open observer...", [&] { this->OpenObserverDialog(); });
+
+#ifdef _DEBUG
+	menuHandler.Add("Open Developer Console", [&] { this->OpenDeveloperConsole(); });
+#endif
 
 	menuHandler.Configure(menuItems);
 	//
@@ -538,17 +531,17 @@ void SoundplayerApp::OpenSoundsFolderSelectorDialog() {
 	assert(0 && "nincs megirva...");
 }
 
-
-void SoundplayerApp::PlayPreset(int ordinal) {
-	//assert(0 && "nincs megirva 2");
-	CStringA key;
-	key.Format(Hotkey::PLAY_PRESET_TEMPLATE, ordinal);
-	CString file;
-	if(Global::config.TryGet(CString(key), file)) {
-		AsyncPlayFile(file);
-	}
-
-}
+//
+//void SoundplayerApp::PlayPreset(int ordinal) {
+//	//assert(0 && "nincs megirva 2");
+//	CStringA key;
+//	key.Format(Hotkey::PLAY_PRESET_TEMPLATE, ordinal);
+//	CString file;
+//	if(Global::config.TryGet(CString(key), file)) {
+//		AsyncPlayFile(file);
+//	}
+//
+//}
 
 void SoundplayerApp::PlayRandom() {
 	CString folder;
@@ -720,37 +713,43 @@ bool SoundplayerApp::TryEnqueueFileFromCommand(CString str) {
 	return false;
 }
 
-
-
-bool SoundplayerApp::TryPlayQuickSound(CString str) {
-
-	//quicksoundhandler.
-	
-	if(str.GetLength() != 3) return false;
-	if(str[0] != L'V' && str[0] != L'v') return false;
-	if(!iswdigit(str[1]) ) return false;
-	if(!iswdigit(str[2])) return false;
-
-	
-	int n = _wtoi(static_cast<const wchar_t*>(str) + 1);
-
-	CString dir1 = ToString(n / 10);
-	CString dir2 = ToString(n % 10);
-	
-	//CString path = 
-	CPath directory = Global::config.Get(ConfigKey::SoundFolder, L"");
-	directory.Append(L"cod");
-	directory.Append(dir1);
-	directory.Append(dir2);
-	
-	if(DirectoryExists(directory)) {
-		CPath file = directory;
-		file += PickRandomFile(directory);
-		AsyncPlayFile(file);
-		return true;
-	}
-	return false;
+void SoundplayerApp::OpenDeveloperConsole() {
+	CreateConsole();
+	QuickSoundsFileSystem fs;
 }
+
+
+//
+//bool SoundplayerApp::TryPlayQuickSound(CString str) {
+//
+//	
+//	//quicksoundhandler.
+//	
+//	if(str.GetLength() != 3) return false;
+//	if(str[0] != L'V' && str[0] != L'v') return false;
+//	if(!iswdigit(str[1]) ) return false;
+//	if(!iswdigit(str[2])) return false;
+//
+//	
+//	int n = _wtoi(static_cast<const wchar_t*>(str) + 1);
+//
+//	CString dir1 = ToString(n / 10);
+//	CString dir2 = ToString(n % 10);
+//	
+//	//CString path = 
+//	CPath directory = Global::config.Get(ConfigKey::SoundFolder, L"");
+//	directory.Append(L"cod");
+//	directory.Append(dir1);
+//	directory.Append(dir2);
+//	
+//	if(DirectoryExists(directory)) {
+//		CPath file = directory;
+//		file += PickRandomFile(directory);
+//		AsyncPlayFile(file);
+//		return true;
+//	}
+//	return false;
+//}
 
 
 void SoundplayerApp::ProcessCommand(const CString& inputString) {
@@ -1097,6 +1096,10 @@ HookResult SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyD
 		return HookResult::PassEvent;
 	}
 
+	if (keyData.hookData.vkCode == VK_SCROLL) {
+		return HookResult::PassEvent;
+	}
+
 	//bool commandWasInProgressBeforeProcessing = commandInProgress;
 
 	return OnKeyData(keyData);
@@ -1120,7 +1123,7 @@ void SoundplayerApp::OnCommand(const CString& command) {
 }
 
 void SoundplayerApp::OnQuickSoundMatch(const CString& path) {
-
+	AsyncPlayFile(path);
 }
 
 

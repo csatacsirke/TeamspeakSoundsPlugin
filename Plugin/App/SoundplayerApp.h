@@ -75,7 +75,7 @@ public:
 	void PlayQueued();
 	void Replay();
 	void PlayRandom();
-	void PlayPreset(int ordinal);
+	//void PlayPreset(int ordinal);
 
 
 	void ProcessCommand(const CString& inputString);
@@ -102,11 +102,12 @@ protected:
 
 private:
 	bool TryEnqueueFileFromCommand(CString str);
-	bool TryPlayQuickSound(CString str);
+	//bool TryPlayQuickSound(CString str);
 	//CString GetLikelyFileName(CString str);
 	
 	void SendFileNameToChat(CString fileName);
 	void SendMessageToChannelChat(CString message);
+	void OpenDeveloperConsole();
 
 
 

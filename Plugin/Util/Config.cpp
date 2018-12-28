@@ -84,6 +84,15 @@ bool Config::TryGet(CString key, _Out_ CString& value) {
 	}
 }
 
+unique_ptr<CString> Config::TryGet(CString key) {
+	if (dictionary.find(key) != dictionary.end()) {
+		return make_unique<CString>(dictionary[key]);
+	} else {
+		return nullptr;
+	}
+}
+
+
 void Config::Save() {
 	SaveToFile(this->fileName);
 	//if(_taccess(this->fileName, 0)) {
