@@ -113,23 +113,28 @@ public:
 				return HookResult::PassEvent;
 			}
 		}
-
+		
 		if (capturedSequence.GetLength() > 1) {
-			if (!iswalnum(capturedSequence[1])) {
+			if (!iswdigit(capturedSequence[1])) {
 				capturedSequence = L"";
 				return HookResult::PassEvent;
 			}
 		}
 
 		if (capturedSequence.GetLength() > 2) {
-			if (!iswalnum(capturedSequence[2])) {
+			if (!iswdigit(capturedSequence[2])) {
 				capturedSequence = L"";
 				return HookResult::PassEvent;
 			}
 		}
 
-		if (capturedSequence.GetLength() < 3) {
+		// ha elso betu akkor no consume, de a második és harmadik már igen
+		if (capturedSequence.GetLength() == 2) {
 			return HookResult::ConsumeEvent;
+		}
+
+		if (capturedSequence.GetLength() == 1) {
+			return HookResult::PassEvent;
 		}
 
 
