@@ -105,6 +105,10 @@ public:
 	HookResult QuickSoundHandler::TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
 		CString key = keyData.unicodeLiteral;
 
+		if (key.GetLength() == 0) {
+			return HookResult::PassEvent;
+		}
+
 		capturedSequence += key;
 		
 		if (capturedSequence.GetLength() > 0) {
