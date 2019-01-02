@@ -145,11 +145,12 @@ bool WaveTrack::ReadHeader(std::istream& stream) {
 
 bool WaveTrack::ReadData(std::istream& stream) {
 
-	
-	buffer.resize(dataLength);
-
-
 	Log::Debug(L"Data Length :" + ToString(dataLength));
+	
+	buffer.resize(dataLength, 0);
+
+
+
 
 	stream.read((char*)buffer.data(), dataLength);
 
@@ -157,7 +158,7 @@ bool WaveTrack::ReadData(std::istream& stream) {
 	//short* buffer = (short*)result->buffer.data();
 
 	if(header.wBitsPerSample == 8) {
-		std::vector<byte> buffer16Bit(buffer.size() * 2);
+		std::vector<byte> buffer16Bit(buffer.size() * 2, 0);
 
 		for(int i = 0; i < buffer.size(); ++i) {
 			// >implying that its stored in little endian
@@ -173,6 +174,35 @@ bool WaveTrack::ReadData(std::istream& stream) {
 		//Log::Error(L"LoadWaveFile: in.fail()");
 		//return NULL;
 	}
+
+
+
+	// Add smooth ending, so there will be no clicking sound because of the abrupt ending
+	const int fadeoutMs = 20;
+	const size_t fadeoutSampleCount = header.nSamplesPerSec / (1000 / fadeoutMs);
+	const size_t fadeoutSize = fadeoutSampleCount * header.nChannels * sizeof(short);
+	const size_t originalSize = buffer.size();
+	buffer.resize(originalSize + fadeoutSize);
+
+	if (header.nChannels == 1 && buffer.size() > sizeof(short)) {
+
+		short* const start = (short*)(buffer.data() + originalSize);
+		short* const end = (short*)(buffer.data() + buffer.size());
+
+		const short lastSample = *(end - 1);
+		const int64_t sampleCount = end - start;
+		int64_t currentIndex = 0;
+
+		for (short* it = start; it < end; ++it, ++currentIndex) {
+			short& currentSample = *it;
+			currentSample = (short)(currentSample * (sampleCount - currentIndex) / sampleCount);
+		}
+	}
+	
+
+
+
+
 
 	return true;
 }
@@ -201,6 +231,7 @@ std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const wchar_t* fileName) {
 	}
 	
 	in.close();
+
 
 	return result;
 
