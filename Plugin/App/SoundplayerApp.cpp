@@ -156,6 +156,10 @@ HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 		UpdateObserverDialog();
 	};
 
+	if (keyData.hookData.vkCode == VK_ESCAPE) {
+		StopPlayback();
+	}
+
 
 	if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
 		return HookResult::ConsumeEvent;
@@ -470,6 +474,9 @@ void SoundplayerApp::PlayFile(CString fileName) {
 
 void SoundplayerApp::StopPlayback() {
 	stop = true;
+
+	audioBufferForCapture.Clear();
+	audioBufferForPlayback.Clear();
 }
 
 
