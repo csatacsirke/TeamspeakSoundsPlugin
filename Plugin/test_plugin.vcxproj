@@ -385,7 +385,7 @@
     <ClCompile Include="Util\InputHandler.cpp" />
     <ClCompile Include="Util\QuickSoundHandler.cpp" />
     <ClCompile Include="Util\Config.cpp" />
-    <ClCompile Include="App\main.cpp" />
+    <ClCompile Include="exe\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
     <ClCompile Include="Gui\DlgScrollable.cpp" />
     <ClCompile Include="Gui\NetworkDialog.cpp" />

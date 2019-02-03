@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <fstream>
 
 #pragma warning( disable: 4267 )
 
@@ -51,18 +52,18 @@ bool WaveHeader::ReadFrom(std::istream& stream) {
 	// söt, még azt is hogy az utolsó utáni offsetet kell kivonni
 	// vagy legalább hozzáadni az uolsó méretét...
 	stream.read((char*)&fmtLen, sizeof fmtLen);
-	std::vector<char> buffer;
-	buffer.resize(fmtLen);
-	stream.read(buffer.data(), fmtLen);
+	std::vector<char> data;
+	data.resize(fmtLen);
+	stream.read(data.data(), fmtLen);
 	// két címet vonunk ki egymásból
 	//size_t ourChunkLength = ((char*)&bitsPerSample - (char*)&formatTag);
 	size_t ourChunkLength = ((char*)dataId - (char*)&formatTag);
 	
-	if(buffer.size() < ourChunkLength) {
-		Log::Error(L"WaveHeader::ReadFrom: buffer.size() < ourChuckLength");
+	if(data.size() < ourChunkLength) {
+		Log::Error(L"WaveHeader::ReadFrom: data.size() < ourChuckLength");
 		return false;
 	}
-	memcpy(&formatTag, buffer.data(), ourChunkLength);
+	memcpy(&formatTag, data.data(), ourChunkLength);
 
 	stream.read(dataId, sizeof dataId);
 	stream.read((char*)&dataLen, sizeof dataLen);
@@ -147,25 +148,26 @@ bool WaveTrack::ReadData(std::istream& stream) {
 
 	Log::Debug(L"Data Length :" + ToString(dataLength));
 	
-	buffer.resize(dataLength, 0);
+	data.resize(dataLength, 0);
 
 
 
 
-	stream.read((char*)buffer.data(), dataLength);
+	stream.read((char*)data.data(), dataLength);
 
 
-	//short* buffer = (short*)result->buffer.data();
+	//short* data = (short*)result->data.data();
 
 	if(header.wBitsPerSample == 8) {
-		std::vector<byte> buffer16Bit(buffer.size() * 2, 0);
+		header.wBitsPerSample = 16;
+		std::vector<byte> buffer16Bit(data.size() * 2, 0);
 
-		for(int i = 0; i < buffer.size(); ++i) {
+		for(int i = 0; i < data.size(); ++i) {
 			// >implying that its stored in little endian
-			buffer16Bit[2 * i] = buffer[i];
+			buffer16Bit[2 * i] = data[i];
 			buffer16Bit[2 * i + 1] = 0;
 		}
-		std::swap(buffer16Bit, buffer);
+		std::swap(buffer16Bit, data);
 	}
 
 	if(stream.fail()) {
@@ -181,13 +183,13 @@ bool WaveTrack::ReadData(std::istream& stream) {
 	const int fadeoutMs = 20;
 	const size_t fadeoutSampleCount = header.nSamplesPerSec / (1000 / fadeoutMs);
 	const size_t fadeoutSize = fadeoutSampleCount * header.nChannels * sizeof(short);
-	const size_t originalSize = buffer.size();
-	buffer.resize(originalSize + fadeoutSize);
+	const size_t originalSize = data.size();
+	data.resize(originalSize + fadeoutSize);
 
-	if (header.nChannels == 1 && buffer.size() > sizeof(short)) {
+	if (header.nChannels == 1 && data.size() > sizeof(short)) {
 
-		short* const start = (short*)(buffer.data() + originalSize);
-		short* const end = (short*)(buffer.data() + buffer.size());
+		short* const start = (short*)(data.data() + originalSize);
+		short* const end = (short*)(data.data() + data.size());
 
 		const short lastSample = *(end - 1);
 		const int64_t sampleCount = end - start;
@@ -239,15 +241,46 @@ std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const wchar_t* fileName) {
 
 
 
-static char riff[4] = { 'R', 'I', 'F', 'F' };
-static char wave[4] = { 'W', 'A', 'V', 'E' };
-static char fmt[4] = { 'f', 'm', 't', ' ' };
-static char dat[4] = { 'd', 'a', 't', 'a' };
+static char chunk_id_riff[4] = { 'R', 'I', 'F', 'F' };
+static char chunk_id_wave[4] = { 'W', 'A', 'V', 'E' };
+static char chunk_id_fmt[4] = { 'f', 'm', 't', ' ' };
+static char chunk_id_data[4] = { 'd', 'a', 't', 'a' };
 
+bool WaveTrack::Save(const CString& fileName) {
+	std::ofstream out(fileName, std::ofstream::binary);
+
+	if (!out) {
+		return false;
+	}
+
+	
+
+	uint32_t headerChunkSize = sizeof(header);
+	uint32_t dataChunkSize = data.size();
+	uint32_t mainChunkSize = sizeof(chunk_id_wave) + headerChunkSize + dataChunkSize;
+
+
+	out.write(chunk_id_riff, sizeof(chunk_id_riff));
+	out.write((const char*)&mainChunkSize, sizeof(mainChunkSize));
+
+
+	out.write((const char*)&chunk_id_wave, sizeof(chunk_id_wave));
+
+	out.write((const char*)&chunk_id_fmt, sizeof(chunk_id_fmt));
+	out.write((const char*)&headerChunkSize, sizeof(headerChunkSize));
+	out.write((const char*)&header, sizeof(header));
+
+
+	out.write(chunk_id_data, sizeof(chunk_id_data));
+	out.write((const char*)&dataChunkSize, sizeof(dataChunkSize));
+	out.write((const char*)data.data(), data.size());
+
+	return true;
+}
 
 //
-////int readWave(const wchar_t* filename, int* freq, int* channels, short** buffer, size_t* buffer_size, int* samples) {
-////int readWave(const wchar_t* filename, _Out_ int& freq, _Out_ int& channels, short** buffer, size_t* buffer_size, int* samples) {
+////int readWave(const wchar_t* filename, int* freq, int* channels, short** data, size_t* buffer_size, int* samples) {
+////int readWave(const wchar_t* filename, _Out_ int& freq, _Out_ int& channels, short** data, size_t* buffer_size, int* samples) {
 //std::unique_ptr<WaveTrack> readWave(const wchar_t* filename) {
 //
 //	std::unique_ptr<WaveTrack> result(new WaveTrack);
@@ -295,16 +328,16 @@ static char dat[4] = { 'd', 'a', 't', 'a' };
 //	//	return 0;
 //	//}
 //	
-//	result->buffer.resize(wh.dataLen);
-//	short* buffer = (short*)result->buffer.data();
-//	//(*buffer) = (short*) malloc(wh.dataLen);
+//	result->data.resize(wh.dataLen);
+//	short* data = (short*)result->data.data();
+//	//(*data) = (short*) malloc(wh.dataLen);
 //	//*buffer_size = wh.dataLen;
-//	//if (!*buffer){
+//	//if (!*data){
 //	//	printf("error: could not allocate memory for wave\n");
 //	//	return 0;
 //	//}
 //
-//	elemsRead = fread(buffer, wh.dataLen, 1, f);
+//	elemsRead = fread(data, wh.dataLen, 1, f);
 //	fclose(f);
 //	if (elemsRead != 1){
 //		//printf("error: reading wave file\n");
@@ -356,7 +389,7 @@ static char dat[4] = { 'd', 'a', 't', 'a' };
 //	}
 //
 //	elemWritten = fwrite(&wh, sizeof(wh), 1, f);
-//	if(elemWritten) elemWritten = fwrite(buffer.data(), wh.dataLen, 1, f);
+//	if(elemWritten) elemWritten = fwrite(data.data(), wh.dataLen, 1, f);
 //	fclose(f);
 //
 //	if(!elemWritten) {
@@ -365,7 +398,7 @@ static char dat[4] = { 'd', 'a', 't', 'a' };
 //	}
 //}
 
-//void writeWave(const char* filename, int freq, int channels, short* buffer, int samples) {
+//void writeWave(const char* filename, int freq, int channels, short* data, int samples) {
 //	struct WaveHeader wh;
 //	int i;
 //	int elemWritten;
@@ -396,7 +429,7 @@ static char dat[4] = { 'd', 'a', 't', 'a' };
 //	}
 //
 //	elemWritten = fwrite(&wh, sizeof(wh), 1, f);
-//	if(elemWritten) elemWritten = fwrite(buffer, wh.dataLen, 1, f);
+//	if(elemWritten) elemWritten = fwrite(data, wh.dataLen, 1, f);
 //	fclose(f);
 //
 //	if(!elemWritten) {

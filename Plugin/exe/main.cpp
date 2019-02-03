@@ -380,48 +380,65 @@ void wmain__() {
 
 //#pragma comment(lib, "Release\\cpprest140_2_8.lib")
 
+
+void processingtest() {
+
+	// Mivel ez nem egy generált mfc alkalmazás nincs minden
+	// alapból inicializálva, és assert-et dob a dialog konstruktor
+	// ha ez nincs itt
+	AFX_MANAGE_STATE(AfxGetStaticModuleState());
+	CFileDialog openDialog(TRUE);
+	
+	if (openDialog.DoModal() != IDOK) {
+		return;
+	}
+	//CString fileName = dialog.GetFileName();
+	CString fileName = openDialog.GetPathName();
+
+	//MessageBox(0, fileName, 0, 0);
+
+	std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+
+	AudioProcessor audioPorcessor;
+
+
+	//AudioProcessorDialog dlg(audioPorcessor);
+	//dlg.DoModal();
+
+	//MessageBoxA(0, audioPorcessor.enabled ? "igen" : "nem", 0, 0);
+
+	audioPorcessor.enabled = false;
+
+
+
+	audioPorcessor.Process((short*)track->data.data(), track->numberOfSamples, track->header.nChannels);
+
+
+	CFileDialog saveDialog(TRUE);
+
+	if (openDialog.DoModal() != IDOK) {
+		return;
+	}
+
+	CString outputFileName = openDialog.GetPathName();
+
+	//CString resultFileName = CString() + L"d:/Documents/temp/wave/test" + ToString(time(NULL)) + L".wav";
+
+	track->Save(outputFileName);
+}
+
+
+
 class CMyApp : public CWinApp {
 	BOOL InitInstance() override {
 
-		wmain();
 
-		return TRUE;
+		processingtest();
+		//wmain();
+
+		//return TRUE;
 		//MessageBoxA(0, "lofasz", 0, 0);
 		//CString fileName = L"d:/Documents/AudioEdited/A pofadat befogod.wav";
-
-		// Mivel ez nem egy generált mfc alkalmazás nincs minden
-		// alapból inicializálva, és assert-et dob a dialog konstruktor
-		// ha ez nincs itt
-		AFX_MANAGE_STATE(AfxGetStaticModuleState());
-		CFileDialog dialog(TRUE);
-
-		auto result = dialog.DoModal();
-		if(result == IDOK) {
-			//CString fileName = dialog.GetFileName();
-			CString fileName = dialog.GetPathName();
-			
-			//MessageBox(0, fileName, 0, 0);
-
-			std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
-
-			AudioProcessor audioPorcessor;
-
-
-			//AudioProcessorDialog dlg(audioPorcessor);
-			//dlg.DoModal();
-
-			//MessageBoxA(0, audioPorcessor.enabled ? "igen" : "nem", 0, 0);
-
-			audioPorcessor.enabled = true;
-
-
-
-			audioPorcessor.Process((short*)track->buffer.data(), track->numberOfSamples, track->header.nChannels);
-
-			//CString resultFileName = CString() + L"d:/Documents/temp/wave/test" + ToString(time(NULL)) + L".wav";
-
-			//track->Save(resultFileName);
-		}
 
 
 

@@ -17,12 +17,12 @@ public:
 	WAVEFORMATEX header;
 
 
-	std::vector<byte> buffer;
+	std::vector<byte> data;
 	int numberOfSamples;
 	size_t dataLength;
 public:
 	static std::shared_ptr<WaveTrack> LoadWaveFile(const wchar_t* fileName);
-	//void Save(CString fileName);
+	bool Save(const CString& fileName);
 	
 };
 
