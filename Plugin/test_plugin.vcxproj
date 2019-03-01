@@ -423,6 +423,7 @@
     <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
+    <ClInclude Include="Wave\AudioProcessing.h" />
     <ClInclude Include="Web\Http.h" />
     <ClInclude Include="Gui\InputObserverDialog.h" />
     <ClInclude Include="KeyboardHook\KeyboardHookUtils.h" />

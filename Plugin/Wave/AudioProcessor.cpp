@@ -1,56 +1,68 @@
 #include "stdafx.h"
 
 #include "AudioProcessor.h"
-#include "SignalProcessing.h"
+#include "AudioProcessing.h"
+
+
+using namespace AudioProcessing;
+
+Filter filter;
 
 bool AudioProcessor::Process(
 	short* samples,
-	int sampleCount,
+	size_t sampleCount,
 	int channels
 ) {
 
-	if(!enabled) return false;
-
-	auto start = GetTickCount();
+	if (!enabled) return false;
 
 
-	const int windowLength21342 = sampleCount / durationMs / 1000 * windowLengthMicroSec;
-	//const int windowLength = 4600;
-	const int windowLength = sampleCount / 2;
+	filter.ProcessData(AudioData{samples, sampleCount, channels});
 
-	if(sampleBuffer.size() != sampleCount) {
-		sampleBuffer.resize(sampleCount*channels);
-	}
 
-	int windowOffset = 0;
-	while(true) {
-		for(int i = 0; i < windowLength; ++i) {
-			if(windowOffset + windowLength + i >= sampleBuffer.size()) {
-				goto end;
-			}
 
-			const short newSample = (samples[windowOffset + 2 * i] + samples[windowOffset + 2 * i + channels]) / 2;
-			sampleBuffer[windowOffset + i] = newSample;
-			sampleBuffer[windowOffset + windowLength + i] = newSample;
 
-		}
-		windowOffset += windowLength;
-	}
+	//auto start = GetTickCount();
 
-	// label
-	end:
 
-	memcpy(samples, sampleBuffer.data(), sizeof(short)*sampleCount*channels);
+	//const int windowLength21342 = sampleCount / durationMs / 1000 * windowLengthMicroSec;
+	////const int windowLength = 4600;
+	//const int windowLength = sampleCount / 2;
 
-	auto end = GetTickCount();
+	//if(sampleBuffer.size() != sampleCount) {
+	//	sampleBuffer.resize(sampleCount*channels);
+	//}
 
-	std::wcout.width(4);
-	std::wcout << int(end - start) << L"\r";
+	//int windowOffset = 0;
+	//while(true) {
+	//	for(int i = 0; i < windowLength; ++i) {
+	//		if(windowOffset + windowLength + i >= sampleBuffer.size()) {
+	//			goto end;
+	//		}
 
-	std::swap(sampleBuffer, previousSampleBuffer);
+	//		const short newSample = (samples[windowOffset + 2 * i] + samples[windowOffset + 2 * i + channels]) / 2;
+	//		sampleBuffer[windowOffset + i] = newSample;
+	//		sampleBuffer[windowOffset + windowLength + i] = newSample;
+
+	//	}
+	//	windowOffset += windowLength;
+	//}
+
+	//// label
+	//end:
+
+	//memcpy(samples, sampleBuffer.data(), sizeof(short)*sampleCount*channels);
+
+	//auto end = GetTickCount();
+
+	//std::wcout.width(4);
+	//std::wcout << int(end - start) << L"\r";
+
+	//std::swap(sampleBuffer, previousSampleBuffer);
 
 	return true;
 }
+
 //
 //void AudioProcessor::Enable() {
 //	enabled = true;

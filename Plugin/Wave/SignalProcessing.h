@@ -2,7 +2,10 @@
 
 
 #define _USE_MATH_DEFINES
+
 #include <math.h>
+#include <vector>
+#include <cassert>
 
 namespace SgnProc {
 
@@ -91,7 +94,8 @@ namespace SgnProc {
 	static inline void Mix(short* s1, const short* s2, size_t length) {
 		for(int i = 0; i < length; ++i) {
 			// TODO rendes hangeröallitas
-			s1[i] += MulDiv(s2[i], 1, 2);
+			//s1[i] += MulDiv(s2[i], 1, 2);
+			s1[i] = (s1[i] + s2[i]) * 1 / 2;
 		}
 	}
 
