@@ -28,7 +28,7 @@ namespace AudioProcessing {
 	class FilterBuffer {
 
 		//vector<short> previousSamples;
-		const size_t FilterSize;
+		const size_t CachedSampleCount;
 
 		int ChannelCount = 0;
 		std::vector<short> Samples;
@@ -37,7 +37,7 @@ namespace AudioProcessing {
 		//size_t CurrentWindowSampleCount = 0;
 		//short* Offset = nullptr;
 	public:
-		FilterBuffer(size_t filterSize) : FilterSize(filterSize) {
+		FilterBuffer(size_t filterSize) : CachedSampleCount(filterSize) {
 			// NULL
 		}
 
@@ -48,7 +48,7 @@ namespace AudioProcessing {
 		void SetCurrentData(const AudioData& data) {
 			CurrentWindowSampleCount = data.SampleCount;
 
-			const size_t requiredBufferSize = (FilterSize + data.SampleCount) * data.ChannelCount;
+			const size_t requiredBufferSize = (CachedSampleCount + data.SampleCount) * data.ChannelCount;
 
 
 			if (data.ChannelCount != ChannelCount) {
@@ -95,11 +95,13 @@ namespace AudioProcessing {
 		}
 
 		short* BufferEnd() {
+			assert(Samples.data() + Samples.size() == Samples.data() + (CachedSampleCount + CurrentWindowSampleCount) * ChannelCount);
 			return Samples.data() + Samples.size();
 		}
 
 		short* CurrentWindowStart() {
-			return BufferBegin() + CurrentWindowSampleCount * ChannelCount;
+			return BufferBegin() + CachedSampleCount * ChannelCount;
+			//return BufferBegin() + CurrentWindowSampleCount * ChannelCount;
 			//short* bufferStart = Samples.data();
 			//return bufferStart + ChannelCount * FilterSize;
 		}
@@ -108,9 +110,9 @@ namespace AudioProcessing {
 			return ChannelCount;
 		}
 
-		size_t SampleCount() const {
-			return Samples.size() / ChannelCount;
-		}
+		//size_t SampleCount() const {
+		//	return Samples.size() / ChannelCount;
+		//}
 	};
 
 
@@ -229,16 +231,18 @@ namespace AudioProcessing {
 		//short* const Samples;
 		//const size_t SampleCount;
 
-		const DataType& Data;
-		const int ChannelIndex;
+		DataType& Data;
+		int ChannelIndex = 0;
 
 	
 	
-		ChannelT(DataType& data, int channelIndex)
-			: Data(data), ChannelIndex(channelIndex)
-		{
-			// NULL
-		}
+		//ChannelT(DataType& data, int channelIndex)
+		//	: Data(data), ChannelIndex(channelIndex)
+		//{
+		//	// NULL
+		//}
+
+		ChannelT(const ChannelT<DataType>& other) = default;
 
 		size_t SampleCount() const {
 			return Data.SampleCount;
@@ -265,45 +269,96 @@ namespace AudioProcessing {
 			return SampleIterator(SamplePtrForIndex((int)SampleCount), Data.ChannelCount);
 		}
 
+		ChannelT<DataType>& operator++() {
+			++ChannelIndex;
+			return *this;
+		}
+
+		//ChannelT<DataType> operator++() {
+		//	return ChannelT<DataType>{Data, ChannelIndex + 1};
+		//}
+
+		bool operator!= (const ChannelT<DataType>& other) const {
+			return ChannelIndex != other.ChannelIndex;
+		}
+
+		auto& operator*() const {
+			return *this;
+		}
+
+
+		auto& operator*() {
+			return *this;
+		}
+
+
+		//auto operator*() const {
+		//	return ChannelT<DataType>(*this);
+		//}
+		//
+		//
+		//auto operator*() {
+		//	return ChannelT<DataType>(*this);
+		//}
+
+
 	};
 
 	typedef ChannelT<InputAudioData> InputChannel;
 	typedef ChannelT<OutputAudioData> OutputChannel;
 
+
 	template<class DataType>
-	class ChannelIterator {
-		std::vector<ChannelT<DataType>> channels;
-	public:
-
-		typedef decltype(channels.begin()) iterator;
-
-		ChannelIterator(DataType& data) {
-			channels.reserve(data.ChannelCount);
-			for (int channelIndex = 0; channelIndex < data.ChannelCount; ++channelIndex) {
-				channels.emplace_back(data, channelIndex);
-			}
-		}
-
-		ChannelIterator(short* samples, size_t sampleCount, int channelCount) {
-			channels.reserve(channelCount);
-			for (int channelIndex = 0; channelIndex < channelCount; ++channelIndex) {
-				channels.emplace_back(samples, sampleCount, channelCount, channelIndex);
-			}
-		}
-
-		auto begin() {
-			return channels.begin();
-		}
-
-		auto end() {
-			return channels.end();
-		}
+	struct ChannelIterator {
 
 	};
 
 	template<class DataType>
-	ChannelIterator<DataType> Channels(DataType& data) {
-		return ChannelIterator<DataType>(data);
+	struct ChannelEnumerator {
+
+		DataType& Data;
+		typedef ChannelT<DataType> iterator;
+
+		auto begin() {
+			return iterator{ Data, 0 };
+		}
+
+		auto end() {
+			return iterator{ Data, Data.ChannelCount };
+		}
+
+		//std::vector<ChannelT<DataType>> channels;
+	//public:
+
+	//	typedef decltype(channels.begin()) iterator;
+
+	//	ChannelEnumerator(DataType& data) {
+	//		channels.reserve(data.ChannelCount);
+	//		for (int channelIndex = 0; channelIndex < data.ChannelCount; ++channelIndex) {
+	//			channels.emplace_back(data, channelIndex);
+	//		}
+	//	}
+
+	//	ChannelEnumerator(short* samples, size_t sampleCount, int channelCount) {
+	//		channels.reserve(channelCount);
+	//		for (int channelIndex = 0; channelIndex < channelCount; ++channelIndex) {
+	//			channels.emplace_back(samples, sampleCount, channelCount, channelIndex);
+	//		}
+	//	}
+
+	//	auto begin() {
+	//		return channels.begin();
+	//	}
+
+	//	auto end() {
+	//		return channels.end();
+	//	}
+
+	};
+
+	template<class DataType>
+	ChannelEnumerator<DataType> Channels(DataType& data) {
+		return ChannelEnumerator<DataType>{data};
 	}
 
 
@@ -335,10 +390,10 @@ namespace AudioProcessing {
 	public:
 
 		ZipIterator(C1& container1, C2& container2) :
-			container1(container1), container2(container2)
+			container1(container1), container2(container2), ZippedElement<C1, C2>{container1.begin(), container2.begin()}
 		{
-			it1 = container1.begin();
-			it2 = container2.begin();
+			//it1 = container1.begin();
+			//it2 = container2.begin();
 		}
 
 
@@ -432,6 +487,9 @@ namespace AudioProcessing {
 		}
 
 		short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) {
+			const short* ptr = &inputChannel[sampleIndex];
+			//assert(_CrtIsValidHeapPointer(ptr));
+
 			return inputChannel[sampleIndex] - inputChannel[sampleIndex - 1];
 		}
 
