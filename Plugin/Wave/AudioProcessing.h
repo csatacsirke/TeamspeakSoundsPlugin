@@ -53,7 +53,7 @@ namespace AudioProcessing {
 			}
 
 
-			std::rotate(BufferBegin(), CurrentWindowStart(), BufferEnd());
+			std::rotate(BufferBegin(), BufferBegin() + CurrentWindowSampleCount*ChannelCount, BufferEnd());
 			memcpy(CurrentWindowStart(), data.Samples, sizeof(*data.Samples)*data.SampleCount*data.ChannelCount);
 		}
 
