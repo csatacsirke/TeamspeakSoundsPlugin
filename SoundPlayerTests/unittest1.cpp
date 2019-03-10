@@ -7,13 +7,24 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include <Plugin/Wave/AudioProcessing.h>
 
 using namespace AudioProcessing;
-
+using namespace TSPlugin;
 
 namespace SoundPlayerTests
 {		
 	TEST_CLASS(UnitTest1)
 	{
 	public:
+
+		static inline auto GenerateData(size_t count) {
+			std::vector<short> result;
+
+			for (int i = 0; i < count; ++i) {
+				result.push_back(1000 + i*10);
+				result.push_back(i*20);
+			}
+
+			return result;
+		}
 		
 		TEST_METHOD(TestMethod1)
 		{
@@ -21,15 +32,41 @@ namespace SoundPlayerTests
 			Filter filter;
 
 
-			std::vector<short> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+			std::vector<short> data = GenerateData(40);
 
-			filter.ProcessData(AudioData{ data.data(), 5, 2 });
+			short* ptr = data.data();
+			size_t delta = 5 * 2;
+
+			filter.ProcessData(AudioData{ ptr, 5, 2 });
+			ptr += delta;
+			filter.ProcessData(AudioData{ ptr, 5, 2 });
+			ptr += delta;
+			filter.ProcessData(AudioData{ ptr, 5, 2 });
+			ptr += delta;
 			
 			int a = 42;
 			Assert::AreEqual(a, 42);
 
 
 		}
+
+
+
+		TEST_METHOD(TestSplitChannels) {
+			// TODO: Your test code here
+			Filter filter;
+
+
+			std::vector<short> data = GenerateData(20);
+
+			data = SplitChannels({ data.data(), 20, 2 });
+
+			int a = 42;
+			Assert::AreEqual(a, 42);
+
+
+		}
+
 
 	};
 }

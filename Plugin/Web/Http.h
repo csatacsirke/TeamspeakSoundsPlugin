@@ -137,7 +137,7 @@ namespace Web {
 					//printf("Error %u in WinHttpQueryDataAvailable.\n", GetLastError());
 				}
 				
-				std::vector<byte> chunkBuffer(dwSize + 1);
+				std::vector<uint8_t> chunkBuffer(dwSize + 1);
 				if(!WinHttpReadData(hRequest, (LPVOID)chunkBuffer.data(), dwSize, &dwDownloaded)) {
 					throw Exception(GetLastError());
 				}

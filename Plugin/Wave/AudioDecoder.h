@@ -12,11 +12,11 @@ class AudioDecoder {
 
 	
 public:
-	//typedef std::unique_ptr<std::vector<byte>> Buffer;
-	class Buffer : public std::unique_ptr<std::vector<byte>> {
+	//typedef std::unique_ptr<std::vector<uint8_t>> Buffer;
+	class Buffer : public std::unique_ptr<std::vector<uint8_t>> {
 	public:
 		Buffer() {
-			std::unique_ptr<std::vector<byte>>::reset(new std::vector<byte>());
+			std::unique_ptr<std::vector<uint8_t>>::reset(new std::vector<uint8_t>());
 		}
 		void Append(void* data, size_t length) {
 			size_t offset = (*this)->size();

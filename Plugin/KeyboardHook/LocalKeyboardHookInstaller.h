@@ -2,25 +2,28 @@
 
 #include "KeyboardHookUtils.h"
 
+namespace TSPlugin {
 
-class LocalKeyboardHookInstallerDelegate {
-public:
-	virtual HookResult OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) = NULL;
-	virtual void OnMessage(const CString& message) = NULL;
-};
+	using namespace KeyboardHook;
 
-class LocalKeyboardHookInstaller {
-	LocalKeyboardHookInstallerDelegate& delegate;
-public:
-	LocalKeyboardHookInstaller(LocalKeyboardHookInstallerDelegate& delegate);
-	~LocalKeyboardHookInstaller();
+	class LocalKeyboardHookInstallerDelegate {
+	public:
+		virtual HookResult OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) = NULL;
+		virtual void OnMessage(const CString& message) = NULL;
+	};
 
-	bool Attach();
-	void Detach();
+	class LocalKeyboardHookInstaller {
+		LocalKeyboardHookInstallerDelegate& delegate;
+	public:
+		LocalKeyboardHookInstaller(LocalKeyboardHookInstallerDelegate& delegate);
+		~LocalKeyboardHookInstaller();
 
-private:
-	HHOOK hook;
-};
+		bool Attach();
+		void Detach();
+
+	private:
+		HHOOK hook;
+	};
 
 
-
+}

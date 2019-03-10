@@ -4,24 +4,30 @@
 
 #include <Util\NetUtil.h>
 
-using namespace Net;
+#include <stdint.h>
 
-class OnlineMicrophone {
-	Wsa wsa;
-	std::shared_ptr<ListenerSocket> listenerSocket;
-	std::unique_ptr<std::thread> listenerThread;
-	std::shared_ptr<ClientSocket> clientSocket;
-	std::unique_ptr<std::thread> readerThread;
+namespace TSPlugin {
 
-	std::queue<std::shared_ptr<std::vector<byte>>> buffers;
-public:
-	OnlineMicrophone();
-	~OnlineMicrophone();
+	using namespace Net;
 
-	bool TryGetSamples(std::vector<byte>& buffer);
-	
-private:
-	void Listen();
-	void OnConnect(std::shared_ptr<ClientSocket> clientSocket);
-};
+	class OnlineMicrophone {
+		Wsa wsa;
+		std::shared_ptr<ListenerSocket> listenerSocket;
+		std::unique_ptr<std::thread> listenerThread;
+		std::shared_ptr<ClientSocket> clientSocket;
+		std::unique_ptr<std::thread> readerThread;
 
+		std::queue<std::shared_ptr<std::vector<uint8_t>>> buffers;
+	public:
+		OnlineMicrophone();
+		~OnlineMicrophone();
+
+		bool TryGetSamples(std::vector<uint8_t>& buffer);
+
+	private:
+		void Listen();
+		void OnConnect(std::shared_ptr<ClientSocket> clientSocket);
+	};
+
+
+}

@@ -1,35 +1,38 @@
 #pragma once
 
 
-// PresetHotkeyGroup dialog
+namespace TSPlugin {
 
-class PresetHotkeyGroup : public CDialogEx
-{
-	DECLARE_DYNAMIC(PresetHotkeyGroup)
+	// PresetHotkeyGroup dialog
 
-	CStringA key;
-	CString caption;
-	void* qParentWidget;
-protected:
-	std::unique_ptr<HotkeyButton> hotkeyButton;
-	CEdit pathEdit;
-	Button browseButton;
+	class PresetHotkeyGroup : public CDialogEx {
+		DECLARE_DYNAMIC(PresetHotkeyGroup)
 
-public:
-	PresetHotkeyGroup(CStringA key, CString caption, void* qParentWidget, CWnd* pParent);   // standard constructor
-	virtual ~PresetHotkeyGroup();
+		CStringA key;
+		CString caption;
+		void* qParentWidget;
+	protected:
+		std::unique_ptr<HotkeyButton> hotkeyButton;
+		CEdit pathEdit;
+		Button browseButton;
 
-// Dialog Data
+	public:
+		PresetHotkeyGroup(CStringA key, CString caption, void* qParentWidget, CWnd* pParent);   // standard constructor
+		virtual ~PresetHotkeyGroup();
+
+		// Dialog Data
 #ifdef AFX_DESIGN_TIME
-	enum { IDD = IDD_PRESET_HOTKEY_GROUP };
+		enum { IDD = IDD_PRESET_HOTKEY_GROUP };
 #endif
 
-protected:
-	void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
-	BOOL OnInitDialog() override;
-	void ResizeToContent();
+	protected:
+		void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
+		BOOL OnInitDialog() override;
+		void ResizeToContent();
 
-	DECLARE_MESSAGE_MAP()
+		DECLARE_MESSAGE_MAP()
 
-	
-};
+
+	};
+
+}

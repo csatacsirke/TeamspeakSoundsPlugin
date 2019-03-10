@@ -55,7 +55,7 @@
 #include <functional>
 #include <memory>
 
-using namespace std;
+//using namespace std;
 
 
 #include <pluginsdk\include\ts3_functions.h>
@@ -92,6 +92,9 @@ using namespace std;
 
 
 
+namespace TSPlugin {
+	using namespace std;
+}
 
 
 

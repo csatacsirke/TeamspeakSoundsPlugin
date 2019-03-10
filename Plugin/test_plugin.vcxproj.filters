@@ -164,6 +164,12 @@
     <ClInclude Include="Wave\AudioProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Wave\FourierUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Wave\PitchFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

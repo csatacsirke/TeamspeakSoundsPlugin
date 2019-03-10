@@ -324,10 +324,17 @@ namespace AudioProcessing {
 
 
 
-	class Filter {
+	class FilterBase {
 
-		FilterBuffer buffer = FilterBuffer(4);
+		FilterBuffer buffer;
 	public:
+		FilterBase(size_t cachedSampleCount) : buffer(cachedSampleCount) {
+			// NULL
+		}
+
+
+		virtual short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) = 0;
+
 		void ProcessData(OutputAudioData& dataToProcess) {
 			buffer.SetCurrentData(dataToProcess);
 
@@ -357,11 +364,46 @@ namespace AudioProcessing {
 			}
 		}
 
-		short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) {
-			return inputChannel[sampleIndex] - inputChannel[sampleIndex - 1];
+	
+
+	};
+
+	static inline std::vector<short> SplitChannels(const InputAudioData& inputData) {
+		std::vector<short> splitData(inputData.SampleCount*inputData.ChannelCount);
+
+		for (int channelIndex = 0; channelIndex < inputData.ChannelCount; ++channelIndex) {
+			for (int sampleIndex = 0; sampleIndex < inputData.SampleCount; ++sampleIndex) {
+				const size_t sourceIndex = sampleIndex * inputData.ChannelCount + channelIndex;
+				const size_t destIndex = sampleIndex + inputData.SampleCount * channelIndex;
+				splitData[destIndex] = inputData.Samples[sourceIndex];
+			}
+		}
+		return splitData;
+	}
+
+	//static inline void SplitChannelsInPlace(AudioData& data) {
+	//	for (int sampleIndex = data.SampleCount - 1; sampleIndex >= 0 ; --sampleIndex) {
+	//	//for (int sampleIndex = 0; sampleIndex < data.SampleCount; ++sampleIndex) {
+	//		for (int channelIndex = 0; channelIndex < data.ChannelCount; ++channelIndex) {
+	//		//for (int channelIndex = data.ChannelCount - 1; channelIndex >=0; --channelIndex) {
+	//			short& originalSample = data.Samples[sampleIndex*data.ChannelCount + channelIndex];
+	//			short& newSample = data.Samples[sampleIndex + data.SampleCount * channelIndex];
+	//			std::swap(originalSample, newSample);
+	//		}
+	//	}
+	//}
+
+	class Filter : public FilterBase {
+	public:
+
+		Filter() : FilterBase(20) {
+
 		}
 
-	
+		short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) override {
+			return inputChannel[sampleIndex] / 2;
+			//return (inputChannel[sampleIndex] - inputChannel[sampleIndex - 2])/2;
+		}
 
 	};
 
@@ -369,5 +411,5 @@ namespace AudioProcessing {
 
 } // namespace AudioProcessing
 
-
+// :)
 

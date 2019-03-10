@@ -4,15 +4,15 @@
 #include <memory>
 
 
-template<class T>
-std::unique_ptr<T> as_unqiue(const T& value) {
-	return make_unique<T>(value);
-}
-
-template<class T>
-std::unique_ptr<T> as_unqiue(const T&& value) {
-	return make_unique<T>(value);
-}
+//template<class T>
+//std::unique_ptr<T> as_unqiue(const T& value) {
+//	return make_unique<T>(value);
+//}
+//
+//template<class T>
+//std::unique_ptr<T> as_unqiue(const T&& value) {
+//	return make_unique<T>(value);
+//}
 
 //
 //

@@ -46,6 +46,8 @@ const char* version = "17.03.24";
 //#define AUDIO_PROCESS_SECONDS 10
 
 
+
+using namespace TSPlugin;
 using namespace Global;
 
 //SoundplayerApp theApp;
