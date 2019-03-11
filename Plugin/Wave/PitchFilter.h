@@ -3,23 +3,24 @@
 #include "AudioProcessing.h"
 #include "FourierUtils.h"
 
-namespace AudioProcessing {
+namespace TSPlugin {
 
 	using namespace Fourier;
 
 
 
-	class Filter : public FilterBase {
+	const int echoSampleCount = 48000;
+
+	class PitchFilter : public FilterBase {
 	public:
 
-		const int echoSampleCount = 48000;
 
-		Filter() : FilterBase(echoSampleCount) {
+		PitchFilter() : FilterBase(echoSampleCount) {
 
 		}
 
 		short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) override {
-			return inputChannel[sampleIndex] + inputChannel[- echoSampleCount / 2] + inputChannel[ - (echoSampleCount - 1)];
+			return inputChannel[sampleIndex] + inputChannel[sampleIndex - echoSampleCount / 2] / 2 + inputChannel[sampleIndex - (echoSampleCount - 1)] / 3;
 			//return (inputChannel[sampleIndex] - inputChannel[sampleIndex - 2])/2;
 		}
 
@@ -27,6 +28,7 @@ namespace AudioProcessing {
 
 
 
-} // namespace AudioProcessing 
+
+} // namespace TSPlugin
 
 

@@ -6,7 +6,6 @@ using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 #include <Plugin/Wave/AudioProcessor.h>
 #include <Plugin/Wave/AudioProcessing.h>
 
-using namespace AudioProcessing;
 using namespace TSPlugin;
 
 namespace SoundPlayerTests

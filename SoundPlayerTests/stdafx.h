@@ -10,4 +10,9 @@
 // Headers for CppUnitTest
 #include "CppUnitTest.h"
 
+
+namespace TSPlugin {
+	using namespace std;
+}
+
 // TODO: reference additional headers your program requires here

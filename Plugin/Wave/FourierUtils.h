@@ -42,7 +42,7 @@ namespace Fourier {
 	// The bug is now fixed @2017/05/30 
 	static void fft(CArray &x) {
 		// DFT
-		unsigned int N = x.size(), k = N, n;
+		unsigned int N = (unsigned int)x.size(), k = N, n;
 		double thetaT = 3.14159265358979323846264338328L / N;
 		Complex phiT = Complex(cos(thetaT), -sin(thetaT)), T;
 		while (k > 1) {
@@ -94,7 +94,7 @@ namespace Fourier {
 		x = x.apply(std::conj);
 
 		// scale the numbers
-		x /= x.size();
+		x /= (double)x.size();
 	}
 
 	static int testmain() {

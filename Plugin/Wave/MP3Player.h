@@ -205,7 +205,7 @@ public:
 		mp3Assert(acmMetrics(NULL, ACM_METRIC_MAX_SIZE_FORMAT, &maxFormatSize));
 
 		// Allocate PCM output sound buffer
-		bufferLength = durationInSecond * pcmFormat.nAvgBytesPerSec;
+		bufferLength = (DWORD)durationInSecond * pcmFormat.nAvgBytesPerSec;
 		soundBuffer = (BYTE*)LocalAlloc(LPTR, bufferLength);
 
 		acmMp3stream = NULL;

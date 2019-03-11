@@ -6,7 +6,9 @@
 #include <vector>
 #include <cassert>
 
-namespace AudioProcessing {
+namespace TSPlugin {
+
+
 
 	template<typename PtrType>
 	struct AudioDataT {
@@ -21,7 +23,7 @@ namespace AudioProcessing {
 
 	class FilterBuffer {
 
-		const size_t CachedSampleCount;
+		const size_t CachedSampleCount = 0;
 
 		int ChannelCount = 0;
 		std::vector<short> Samples;
@@ -53,7 +55,7 @@ namespace AudioProcessing {
 			}
 
 
-			std::rotate(BufferBegin(), BufferBegin() + CurrentWindowSampleCount*ChannelCount, BufferEnd());
+			std::rotate(BufferBegin(), BufferBegin() + CurrentWindowSampleCount * ChannelCount, BufferEnd());
 			memcpy(CurrentWindowStart(), data.Samples, sizeof(*data.Samples)*data.SampleCount*data.ChannelCount);
 		}
 
@@ -71,7 +73,7 @@ namespace AudioProcessing {
 			return BufferBegin() + CachedSampleCount * ChannelCount;
 		}
 
-		int GetChannelCount() const{
+		int GetChannelCount() const {
 			return ChannelCount;
 		}
 
@@ -146,12 +148,12 @@ namespace AudioProcessing {
 
 	template<class DataType>
 	struct ChannelT {
-		
+
 
 		DataType& Data;
 		int ChannelIndex = 0;
 
-	
+
 		ChannelT(const ChannelT<DataType>& other) = default;
 
 		size_t SampleCount() const {
@@ -281,7 +283,7 @@ namespace AudioProcessing {
 			if (it2 != container2.end()) {
 				++it2;
 			}
-			
+
 			return *this;
 		}
 
@@ -320,11 +322,15 @@ namespace AudioProcessing {
 #pragma endregion Zip
 
 
+	class IAudioFilter {
+	public:
+		virtual void ProcessData(OutputAudioData& dataToProcess) = 0;
+		virtual ~IAudioFilter() = default;
+	};
 
 
 
-
-	class FilterBase {
+	class FilterBase : public IAudioFilter {
 
 		FilterBuffer buffer;
 	public:
@@ -335,7 +341,7 @@ namespace AudioProcessing {
 
 		virtual short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) = 0;
 
-		void ProcessData(OutputAudioData& dataToProcess) {
+		void ProcessData(OutputAudioData& dataToProcess) override {
 			buffer.SetCurrentData(dataToProcess);
 
 			auto bufferedData = buffer.GetData();
@@ -364,7 +370,7 @@ namespace AudioProcessing {
 			}
 		}
 
-	
+
 
 	};
 
@@ -409,7 +415,7 @@ namespace AudioProcessing {
 
 
 
-} // namespace AudioProcessing
+	// :)
 
-// :)
+}
 

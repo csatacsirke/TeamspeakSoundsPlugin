@@ -414,7 +414,7 @@ namespace TSPlugin {
 
 
 
-				result = send(clientSocket, (char*)data, size, NULL);
+				result = send(clientSocket, (char*)data, (int)size, NULL);
 				if (result == SOCKET_ERROR) {
 					int errorCode = WSAGetLastError();
 					CString errorMsg = ToString(errorCode);
@@ -468,7 +468,8 @@ namespace TSPlugin {
 				sockaddr_in serverAddress;
 				serverAddress.sin_family = AF_INET;
 				//serverAddress.sin_addr.s_addr = inet_addr("localhost");
-				serverAddress.sin_addr.s_addr = inet_addr(host);
+				//serverAddress.sin_addr.s_addr = inet_addr(host);
+				inet_pton(AF_INET, host, &serverAddress.sin_addr.s_addr);
 				serverAddress.sin_port = htons(port);
 
 				int result = ::connect(clientSocket, (sockaddr*)&serverAddress, sizeof(serverAddress));
@@ -516,7 +517,7 @@ namespace TSPlugin {
 
 			Packet buffer(new std::vector<uint8_t>(size));
 
-			result = ::recv(clientSocket, (char*)buffer->data(), buffer->size(), 0);
+			result = ::recv(clientSocket, (char*)buffer->data(), (int)buffer->size(), 0);
 			if (SOCKET_ERROR == result) {
 				int errorCode = WSAGetLastError();
 				Log::Warning(L"TcpReceiver::Receive - recv(2): " + ToString(errorCode));
