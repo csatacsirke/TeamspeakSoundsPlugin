@@ -357,10 +357,12 @@
       <UACUIAccess>false</UACUIAccess>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutputPath)$(TargetFileName) "c:\Users\Battlechicken\AppData\Roaming\TS3Client\plugins\"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>taskkill /IM ts3client_win64.exe /F /T 2&gt;nul &amp;set errorlevel=0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -382,10 +384,12 @@
       <UACUIAccess>false</UACUIAccess>
     </Link>
     <PostBuildEvent>
-      <Command>copy $(OutputPath)$(TargetFileName) "c:\Users\Battlechicken\AppData\Roaming\TS3Client\plugins\"</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>taskkill /IM ts3client_win64.exe /F /T 2&gt;nul &amp;set errorlevel=0</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

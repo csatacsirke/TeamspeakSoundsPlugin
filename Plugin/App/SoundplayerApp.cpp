@@ -155,6 +155,9 @@ namespace TSPlugin {
 	HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 
 		Finally finally = [&] {
+
+			this->possibleFiles = GetPossibleFiles(inputHandler.GetBuffer());
+
 			UpdateObserverDialog();
 		};
 
@@ -162,6 +165,9 @@ namespace TSPlugin {
 			StopPlayback();
 		}
 
+		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
+			return HookResult::ConsumeEvent;
+		}
 
 		if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
 			return HookResult::ConsumeEvent;
@@ -600,6 +606,10 @@ namespace TSPlugin {
 			return possibleFiles.front();
 		}
 
+		if (selectedFileIndex < possibleFiles.size()) {
+			return possibleFiles[selectedFileIndex];
+		}
+
 		return nullopt;
 	}
 
@@ -722,6 +732,31 @@ namespace TSPlugin {
 		return false;
 	}
 
+	HookResult SoundplayerApp::TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData) {
+		if (keyData.hookData.vkCode == VK_UP) {
+			RotateSelection(-1);
+			return HookResult::ConsumeEvent;
+		}
+
+		if (keyData.hookData.vkCode == VK_DOWN) {
+			RotateSelection(1);
+			return HookResult::ConsumeEvent;
+		}
+
+		return HookResult::PassEvent;
+	}
+
+	void SoundplayerApp::RotateSelection(int indexDelta) {
+		if (possibleFiles.size() == 0) {
+			selectedFileIndex = 0;
+			return;
+		}
+
+
+		selectedFileIndex  = (selectedFileIndex + indexDelta) % possibleFiles.size();
+		
+	}
+
 	void SoundplayerApp::OpenDeveloperConsole() {
 		CreateConsole();
 		QuickSoundsFileSystem fs;
@@ -780,8 +815,8 @@ namespace TSPlugin {
 
 	void SoundplayerApp::UpdateObserverDialog() {
 		if (inputObserverDialog) {
-			vector<CString> possibleFiles = GetPossibleFiles(inputHandler.GetBuffer());
 			inputObserverDialog->SetFiles(possibleFiles);
+			inputObserverDialog->SetSelectedIndex((int)selectedFileIndex);
 		}
 
 	}
@@ -1072,7 +1107,7 @@ namespace TSPlugin {
 
 		bool nameMatchHodi = (strcmp(name, "Hodi") == 0);
 		bool nameMatchTomi = (strcmp(name, "Ugyis") == 0);
-		if (ownChannelId == clientChannelId) {
+		if (ownChannelId == clientChannelId && (nameMatchHodi || nameMatchTomi)) {
 			std::thread playAndSleepThread = std::thread([=] {
 
 				if (nameMatchHodi) {

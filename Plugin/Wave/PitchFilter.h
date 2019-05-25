@@ -7,15 +7,20 @@ namespace TSPlugin {
 
 	using namespace Fourier;
 
+	const double compressionRatio = 2.0;
+
+	const int samplesPerSec = 48000;
+	const double windowLengthInSeconds = 20.0 / 1000.0;
+	const size_t sampleCountPerWindow = size_t(samplesPerSec * windowLengthInSeconds);
 
 
-	const int echoSampleCount = 48000;
+	const size_t echoSampleCount = 48000;
 
-	class PitchFilter : public FilterBase {
+	class EchoFilter : public FilterBase {
 	public:
 
 
-		PitchFilter() : FilterBase(echoSampleCount) {
+		EchoFilter() : FilterBase(samplesPerSec) {
 
 		}
 
@@ -25,6 +30,18 @@ namespace TSPlugin {
 		}
 
 	};
+
+
+	class PitchFilter : public IAudioFilter {
+	public:
+
+
+		void ProcessData(OutputAudioData& dataToProcess) override {
+			SplitChannels(dataToProcess);
+		}
+
+	};
+
 
 
 

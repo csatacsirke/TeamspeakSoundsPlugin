@@ -106,6 +106,10 @@ namespace TSPlugin {
 
 	private:
 		bool TryEnqueueFileFromCommand(CString str);
+		
+
+		HookResult TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData);
+		void RotateSelection(int indexDelta);
 		//bool TryPlayQuickSound(CString str);
 		//CString GetLikelyFileName(CString str);
 
@@ -125,6 +129,17 @@ namespace TSPlugin {
 		std::mutex playerLock;
 		volatile bool stop;
 
+		concurrency::concurrent_queue<CString> playlist;
+
+		CString lastFile;
+
+
+		vector<CString> possibleFiles;
+		size_t selectedFileIndex = 0;
+		//optional<int> selectedFileIndex;
+		//optional<CString> selectedFile;
+
+
 		//KeyboardHookInstaller hookInstaller;
 
 
@@ -134,10 +149,6 @@ namespace TSPlugin {
 		AudioProcessor audioProcessor;
 
 
-
-		concurrency::concurrent_queue<CString> playlist;
-
-		CString lastFile;
 
 		// TODO : EZ KIBASZOTT ANTIHATÉKONY, CSAK ELÖSZÖR MUKODJON EGYALTALAN
 		AudioBuffer audioBufferForCapture;

@@ -5,6 +5,8 @@
 
 #include <vector>
 #include <cassert>
+#include <type_traits>
+
 
 namespace TSPlugin {
 
@@ -15,6 +17,12 @@ namespace TSPlugin {
 		const PtrType Samples;
 		const size_t SampleCount;
 		const int ChannelCount;
+
+		typedef typename std::add_const<PtrType>::type ConstPtrType;
+
+		operator AudioDataT<ConstPtrType> () const {
+			return { Samples, SampleCount, ChannelCount };
+		}
 	};
 
 	typedef AudioDataT<short*> AudioData;

@@ -103,9 +103,10 @@ namespace TSPlugin {
 	CMyApp theApp;
 
 
-#endif
-
-
 
 }
+
+
+#endif
+
 
