@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 
@@ -290,17 +290,34 @@ namespace TSPlugin {
 		return str.Left(what.GetLength()) == what;
 	}
 
-	static bool EqualsIgnoreCaseAndWhitespace(CString a, CString b) {
-		a.MakeLower();
-		b.MakeLower();
+	//static bool EqualsIgnoreCaseAndWhitespace(CString a, CString b) {
+	//	a.MakeLower();
+	//	b.MakeLower();
+	//
+	//	a.Remove(L' ');
+	//	b.Remove(L' ');
+	//
+	//	a.Remove(L'\t');
+	//	b.Remove(L'\t');
+	//
+	//	return a == b;
+	//}
 
-		a.Remove(L' ');
-		b.Remove(L' ');
+	inline CString MakeComparable(const CString& str) {
+		CString result = str;
+		result.MakeLower();
+		result.Remove(L' ');
+		result.Remove(L'\t');
 
-		a.Remove(L'\t');
-		b.Remove(L'\t');
+		result.Replace(L'ú', L'u');
+		result.Replace(L'ű', L'u');
+		result.Replace(L'ó', L'o');
+		result.Replace(L'ő', L'o');
+		result.Replace(L'á', L'a');
+		result.Replace(L'é', L'e');
+		result.Replace(L'í', L'i');
 
-		return a == b;
+		return result;
 	}
 
 	static inline CWnd* NoParent() {

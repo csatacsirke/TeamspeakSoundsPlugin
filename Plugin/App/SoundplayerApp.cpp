@@ -61,17 +61,6 @@ namespace TSPlugin {
 		InitKeyboardHook();
 #endif
 
-		//CreateConsole();
-
-		//PresenceBroadcaster broadcaster;
-		//PresenceListener listener;
-		//
-		//TcpStreamer tcpStreamer;
-		//TcpReceiver tcpReveiver;
-
-		//PathAppend()
-		//PathCchAppend()
-		//CString path = CString(Global::pluginPath) + L"\\" + Global::config.defaultFileName;
 
 	}
 
@@ -84,73 +73,13 @@ namespace TSPlugin {
 	*/
 	void SoundplayerApp::InitHotkeys(struct PluginHotkey*** hotkeys) {
 		*hotkeys = nullptr;
-		/* Register hotkeys giving a keyword and a description.
-		* The keyword will be later passed to ts3plugin_onHotkeyEvent to identify which hotkey was triggered.
-		* The description is shown in the clients hotkey dialog. */
-
-		//hotkeyHandler.Add(Hotkey::STOP, "Stop playback", [this]{StopPlayback();});
-		//hotkeyHandler.Add(Hotkey::PLAY_QUEUED, "Play queued", [this] {PlayQueued(); });
-		//hotkeyHandler.Add(Hotkey::REPLAY, "Replay", [this] {Replay(); });
-		//hotkeyHandler.Add(Hotkey::PLAY_RANDOM, "Play random", [this] {PlayRandom(); });
-		//
-		//for(int i = 0; i < soundHotkeyCount; ++i) {
-		//	CStringA hotkey;
-		//	hotkey.Format(Hotkey::PLAY_PRESET_TEMPLATE, i);
-		//
-		//	CStringA title;
-		//	title.Format("Play sound #%d", i);
-		//
-		//	hotkeyHandler.Add(hotkey, title, [this, i] {PlayPreset(i); });
-		//	//CREATE_HOTKEY(Hotkey::REPLAY, "Replay");
-		//}
-		//
-		//
-		////Config::Get(ConfigKey::SoundHotkeyCount, soundHotkeyCount)
-		//
-		//hotkeyHandler.Configure(hotkeys);
-
-		/* The client will call ts3plugin_freeMemory to release all allocated memory */
+		// removed
 	}
 
 	void SoundplayerApp::OnHotkey(CStringA keyword) {
-		//hotkeyHandler.OnHotkeyEvent(keyword);
+		// removed
 	}
-	//
-	//
-	//class QuickVoiceChatHandler {
-	//	vector<CString> keys;
-	//	bool inProgress = false;
-	//public:
-	//
-	//
-	//	function<void(vector<CString>& keys)> OnCommandCompleted;
-	//
-	//public:
-	//	void Process(const KeyboardHook::KeyData& keyData) {
-	//		if(inProgress) {
-	//			if(CString("1234567890").Find(keyData.unicodeLiteral) >= 0) {
-	//				keys.push_back(keyData.unicodeLiteral);
-	//				if(keys.size() >= 2) {
-	//					OnCommandCompleted ? OnCommandCompleted(keys) : NULL;
-	//					keys.clear();
-	//				}
-	//			} else {
-	//				inProgress = false;
-	//				keys.clear();
-	//			}
-	//
-	//
-	//		} else {
-	//			if(CString(keyData.unicodeLiteral).CompareNoCase(L"v") == 0) {
-	//				inProgress = true;
-	//			}
-	//		}
-	//	}
-	//
-	//
-	//};
-	//
-
+	
 
 	HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
 
@@ -180,87 +109,6 @@ namespace TSPlugin {
 		return HookResult::PassEvent;
 	}
 
-
-
-	//HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
-	//
-	//	Finally finally = [&]{
-	//		UpdateObserverDialog();
-	//	};
-	//
-	//
-	//
-	//
-	//	if (keyData.hookData.vkCode == VK_ESCAPE) {
-	//		stop = true;
-	//
-	//		audioBufferForCapture.Clear();
-	//		audioBufferForPlayback.Clear();
-	//	}
-	//
-	//
-	//
-	//	if(keyData.hookData.vkCode == VK_ESCAPE) {
-	//
-	//		if (!commandInProgress) {
-	//			return HookResult::PassEvent;
-	//		}
-	//
-	//		commandInProgress = false;
-	//		inputBuffer = "";
-	//		stop = true;
-	//
-	//		// TODO
-	//
-	//		return HookResult::ConsumeEvent;
-	//	}
-	//
-	//	if(keyData.hookData.vkCode == VK_BACK) {
-	//		if(inputBuffer.GetLength() > 0) {
-	//			inputBuffer.Truncate(inputBuffer.GetLength() - 1);
-	//		}
-	//		return commandInProgress ? HookResult::ConsumeEvent : HookResult::PassEvent;
-	//	}
-	//
-	//	//quickVoiceChatHandler.OnCommandCompleted = [&](vector<CString>& keys) {
-	//	//
-	//	//	commandInProgress = false;
-	//	//	inputBuffer = "";
-	//	//};
-	//	//
-	//	//quickVoiceChatHandler.process(keyData);
-	//	
-	//	CString unicodeLiteral = keyData.unicodeLiteral;
-	//	if(unicodeLiteral == CString("/")) {
-	//		commandInProgress = true;
-	//		inputBuffer = "";
-	//	} else {
-	//		if(commandInProgress) {
-	//			if(keyData.hookData.vkCode == VK_RETURN) {
-	//				
-	//				_Log(inputBuffer);
-	//
-	//				ProcessCommand(inputBuffer);
-	//
-	//				inputBuffer = "";
-	//
-	//
-	//				commandInProgress = false;
-	//			} else {
-	//				inputBuffer += unicodeLiteral;
-	//				//Log::Debug(unicodeLiteral);
-	//			}
-	//		}
-	//	}
-	//
-	//	//if (TryPlayQuickSound(inputBuffer)) {
-	//	//	return;
-	//	//}
-	//
-	//	return commandInProgress ? HookResult::ConsumeEvent : HookResult::PassEvent;
-	//
-	//	//SetScrollLockState();
-	//}
 
 	/*
 	 * Initialize plugin menus.
@@ -323,38 +171,6 @@ namespace TSPlugin {
 	}
 
 
-	//
-	//void SoundplayerApp::AsyncOpenAndPlayFile_advanced() {
-	//
-	//	std::thread soundPlayerThread([&]() {
-	//		// Mivel ez nem egy generált mfc alkalmazás nincs minden
-	//		// alapból inicializálva, és assert-et dob a dialog konstruktor
-	//		// ha ez nincs itt
-	//		AFX_MANAGE_STATE(AfxGetStaticModuleState());
-	//		CFileDialog dialog(TRUE);
-	//
-	//		auto result = dialog.DoModal();
-	//		if(result == IDOK) {
-	//			//CString fileName = dialog.GetFileName();
-	//			CString fileName = dialog.GetPathName();
-	//			try {
-	//#if USE_WINDOWS_MEDIA_PACK_FEATURES
-	//
-	//				PlayFile_advanced(fileName);
-	//#endif // USE_WINDOWS_MEDIA_PACK_FEATURES
-	//
-	//			} catch(Exception e) {
-	//				Log::Error(e.errorMessage);
-	//			}
-	//			
-	//			//MessageBox(0, fileName, 0, 0);
-	//		}
-	//
-	//
-	//	});
-	//	soundPlayerThread.detach();
-	//
-	//}
 
 
 	void SoundplayerApp::AsyncOpenAndPlayFile() {
@@ -368,10 +184,8 @@ namespace TSPlugin {
 
 			auto result = dialog.DoModal();
 			if (result == IDOK) {
-				//CString fileName = dialog.GetFileName();
 				CString fileName = dialog.GetPathName();
 				PlayFile(fileName);
-				//MessageBox(0, fileName, 0, 0);
 			}
 
 
@@ -415,17 +229,9 @@ namespace TSPlugin {
 			return;
 		}
 
-		//void AddSamples(short* samples, size_t sampleCount, int channels)
-		// TODO EZ IGY GECIRONDA
-		//const int sampleCountOf20ms = outputFrequency*outputChannels*frameLengthMillisecs / 1000;
-		//const int sampleCountOf20ms = track->header.nSamplesPerSec * track->header.nChannels * 20 / 1000;
-
-		//audioBuffer.AddSamples((short*)track->buffer.data(), track->numberOfSamples, track->header.nChannels);
-		//audioBuffer.AddSamples((short*)track->buffer.data(), track->header);
-
+		
 		audioBufferForCapture.AddSamples(track);
 		audioBufferForPlayback.AddSamples(track);
-
 
 
 	}
@@ -489,10 +295,14 @@ namespace TSPlugin {
 
 
 	void SoundplayerApp::AsyncPlayFile(CString fileName) {
-		std::thread t([this, fileName] {
+		std::thread([this, fileName] {
 			PlayFile(fileName);
-		});
-		t.detach();
+		}).detach();
+
+		//t.detach();
+		//std::async(std::launch::async, [this, fileName] {
+		//	PlayFile(fileName);
+		//});
 	}
 
 
@@ -601,10 +411,10 @@ namespace TSPlugin {
 
 	optional<CString> SoundplayerApp::TryGetLikelyFileName(const CString& inputString) {
 
-		vector<CString> possibleFiles = GetPossibleFiles(inputString);
-		if (possibleFiles.size() == 1) {
-			return possibleFiles.front();
-		}
+		//vector<CString> possibleFiles = GetPossibleFiles(inputString);
+		//if (possibleFiles.size() == 1) {
+		//	return possibleFiles.front();
+		//}
 
 		if (selectedFileIndex < possibleFiles.size()) {
 			return possibleFiles[selectedFileIndex];
@@ -704,14 +514,32 @@ namespace TSPlugin {
 
 		std::vector<CString> results;
 
-		for (auto& file : files) {
-			if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
+
+		const CString sanitizedInputString = MakeComparable(inputString);
+
+		for (const CString& fileName : files) {
+			const CString sanitizedFileName = MakeComparable(fileName);
+
+			//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
+			if (sanitizedFileName.Find(sanitizedInputString) == 0) {
 				//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
 					//return directory + file;
-				CString result = directory + file;
+				CString result = directory + fileName;
 				results.push_back(result);
 			}
 		}
+
+
+		for (const CString& fileName : files) {
+			const CString sanitizedFileName = MakeComparable(fileName);
+
+			// akkor is a lista végére füzzük, ha nem az elején van a cucc
+			if (sanitizedFileName.Find(sanitizedInputString) > 0) {
+				CString result = directory + fileName;
+				results.push_back(result);
+			}
+		}
+
 
 		return results;
 	}
