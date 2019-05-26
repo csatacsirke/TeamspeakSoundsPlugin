@@ -92,6 +92,11 @@ namespace TSPlugin {
 
 		void PlayAlarmSound();
 		void OpenObserverDialog();
+
+
+		PluginItemType GetPluginInfoData_lastType = PluginItemType::PLUGIN_SERVER;
+		uint64 GetPluginInfoData_lastId = 0;
+		CStringA GetPluginInfoData(uint64 id, PluginItemType type);
 	private:
 		std::vector<CString> files;
 		std::vector<CString> GetPossibleFiles(const CString& inputString);

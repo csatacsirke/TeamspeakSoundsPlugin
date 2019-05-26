@@ -439,6 +439,8 @@ namespace TSPlugin {
 		//inputObserverDialog.ShowWindow(TRUE);
 	}
 
+
+
 	//
 	////CString SoundplayerApp::GetLikelyFileName(CString str) {
 	//bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
@@ -647,8 +649,27 @@ namespace TSPlugin {
 			inputObserverDialog->SetSelectedIndex((int)selectedFileIndex);
 		}
 
+		ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
 	}
 
+
+	CStringA SoundplayerApp::GetPluginInfoData(uint64 id, enum PluginItemType type) {
+		this->GetPluginInfoData_lastId = id;
+		this->GetPluginInfoData_lastType = type;
+
+		CStringA info = "Teszt: \n";
+
+		//for (CString& file : possibleFiles) {
+		for (int index = 0; index < possibleFiles.size(); ++index) {
+			CStringA fileUtf = ConvertUnicodeToUTF8(possibleFiles[index]);
+			if (index == selectedFileIndex) {
+				info += "*";
+			}
+			info += fileUtf + "\n";
+		}
+
+		return info;
+	}
 
 
 	void SoundplayerApp::SendFileNameToChat(CString path) {

@@ -570,9 +570,18 @@ void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum Plugin
 			return;
 	}
 
-	*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
-	snprintf(*data, INFODATA_BUFSIZE, "The nickname is [I]\"%s\"[/I]", name);  /* bbCode is supported. HTML is not supported */
+
+	CStringA infoData = theApp->GetPluginInfoData(id, type);
+
+	const size_t allocatedSize = (infoData.GetLength() + 1);
+	//*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
+	*data = (char*)malloc(allocatedSize* sizeof(char));  /* Must be allocated in the plugin! */
+	//snprintf(*data, INFODATA_BUFSIZE, "The nickname is [I]\"%s\"[/I]", name);  /* bbCode is supported. HTML is not supported */
+	strcpy_s(*data, allocatedSize, infoData);
+
 	ts3Functions.freeMemory(name);
+
+	
 }
 
 /* Required to release the memory for parameter "data" allocated in ts3plugin_infoData and ts3plugin_initMenus */
