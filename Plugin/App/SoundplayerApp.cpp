@@ -61,6 +61,9 @@ namespace TSPlugin {
 		InitKeyboardHook();
 #endif
 
+		// hogy feldobja az ablakot, ha kell
+		TryGetSoundsDirectory(AskGui);
+
 		runLoop.Start();
 
 	}
@@ -363,7 +366,7 @@ namespace TSPlugin {
 		}
 	}
 
-	optional<CString> SoundplayerApp::TryGetSoundsDirectory() {
+	optional<CString> SoundplayerApp::TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options) {
 
 		while (true) {
 
@@ -371,10 +374,14 @@ namespace TSPlugin {
 			if (DirectoryExists(directory)) {
 				return directory;
 			} else {
-				SoundFolderSelector dialog;
-				auto result = dialog.DoModal();
-				if (result == IDOK) {
-					continue;
+				if(options == TryGetSoundsDirectoryOptions::AskGui) {
+					SoundFolderSelector dialog;
+					auto result = dialog.DoModal();
+					if (result == IDOK) {
+						continue;
+					} else {
+						return nullopt;
+					}
 				} else {
 					return nullopt;
 				}
@@ -1080,8 +1087,4 @@ namespace TSPlugin {
 	}
 
 }
-
-
-
-
 

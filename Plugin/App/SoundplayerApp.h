@@ -86,7 +86,8 @@ namespace TSPlugin {
 		void UpdateObserverDialog();
 		void UpdatePossibleFiles();
 
-		std::optional<CString> TryGetSoundsDirectory();
+		enum TryGetSoundsDirectoryOptions { None, AskGui };
+		std::optional<CString> TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options = None);
 		std::optional<CString> TryGetLikelyFileName(const CString& inputString);
 		//bool GetLikelyFileName(_Out_ CString& result, CString str);
 

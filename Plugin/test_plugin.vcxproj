@@ -388,8 +388,7 @@
       <UACUIAccess>false</UACUIAccess>
     </Link>
     <PostBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)\Build\PluginInstaller\PluginInstaller.exe "$(TargetPath)"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>

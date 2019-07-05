@@ -8,8 +8,8 @@ namespace TSPlugin {
 
 	class LocalKeyboardHookInstallerDelegate {
 	public:
-		virtual HookResult OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) = NULL;
-		virtual void OnMessage(const CString& message) = NULL;
+		virtual HookResult OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) = 0;
+		virtual void OnMessage(const CString& message) = 0;
 	};
 
 	class LocalKeyboardHookInstaller {
