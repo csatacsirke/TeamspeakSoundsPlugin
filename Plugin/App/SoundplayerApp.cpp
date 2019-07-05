@@ -61,6 +61,7 @@ namespace TSPlugin {
 		InitKeyboardHook();
 #endif
 
+		runLoop.Start();
 
 	}
 
@@ -81,33 +82,9 @@ namespace TSPlugin {
 	}
 	
 
-	HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
-
-		Finally finally = [&] {
-
-			this->possibleFiles = GetPossibleFiles(inputHandler.GetBuffer());
-
-			UpdateObserverDialog();
-		};
-
-		if (keyData.hookData.vkCode == VK_ESCAPE) {
-			StopPlayback();
-		}
-
-		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
-			return HookResult::ConsumeEvent;
-		}
-
-		if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
-			return HookResult::ConsumeEvent;
-		}
-
-		if (quickSoundHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
-			return HookResult::ConsumeEvent;
-		}
-
-		return HookResult::PassEvent;
-	}
+	//HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
+	//
+	//}
 
 
 	/*
@@ -563,6 +540,11 @@ namespace TSPlugin {
 	}
 
 	HookResult SoundplayerApp::TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData) {
+
+		if (possibleFiles.size() == 0) {
+			return HookResult::PassEvent;
+		}
+
 		if (keyData.hookData.vkCode == VK_UP) {
 			RotateSelection(-1);
 			return HookResult::ConsumeEvent;
@@ -640,6 +622,7 @@ namespace TSPlugin {
 			PlayAlarmSound();
 		}
 
+		selectedFileIndex = 0;
 
 	}
 
@@ -649,19 +632,30 @@ namespace TSPlugin {
 			inputObserverDialog->SetSelectedIndex((int)selectedFileIndex);
 		}
 
+		//std::thread([this] {
+		//	ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
+		//}).detach();
+
 		ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
+		
 	}
 
 
-	CStringA SoundplayerApp::GetPluginInfoData(uint64 id, enum PluginItemType type) {
+	void SoundplayerApp::StoreGetPluginInfoData(uint64 id, PluginItemType type) {
 		this->GetPluginInfoData_lastId = id;
 		this->GetPluginInfoData_lastType = type;
+	}
 
+	CStringA SoundplayerApp::GetPluginInfoData() {
+		
 		CStringA info = "Teszt: \n";
 
 		//for (CString& file : possibleFiles) {
 		for (int index = 0; index < possibleFiles.size(); ++index) {
-			CStringA fileUtf = ConvertUnicodeToUTF8(possibleFiles[index]);
+			const CString& filePath = possibleFiles[index];
+			const int startIndex = filePath.ReverseFind(L'\\');
+			const CString fileName = (startIndex > -1) ? filePath.Mid(startIndex + 1) : filePath;
+			const CStringA fileUtf = ConvertUnicodeToUTF8(fileName);
 			if (index == selectedFileIndex) {
 				info += "*";
 			}
@@ -985,6 +979,18 @@ namespace TSPlugin {
 
 
 	HookResult SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) {
+
+		//this->runLoop.Add([this] {
+		//	Sleep(1000);
+		//	UpdatePossibleFiles();
+		//	UpdateObserverDialog();
+		//});
+		//return HookResult::PassEvent;
+
+
+
+
+
 		if (shouldDisableHookWhenScrollLockIsEnabled && IsScrollLockPressed()) {
 			return HookResult::PassEvent;
 		}
@@ -995,7 +1001,48 @@ namespace TSPlugin {
 
 		//bool commandWasInProgressBeforeProcessing = commandInProgress;
 
-		return OnKeyData(keyData);
+#if 1
+
+		Finally finally = [this] {
+			UpdatePossibleFiles();
+			UpdateObserverDialog();
+		};
+
+#else
+		//int a = 42;
+		//this->runLoop.Add([this] {
+		//
+		//	UpdatePossibleFiles();
+		//	UpdateObserverDialog();
+		//});
+
+		Finally finally = [this] {
+			this->runLoop.Add([this] {
+				UpdatePossibleFiles();
+				UpdateObserverDialog();
+			});
+		};
+
+#endif
+
+		if (keyData.hookData.vkCode == VK_ESCAPE) {
+			StopPlayback();
+		}
+
+		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
+			return HookResult::ConsumeEvent;
+		}
+
+		if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
+			return HookResult::ConsumeEvent;
+		}
+
+		if (quickSoundHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
+			return HookResult::ConsumeEvent;
+		}
+
+		return HookResult::PassEvent;
+
 
 		//if (OnKeyData(keyData) == HookResult::ConsumeEvent) {
 		//	return HookResult::ConsumeEvent;
@@ -1019,7 +1066,18 @@ namespace TSPlugin {
 		AsyncPlayFile(path);
 	}
 
+	void SoundplayerApp::UpdatePossibleFiles() {
 
+		this->possibleFiles = GetPossibleFiles(inputHandler.GetBuffer());
+		if (selectedFileIndex < possibleFiles.size()) {
+			if (possibleFiles.size() == 0) {
+				selectedFileIndex = 0;
+			} else {
+				selectedFileIndex = std::min<size_t>(possibleFiles.size() - 1u, selectedFileIndex);
+			}
+
+		}
+	}
 
 }
 

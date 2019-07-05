@@ -4,11 +4,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.28307.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundplayerPlugin", "Plugin\test_plugin.vcxproj", "{192D646D-748B-450B-AF3D-BF8EDD5FC897}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C286915A-7669-4708-AC86-9DBB02CC2727} = {C286915A-7669-4708-AC86-9DBB02CC2727}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginInstaller", "PluginInstaller\PluginInstaller.csproj", "{C286915A-7669-4708-AC86-9DBB02CC2727}"
-	ProjectSection(ProjectDependencies) = postProject
-		{192D646D-748B-450B-AF3D-BF8EDD5FC897} = {192D646D-748B-450B-AF3D-BF8EDD5FC897}
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundPlayerTests", "SoundPlayerTests\SoundPlayerTests.vcxproj", "{FD5D601C-0B06-45F4-84AD-703DBFCAF78A}"
 EndProject

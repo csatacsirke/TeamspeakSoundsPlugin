@@ -36,7 +36,7 @@ namespace TSPlugin {
 		// and thus from constructor... :(
 		void Init();
 		void InitKeyboardHook();
-		HookResult OnKeyData(const KeyboardHook::KeyData& keyData);
+		//HookResult OnKeyData(const KeyboardHook::KeyData& keyData);
 
 		void InitMenus(struct PluginMenuItem*** menuItems, char** menuIcon);
 		void OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 selectedItemID);
@@ -84,7 +84,7 @@ namespace TSPlugin {
 
 		void ProcessCommand(const CString& inputString);
 		void UpdateObserverDialog();
-
+		void UpdatePossibleFiles();
 
 		std::optional<CString> TryGetSoundsDirectory();
 		std::optional<CString> TryGetLikelyFileName(const CString& inputString);
@@ -94,9 +94,10 @@ namespace TSPlugin {
 		void OpenObserverDialog();
 
 
-		PluginItemType GetPluginInfoData_lastType = PluginItemType::PLUGIN_SERVER;
-		uint64 GetPluginInfoData_lastId = 0;
-		CStringA GetPluginInfoData(uint64 id, PluginItemType type);
+		volatile PluginItemType GetPluginInfoData_lastType = PluginItemType::PLUGIN_SERVER;
+		volatile uint64 GetPluginInfoData_lastId = 0;
+		void StoreGetPluginInfoData(uint64 id, PluginItemType type);
+		CStringA GetPluginInfoData();
 	private:
 		std::vector<CString> files;
 		std::vector<CString> GetPossibleFiles(const CString& inputString);
@@ -166,7 +167,7 @@ namespace TSPlugin {
 
 		QuickSoundHandler quickSoundHandler = QuickSoundHandler(*this);
 		InputHandler inputHandler = InputHandler(*this);
-
+		RunLoop runLoop = RunLoop(RunLoop::DeferredInit);
 
 
 		//QuickVoiceChatHandler quickVoiceChatHandler;

@@ -1,6 +1,8 @@
 ﻿#pragma once
 
 #include <string>
+#include <queue>
+#include <thread>
 
 
 #include <pluginsdk\include\teamspeak/public_errors.h>
@@ -341,6 +343,85 @@ namespace TSPlugin {
 	CString PickRandomFile(CString path);
 
 
+	class RunLoop {
+
+		std::thread workerThread;
+
+		std::queue<std::function<void()>> taskQueue;
+		std::mutex queueMutex;
+		std::condition_variable condition;
+		volatile bool stop = false;
+	public:
+		enum DeferredInit_t { DeferredInit };
+
+		RunLoop() {
+			Start();
+		}
+
+		RunLoop(DeferredInit_t) {
+			// nem csinál semmit
+		}
+
+		~RunLoop() {
+			StopAndWait();
+		}
+
+
+		void Start() {
+			workerThread = std::thread([this] { Loop(); });
+		}
+
+		void Stop() {
+			stop = true;
+		}
+
+		void StopAndWait() {
+			Stop();
+
+			condition.notify_one();
+			if (workerThread.joinable()) {
+				workerThread.join();
+			}
+		}
+
+		void Add(std::function<void()>&& fn) {
+			std::unique_lock<std::mutex> lock(queueMutex);
+			taskQueue.push(fn);
+			lock.unlock();
+			condition.notify_one();
+		}
+	private:
+
+		void Loop() {
+			while (!stop) {
+				ExecuteTaskInQueue();
+				SleepUntilNotified();
+			}
+			
+		}
+
+		void SleepUntilNotified() {
+			std::unique_lock<std::mutex> lock(queueMutex);
+			if (taskQueue.empty()) {
+				condition.wait(lock);
+			}
+		}
+
+		void ExecuteTaskInQueue() {
+
+			std::unique_lock<std::mutex> lock(queueMutex);
+			if (!taskQueue.empty()) {
+				auto task = std::move(taskQueue.front());
+				taskQueue.pop();
+				lock.unlock();
+				task();
+			}
+			
+		}
+
+	};
+
+
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
@@ -349,4 +430,4 @@ namespace TSPlugin {
 #define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
 #endif
 
-}
+} // namespace TSPlugin
