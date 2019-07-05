@@ -40,7 +40,7 @@ using namespace std;
 #define SLEEP(x) usleep(x*1000)
 #endif
 
-const char* version = "17.03.24";
+const char* version = "19.06.08";
 
 
 //#define AUDIO_PROCESS_SECONDS 10
@@ -55,7 +55,7 @@ std::unique_ptr<SoundplayerApp> theApp;
 
 //int PlayWelcomeSound();
 
-#define PLUGIN_API_VERSION 21
+#define PLUGIN_API_VERSION 23
 
 
 
@@ -542,44 +542,70 @@ const char* ts3plugin_infoTitle() {
  * "data" to NULL to have the client ignore the info data.
  */
 void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum PluginItemType type, char** data) {
-	char* name;
+	//char* name;
 
-	/* For demonstration purpose, display the name of the currently selected server, channel or client. */
-	switch(type) {
-		case PLUGIN_SERVER:
-			if(ts3Functions.getServerVariableAsString(serverConnectionHandlerID, VIRTUALSERVER_NAME, &name) != ERROR_ok) {
-				printf("Error getting virtual server name\n");
-				return;
-			}
-			break;
-		case PLUGIN_CHANNEL:
-			if(ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, id, CHANNEL_NAME, &name) != ERROR_ok) {
-				printf("Error getting channel name\n");
-				return;
-			}
-			break;
-		case PLUGIN_CLIENT:
-			if(ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID)id, CLIENT_NICKNAME, &name) != ERROR_ok) {
-				printf("Error getting client nickname\n");
-				return;
-			}
-			break;
-		default:
-			printf("Invalid item type: %d\n", type);
-			data = NULL;  /* Ignore */
-			return;
-	}
+	///* For demonstration purpose, display the name of the currently selected server, channel or client. */
+	//switch(type) {
+	//	case PLUGIN_SERVER:
+	//		if(ts3Functions.getServerVariableAsString(serverConnectionHandlerID, VIRTUALSERVER_NAME, &name) != ERROR_ok) {
+	//			printf("Error getting virtual server name\n");
+	//			return;
+	//		}
+	//		break;
+	//	case PLUGIN_CHANNEL:
+	//		if(ts3Functions.getChannelVariableAsString(serverConnectionHandlerID, id, CHANNEL_NAME, &name) != ERROR_ok) {
+	//			printf("Error getting channel name\n");
+	//			return;
+	//		}
+	//		break;
+	//	case PLUGIN_CLIENT:
+	//		if(ts3Functions.getClientVariableAsString(serverConnectionHandlerID, (anyID)id, CLIENT_NICKNAME, &name) != ERROR_ok) {
+	//			printf("Error getting client nickname\n");
+	//			return;
+	//		}
+	//		break;
+	//	default:
+	//		printf("Invalid item type: %d\n", type);
+	//		data = NULL;  /* Ignore */
+	//		return;
+	//}
 
+	theApp->StoreGetPluginInfoData(id, type);
 
-	CStringA infoData = theApp->GetPluginInfoData(id, type);
+#if 1
+	CStringA infoData = theApp->GetPluginInfoData();
 
 	const size_t allocatedSize = (infoData.GetLength() + 1);
-	//*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
-	*data = (char*)malloc(allocatedSize* sizeof(char));  /* Must be allocated in the plugin! */
-	//snprintf(*data, INFODATA_BUFSIZE, "The nickname is [I]\"%s\"[/I]", name);  /* bbCode is supported. HTML is not supported */
-	strcpy_s(*data, allocatedSize, infoData);
+	//const size_t allocatedSize = 10000;
 
-	ts3Functions.freeMemory(name);
+
+	*data = (char*)malloc(allocatedSize* sizeof(char));  /* Must be allocated in the plugin! */
+	strcpy_s(*data, allocatedSize, (const char*)infoData);
+
+	//*data = (char*)malloc(100 * sizeof(char));  /* Must be allocated in the plugin! */
+	//errno_t r = strcpy_s(*data, 100-1, "HaT MI A FASZ VANM");
+	//
+	//
+
+	//*data = (char*)malloc(allocatedSize * sizeof(char));  /* Must be allocated in the plugin! */
+	//snprintf(*data, allocatedSize, "The nickname is [I]\"%s\"[/I]", (const char*)infoData);  /* bbCode is supported. HTML is not supported */
+
+	//CStringA _debug = *data;
+	//int a = 42;
+	
+#else
+	static int ctr = 0;
+	ctr++;
+
+	*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
+	snprintf(*data, INFODATA_BUFSIZE, "The nickname is [I]\"lofasz %d \"[/I]", ctr);  /* bbCode is supported. HTML is not supported */
+#endif
+	//*data = (char*)malloc(INFODATA_BUFSIZE * sizeof(char));  /* Must be allocated in the plugin! */
+	//snprintf(*data, INFODATA_BUFSIZE, "The nickname is [I]\"%s\"[/I]", name);  /* bbCode is supported. HTML is not supported */
+
+	//ts3Functions.freeMemory(name);
+
+	
 
 	
 }
@@ -1143,6 +1169,24 @@ void ts3plugin_onHotkeyRecordedEvent(const char* keyword, const char* key) {
 /* Called when client custom nickname changed */
 void ts3plugin_onClientDisplayNameChanged(uint64 serverConnectionHandlerID, anyID clientID, const char* displayName, const char* uniqueClientIdentifier) {
 }
+
+// This function receives your key Identifier you send to notifyKeyEvent and should return
+// the friendly device name of the device this hotkey originates from. Used for display in UI.
+const char* ts3plugin_keyDeviceName(const char* keyIdentifier) {
+	return NULL;
+}
+
+// This function translates the given key identifier to a friendly key name for display in the UI
+const char* ts3plugin_displayKeyText(const char* keyIdentifier) {
+	return NULL;
+}
+
+// This is used internally as a prefix for hotkeys so we can store them without collisions.
+// Should be unique across plugins.
+const char* ts3plugin_keyPrefix() {
+	return NULL;
+}
+
 
 //
 //
