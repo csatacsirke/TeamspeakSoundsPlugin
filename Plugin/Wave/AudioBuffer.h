@@ -326,6 +326,11 @@ namespace TSPlugin {
 			trackQueue = std::queue<WaveTrackPtr>();
 		}
 
+
+		bool IsEmpty() const {
+			return trackQueue.empty();
+		}
+
 		//void TryGetSamples20ms(_Out_ CachedAudioSample48k) {
 		//void lofasz() {
 		//	const WAVEFORMATEX& header = track.header;

@@ -829,6 +829,7 @@ void ts3plugin_onServerEditedEvent(uint64 serverConnectionHandlerID, anyID edite
 }
 
 void ts3plugin_onServerUpdatedEvent(uint64 serverConnectionHandlerID) {
+	theApp->OnServerUpdatedEvent();
 }
 
 int ts3plugin_onServerErrorEvent(uint64 serverConnectionHandlerID, const char* errorMessage, unsigned int error, const char* returnCode, const char* extraMessage) {

@@ -70,7 +70,8 @@ namespace TSPlugin {
 		void AsyncPlayFile(CString fileName);
 		void PlayFile(CString fileName);
 		//void PlayFile_old(CString fileName);
-		void StopPlayback();
+		enum class StopResult { DidStop, WasNotPlaying };
+		StopResult StopPlayback();
 
 		//void AsyncOpenAndPlayFile_advanced();
 		//void PlayFile_advanced(CString fileName);
@@ -99,6 +100,9 @@ namespace TSPlugin {
 		volatile uint64 GetPluginInfoData_lastId = 0;
 		void StoreGetPluginInfoData(uint64 id, PluginItemType type);
 		CStringA GetPluginInfoData();
+		void RefreshTsInterface();
+		// for workaround
+		void OnServerUpdatedEvent();
 	private:
 		std::vector<CString> files;
 		std::vector<CString> GetPossibleFiles(const CString& inputString);
@@ -134,7 +138,7 @@ namespace TSPlugin {
 		MenuHandler menuHandler;
 
 		std::mutex playerLock;
-		volatile bool stop;
+		//volatile bool stop;
 
 		concurrency::concurrent_queue<CString> playlist;
 

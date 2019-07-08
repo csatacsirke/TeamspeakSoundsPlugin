@@ -195,7 +195,7 @@ namespace TSPlugin {
 		}
 #endif
 		std::unique_lock<std::mutex> lock(playerLock);
-		this->stop = false;
+		//this->stop = false;
 
 		//SendFileNameToChat(fileName);
 
@@ -266,11 +266,15 @@ namespace TSPlugin {
 #endif
 
 
-	void SoundplayerApp::StopPlayback() {
-		stop = true;
+	SoundplayerApp::StopResult SoundplayerApp::StopPlayback() {
+		StopResult stopResult = audioBufferForCapture.IsEmpty() ? StopResult::WasNotPlaying : StopResult::DidStop;
+		//stop = true;
 
 		audioBufferForCapture.Clear();
 		audioBufferForPlayback.Clear();
+
+
+		return stopResult;
 	}
 
 
@@ -643,8 +647,7 @@ namespace TSPlugin {
 		//	ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
 		//}).detach();
 
-		ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
-		
+		RefreshTsInterface();
 	}
 
 
@@ -670,6 +673,17 @@ namespace TSPlugin {
 		}
 
 		return info;
+	}
+
+
+	void SoundplayerApp::RefreshTsInterface() {
+		// https://forum.teamspeak.com/threads/81701-Client-window-refresh?p=415973#post415973
+		ts3Functions.requestServerVariables(Global::connection);
+	}
+
+	void SoundplayerApp::OnServerUpdatedEvent() {
+		// https://forum.teamspeak.com/threads/81701-Client-window-refresh?p=415973#post415973
+		ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
 	}
 
 
@@ -1008,7 +1022,7 @@ namespace TSPlugin {
 
 		//bool commandWasInProgressBeforeProcessing = commandInProgress;
 
-#if 1
+#if 0
 
 		Finally finally = [this] {
 			UpdatePossibleFiles();
@@ -1033,7 +1047,10 @@ namespace TSPlugin {
 #endif
 
 		if (keyData.hookData.vkCode == VK_ESCAPE) {
-			StopPlayback();
+			const StopResult result = StopPlayback();
+			if (result == StopResult::DidStop) {
+				return ConsumeEvent;
+			}
 		}
 
 		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
