@@ -1,6 +1,9 @@
 #include "stdafx.h"
 
 #include "Util\Util.h"
+#include "Util\Config.h"
+#include "Gui\SoundFolderSelector.h"
+
 
 namespace TSPlugin {
 
@@ -167,5 +170,97 @@ namespace TSPlugin {
 
 		return message;
 	}
+
+
+	optional<CString> TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options) {
+
+		while (true) {
+
+			CString directory = Global::config.Get(ConfigKey::SoundFolder, L"");
+			if (DirectoryExists(directory)) {
+				return directory;
+			} else {
+				if (options == TryGetSoundsDirectoryOptions::AskGui) {
+					SoundFolderSelector dialog;
+					auto result = dialog.DoModal();
+					if (result == IDOK) {
+						continue;
+					} else {
+						return nullopt;
+					}
+				} else {
+					return nullopt;
+				}
+			}
+		}
+
+		return nullopt;
+	}
+
+
+	std::vector<CString> GetPossibleFiles(const CString & inputString) {
+
+		if (inputString.GetLength() == 0) {
+			return std::vector<CString>();
+		}
+
+		optional<CString> directoryOrNull = TryGetSoundsDirectory();
+		if (!directoryOrNull) {
+			return std::vector<CString>();
+		}
+
+		CString directory = *directoryOrNull;
+
+
+		if (directory.Right(1) != "\\" && directory.Right(1) != "/") {
+			directory += "\\";
+		}
+
+
+		vector<CString> files = ListFilesInDirectory(directory);
+
+
+		std::vector<CString> results;
+
+
+		const CString sanitizedInputString = MakeComparable(inputString);
+
+		for (const CString& fileName : files) {
+			const CString sanitizedFileName = MakeComparable(fileName);
+
+			//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
+			if (sanitizedFileName.Find(sanitizedInputString) == 0) {
+				//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
+					//return directory + file;
+				CString result = directory + fileName;
+				results.push_back(result);
+			}
+		}
+
+
+		for (const CString& fileName : files) {
+			const CString sanitizedFileName = MakeComparable(fileName);
+
+			// akkor is a lista végére füzzük, ha nem az elején van a cucc
+			if (sanitizedFileName.Find(sanitizedInputString) > 0) {
+				CString result = directory + fileName;
+				results.push_back(result);
+			}
+		}
+
+
+		return results;
+	}
+
+	optional<CString> TryGetLikelyFileName(const CString& inputString) {
+
+		vector<CString> possibleFiles = GetPossibleFiles(inputString);
+		if (possibleFiles.size() == 1) {
+			return possibleFiles.front();
+		}
+
+		return nullopt;
+	}
+
 
 }

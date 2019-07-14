@@ -3,7 +3,7 @@
 #include <string>
 #include <queue>
 #include <thread>
-
+#include <optional>
 
 #include <pluginsdk\include\teamspeak/public_errors.h>
 #include <pluginsdk\include\teamspeak/public_errors_rare.h>
@@ -14,8 +14,8 @@
 
 #include <KeyboardHook/KeyboardHookUtils.h>
 
-
 #include "Log.h"
+
 namespace TSPlugin {
 
 	using namespace KeyboardHook;
@@ -24,6 +24,12 @@ namespace TSPlugin {
 	CString GetLastErrorAsString();
 
 	CString ErrorToString(DWORD error);
+
+	std::vector<CString> GetPossibleFiles(const CString & inputString);
+	enum TryGetSoundsDirectoryOptions { None, AskGui };
+	std::optional<CString> TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options = None);
+	std::optional<CString> TryGetLikelyFileName(const CString& inputString);
+
 
 	struct Exception {
 		CString errorMessage;
@@ -420,6 +426,7 @@ namespace TSPlugin {
 		}
 
 	};
+
 
 
 

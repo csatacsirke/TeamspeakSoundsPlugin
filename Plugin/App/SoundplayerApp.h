@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
 
 //#include <HookInstaller\Hook\KeyboardHookInstaller.h>
 
-// TODO kihozni a libb�l
+// TODO kihozni a libböl
 //#include <HookInstaller\Hook\PipeHandler.h>
 
 #include "KeyboardHook\LocalKeyboardHookInstaller.h"
@@ -83,13 +83,10 @@ namespace TSPlugin {
 		//void PlayPreset(int ordinal);
 
 
-		void ProcessCommand(const CString& inputString);
+		//void ProcessCommand(const CString& inputString);
 		void UpdateObserverDialog();
-		void UpdatePossibleFiles();
+		//void UpdatePossibleFiles();
 
-		enum TryGetSoundsDirectoryOptions { None, AskGui };
-		std::optional<CString> TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options = None);
-		std::optional<CString> TryGetLikelyFileName(const CString& inputString);
 		//bool GetLikelyFileName(_Out_ CString& result, CString str);
 
 		void PlayAlarmSound();
@@ -104,23 +101,28 @@ namespace TSPlugin {
 		// for workaround
 		void OnServerUpdatedEvent();
 	private:
-		std::vector<CString> files;
-		std::vector<CString> GetPossibleFiles(const CString& inputString);
+		//std::vector<CString> files;
+		//std::vector<CString> GetPossibleFiles(const CString& inputString);
 
 	protected:
 		HookResult LocalKeyboardHookInstallerDelegate::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) override;
 		void LocalKeyboardHookInstallerDelegate::OnMessage(const CString& message) override;
 
-		void InputHandlerDelegate::OnCommand(const CString& command);
+		//void InputHandlerDelegate::OnCommand(const CString& command);
+
+		//void InputHandlerDelegate::OnCommandFinished(const CString& command) override;
+		//void InputHandlerDelegate::OnInputBufferChanged(const CString& inputBuffer) override;
+		void InputHandlerDelegate::OnPossibleFilesChanged(const FileList& fileList) override;
+		void InputHandlerDelegate::OnInputCommandFinished() override;
+		
 
 		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const CString& path);
 
 	private:
-		bool TryEnqueueFileFromCommand(CString str);
+		//bool TryEnqueueFileFromCommand(CString str);
 		
+		optional<CString> SoundplayerApp::TryGetSelectedFile();
 
-		HookResult TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData);
-		void RotateSelection(int indexDelta);
 		//bool TryPlayQuickSound(CString str);
 		//CString GetLikelyFileName(CString str);
 
@@ -145,8 +147,6 @@ namespace TSPlugin {
 		CString lastFile;
 
 
-		vector<CString> possibleFiles;
-		size_t selectedFileIndex = 0;
 		//optional<int> selectedFileIndex;
 		//optional<CString> selectedFile;
 
@@ -161,18 +161,21 @@ namespace TSPlugin {
 
 
 
-		// TODO : EZ KIBASZOTT ANTIHAT�KONY, CSAK EL�SZ�R MUKODJON EGYALTALAN
+		// TODO : EZ KIBASZOTT ANTIHATÉKONY, CSAK ELÖSZÖR MUKODJON EGYALTALAN
 		AudioBuffer audioBufferForCapture;
 		AudioBuffer audioBufferForPlayback;
 
-		unique_ptr<InputObserverDialog> inputObserverDialog;
+		//unique_ptr<InputObserverDialog> inputObserverDialog;
 
 		LocalKeyboardHookInstaller localHookInstaller = LocalKeyboardHookInstaller(*this);
 		bool shouldDisableHookWhenScrollLockIsEnabled = true;
 
 		QuickSoundHandler quickSoundHandler = QuickSoundHandler(*this);
 		InputHandler inputHandler = InputHandler(*this);
-		RunLoop runLoop = RunLoop(RunLoop::DeferredInit);
+
+		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
+		shared_ptr<FileList> unsafeFileList;
+		//RunLoop runLoop = RunLoop(RunLoop::DeferredInit);
 
 
 		//QuickVoiceChatHandler quickVoiceChatHandler;

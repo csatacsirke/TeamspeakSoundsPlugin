@@ -6,7 +6,6 @@
 #include "Wave\Steganography.h"
 
 #include "Gui\SettingsDialog.h"
-#include "Gui\SoundFolderSelector.h"
 #include <gui/AudioProcessorDialog.h>
 
 #include "Util\TSSoundPlayer.h"
@@ -40,6 +39,12 @@ a connectiont hozzárendelni az apphoz, mert az a szar simán változhat a az ip
 az audiocache-nek kéne egy map a különböző méretekhez
 a resample-t be kéne tenni az onlófasz eventbe
 
+2019:
+bogiéknak hogy hallják egymást
+random gomb?
+bindolás?
+konzol parancsok? vagy valahogy megoldani hogy ha a ts van előtérben akkor is mukodjon
+check for updates
 */
 
 
@@ -64,7 +69,7 @@ namespace TSPlugin {
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
 
-		runLoop.Start();
+		//runLoop.Start();
 
 	}
 
@@ -370,46 +375,7 @@ namespace TSPlugin {
 		}
 	}
 
-	optional<CString> SoundplayerApp::TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options) {
 
-		while (true) {
-
-			CString directory = Global::config.Get(ConfigKey::SoundFolder, L"");
-			if (DirectoryExists(directory)) {
-				return directory;
-			} else {
-				if(options == TryGetSoundsDirectoryOptions::AskGui) {
-					SoundFolderSelector dialog;
-					auto result = dialog.DoModal();
-					if (result == IDOK) {
-						continue;
-					} else {
-						return nullopt;
-					}
-				} else {
-					return nullopt;
-				}
-			}
-		}
-
-		return nullopt;
-	}
-
-
-
-	optional<CString> SoundplayerApp::TryGetLikelyFileName(const CString& inputString) {
-
-		//vector<CString> possibleFiles = GetPossibleFiles(inputString);
-		//if (possibleFiles.size() == 1) {
-		//	return possibleFiles.front();
-		//}
-
-		if (selectedFileIndex < possibleFiles.size()) {
-			return possibleFiles[selectedFileIndex];
-		}
-
-		return nullopt;
-	}
 
 
 	void SoundplayerApp::PlayAlarmSound() {
@@ -423,8 +389,9 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OpenObserverDialog() {
-		inputObserverDialog = make_unique<InputObserverDialog>();
+		//inputObserverDialog = make_unique<InputObserverDialog>();
 		//inputObserverDialog.ShowWindow(TRUE);
+
 	}
 
 
@@ -480,105 +447,8 @@ namespace TSPlugin {
 	//	return (hits == 1);
 	//}
 
-	std::vector<CString> SoundplayerApp::GetPossibleFiles(const CString & inputString) {
-
-		if (inputString.GetLength() == 0) {
-			return std::vector<CString>();
-		}
-
-		optional<CString> directoryOrNull = TryGetSoundsDirectory();
-		if (!directoryOrNull) {
-			return std::vector<CString>();
-		}
-
-		CString directory = *directoryOrNull;
 
 
-		if (directory.Right(1) != "\\" && directory.Right(1) != "/") {
-			directory += "\\";
-		}
-
-
-		vector<CString> files = ListFilesInDirectory(directory);
-
-
-		std::vector<CString> results;
-
-
-		const CString sanitizedInputString = MakeComparable(inputString);
-
-		for (const CString& fileName : files) {
-			const CString sanitizedFileName = MakeComparable(fileName);
-
-			//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
-			if (sanitizedFileName.Find(sanitizedInputString) == 0) {
-				//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
-					//return directory + file;
-				CString result = directory + fileName;
-				results.push_back(result);
-			}
-		}
-
-
-		for (const CString& fileName : files) {
-			const CString sanitizedFileName = MakeComparable(fileName);
-
-			// akkor is a lista végére füzzük, ha nem az elején van a cucc
-			if (sanitizedFileName.Find(sanitizedInputString) > 0) {
-				CString result = directory + fileName;
-				results.push_back(result);
-			}
-		}
-
-
-		return results;
-	}
-
-
-	bool SoundplayerApp::TryEnqueueFileFromCommand(CString str) {
-		CString queuePrefix = L"q ";
-
-		if (StartsWith(str, queuePrefix)) {
-			CString command = str.Right(str.GetLength() - queuePrefix.GetLength());
-			CString fileName;
-			if (auto fileName = TryGetLikelyFileName(command)) {
-				playlist.push(*fileName);
-			}
-
-			return true;
-		}
-		return false;
-	}
-
-	HookResult SoundplayerApp::TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData) {
-
-		if (possibleFiles.size() == 0) {
-			return HookResult::PassEvent;
-		}
-
-		if (keyData.hookData.vkCode == VK_UP) {
-			RotateSelection(-1);
-			return HookResult::ConsumeEvent;
-		}
-
-		if (keyData.hookData.vkCode == VK_DOWN) {
-			RotateSelection(1);
-			return HookResult::ConsumeEvent;
-		}
-
-		return HookResult::PassEvent;
-	}
-
-	void SoundplayerApp::RotateSelection(int indexDelta) {
-		if (possibleFiles.size() == 0) {
-			selectedFileIndex = 0;
-			return;
-		}
-
-
-		selectedFileIndex  = (selectedFileIndex + indexDelta) % possibleFiles.size();
-		
-	}
 
 	void SoundplayerApp::OpenDeveloperConsole() {
 		CreateConsole();
@@ -619,29 +489,29 @@ namespace TSPlugin {
 	//}
 
 
-	void SoundplayerApp::ProcessCommand(const CString& inputString) {
+	//void SoundplayerApp::ProcessCommand(const CString& inputString) {
 
 
-		if (TryEnqueueFileFromCommand(inputString)) {
-			return;
-		}
+	//	if (TryEnqueueFileFromCommand(inputString)) {
+	//		return;
+	//	}
 
 
-		if (auto fileName = TryGetLikelyFileName(inputString)) {
-			AsyncPlayFile(*fileName);
-		} else {
-			PlayAlarmSound();
-		}
+	//	if (auto fileName = TryGetLikelyFileName(inputString)) {
+	//		AsyncPlayFile(*fileName);
+	//	} else {
+	//		PlayAlarmSound();
+	//	}
 
-		selectedFileIndex = 0;
+	//	selectedFileIndex = 0;
 
-	}
+	//}
 
 	void SoundplayerApp::UpdateObserverDialog() {
-		if (inputObserverDialog) {
-			inputObserverDialog->SetFiles(possibleFiles);
-			inputObserverDialog->SetSelectedIndex((int)selectedFileIndex);
-		}
+		//if (inputObserverDialog) {
+		//	inputObserverDialog->SetFiles(possibleFiles);
+		//	inputObserverDialog->SetSelectedIndex((int)selectedFileIndex);
+		//}
 
 		//std::thread([this] {
 		//	ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
@@ -657,7 +527,16 @@ namespace TSPlugin {
 	}
 
 	CStringA SoundplayerApp::GetPluginInfoData() {
-		
+
+		const shared_ptr<FileList> fileList = unsafeFileList;
+
+		if (!fileList) {
+			return "<No matching files>";
+		}
+
+		const auto& possibleFiles = fileList->possibleFiles;
+		const size_t selectedFileIndex = fileList->selectedFileIndex;
+
 		CStringA info = "Teszt: \n";
 
 		//for (CString& file : possibleFiles) {
@@ -1037,12 +916,12 @@ namespace TSPlugin {
 		//	UpdateObserverDialog();
 		//});
 
-		Finally finally = [this] {
-			this->runLoop.Add([this] {
-				UpdatePossibleFiles();
-				UpdateObserverDialog();
-			});
-		};
+		//Finally finally = [this] {
+		//	this->runLoop.Add([this] {
+		//		UpdatePossibleFiles();
+		//		UpdateObserverDialog();
+		//	});
+		//};
 
 #endif
 
@@ -1053,9 +932,9 @@ namespace TSPlugin {
 			}
 		}
 
-		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
-			return HookResult::ConsumeEvent;
-		}
+		//if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
+		//	return HookResult::ConsumeEvent;
+		//}
 
 		if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
 			return HookResult::ConsumeEvent;
@@ -1082,25 +961,41 @@ namespace TSPlugin {
 		std::wcout << message << std::endl;
 	}
 
-	void SoundplayerApp::OnCommand(const CString& command) {
-		ProcessCommand(command);
+	//void SoundplayerApp::OnCommand(const CString& command) {
+	//	ProcessCommand(command);
+	//}
+
+
+	void SoundplayerApp::OnPossibleFilesChanged(const FileList& fileList) {
+		unsafeFileList = make_shared<FileList>(fileList);
+		RefreshTsInterface();
+	}
+
+	void SoundplayerApp::OnInputCommandFinished() {
+
+		if (auto fileName = TryGetSelectedFile()) {
+			AsyncPlayFile(*fileName);
+		} else {
+			PlayAlarmSound();
+		}
 	}
 
 	void SoundplayerApp::OnQuickSoundMatch(const CString& path) {
 		AsyncPlayFile(path);
 	}
 
-	void SoundplayerApp::UpdatePossibleFiles() {
+	optional<CString> SoundplayerApp::TryGetSelectedFile() {
+		shared_ptr<FileList> fileList = unsafeFileList;
 
-		this->possibleFiles = GetPossibleFiles(inputHandler.GetBuffer());
-		if (selectedFileIndex < possibleFiles.size()) {
-			if (possibleFiles.size() == 0) {
-				selectedFileIndex = 0;
-			} else {
-				selectedFileIndex = std::min<size_t>(possibleFiles.size() - 1u, selectedFileIndex);
-			}
-
+		if (!fileList) {
+			return nullopt;
 		}
+
+		if (fileList->selectedFileIndex < fileList->possibleFiles.size()) {
+			return fileList->possibleFiles[fileList->selectedFileIndex];
+		}
+
+		return nullopt;
 	}
 
 }
