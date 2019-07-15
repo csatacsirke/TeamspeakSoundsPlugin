@@ -747,10 +747,10 @@ namespace TSPlugin {
 		//}
 
 
-		if (steganographyEnabled) {
-			Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
-			ONCE(Log::Debug(CString("Channels - write") + ToString(channels)));
-		}
+		//if (steganographyEnabled) {
+		//	Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
+		//	ONCE(Log::Debug(CString("Channels - write") + ToString(channels)));
+		//}
 
 	}
 
@@ -799,16 +799,17 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OnEditPlaybackVoiceDataEvent(anyID clientID, short* samples, int sampleCount, int channels) {
-		ONCE(Log::Debug(CString("Channels - read") + ToString(channels)));
-		if (steganographyEnabled) {
-			CStringA receivedSecret = Steganography::ReadSecret(samples, sampleCount*channels);
-			bool success = receivedSecret == testSecret;
 
-			if (success) {
-				ONCE(MessageBoxA(0, "megvan+", 0, 0));
-			}
-			//Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
-		}
+		//ONCE(Log::Debug(CString("Channels - read") + ToString(channels)));
+		//if (steganographyEnabled) {
+		//	CStringA receivedSecret = Steganography::ReadSecret(samples, sampleCount*channels);
+		//	bool success = receivedSecret == testSecret;
+
+		//	if (success) {
+		//		ONCE(MessageBoxA(0, "megvan+", 0, 0));
+		//	}
+		//	//Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
+		//}
 	}
 
 #ifdef _DEBUG

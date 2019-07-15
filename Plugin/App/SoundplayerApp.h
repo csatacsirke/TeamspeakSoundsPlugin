@@ -52,7 +52,7 @@ namespace TSPlugin {
 
 		// for Steganography
 		void OnEditPlaybackVoiceDataEvent(anyID clientID, short* samples, int sampleCount, int channels);
-		bool steganographyEnabled = true;
+		//bool steganographyEnabled = true;
 
 		//void OnEditPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels);
 		//void OnEditPostProcessVoiceDataEvent(uint64 serverConnectionHandlerID, anyID clientID, short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask);
