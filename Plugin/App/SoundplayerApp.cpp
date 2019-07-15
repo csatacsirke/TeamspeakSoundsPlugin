@@ -68,9 +68,6 @@ namespace TSPlugin {
 
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
-
-		//runLoop.Start();
-
 	}
 
 
@@ -89,10 +86,6 @@ namespace TSPlugin {
 		// removed
 	}
 	
-
-	//HookResult SoundplayerApp::OnKeyData(const KeyboardHook::KeyData& keyData) {
-	//
-	//}
 
 
 	/*
@@ -180,8 +173,6 @@ namespace TSPlugin {
 	}
 
 
-#if NEW_SOUND_PROCESSING_VERSION
-
 	void SoundplayerApp::PlayFile(CString fileName) {
 
 		if (fileName.Find(L".mp3") >= 0) {
@@ -200,9 +191,7 @@ namespace TSPlugin {
 		}
 #endif
 		std::unique_lock<std::mutex> lock(playerLock);
-		//this->stop = false;
-
-		//SendFileNameToChat(fileName);
+		
 
 		this->lastFile = fileName; // csak nem akad össze...
 
@@ -221,60 +210,11 @@ namespace TSPlugin {
 
 	}
 
-#else 
-	void SoundplayerApp::PlayFile(CString fileName) {
-
-		if (!PathFileExists(fileName)) {
-			return;
-		}
-
-#ifdef DEBUG 
-		if (playerLock.try_lock()) {
-			playerLock.unlock();
-		} else {
-			Log::Warning(L"SoundplayerApp::PlayFile(CString fileName) is locked.");
-		}
-#endif
-		std::unique_lock<std::mutex> lock(playerLock);
-		this->stop = false;
-
-		SendFileNameToChat(fileName);
-
-		this->lastFile = fileName; // csak nem akad össze...
-
-		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
-
-
-		if (!track) {
-			Log::Warning(L"LoadWaveFile failed");
-			return;
-		}
-
-		//wprintf(L"playing %s  \n", (const wchar_t*)fileName);
-		Log::Debug(L"Playing: " + fileName);
-
-		LocalSoundPlayer localPlayer(fileName);
-
-		TSSoundPlayer player(track);
-
-		// async call
-		localPlayer.PlayAsync();
-
-		// sync call
-		player.Play(stop);
-
-
-		Log::Debug(L"    finished playing sound ");
-
-	}
-
-#endif
 
 
 	SoundplayerApp::StopResult SoundplayerApp::StopPlayback() {
 		StopResult stopResult = audioBufferForCapture.IsEmpty() ? StopResult::WasNotPlaying : StopResult::DidStop;
-		//stop = true;
-
+		
 		audioBufferForCapture.Clear();
 		audioBufferForPlayback.Clear();
 
@@ -288,10 +228,6 @@ namespace TSPlugin {
 			PlayFile(fileName);
 		}).detach();
 
-		//t.detach();
-		//std::async(std::launch::async, [this, fileName] {
-		//	PlayFile(fileName);
-		//});
 	}
 
 
@@ -306,7 +242,6 @@ namespace TSPlugin {
 
 			auto result = dialog.DoModal();
 			if (result == IDOK) {
-				//CString fileName = dialog.GetFileName();
 				CString fileName = dialog.GetPathName();
 				playlist.push(fileName);
 			}
@@ -345,17 +280,6 @@ namespace TSPlugin {
 		assert(0 && "nincs megirva...");
 	}
 
-	//
-	//void SoundplayerApp::PlayPreset(int ordinal) {
-	//	//assert(0 && "nincs megirva 2");
-	//	CStringA key;
-	//	key.Format(Hotkey::PLAY_PRESET_TEMPLATE, ordinal);
-	//	CString file;
-	//	if(Global::config.TryGet(CString(key), file)) {
-	//		AsyncPlayFile(file);
-	//	}
-	//
-	//}
 
 	void SoundplayerApp::PlayRandom() {
 		CString folder;
@@ -389,66 +313,8 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OpenObserverDialog() {
-		//inputObserverDialog = make_unique<InputObserverDialog>();
-		//inputObserverDialog.ShowWindow(TRUE);
-
+		// unimplemented
 	}
-
-
-
-	//
-	////CString SoundplayerApp::GetLikelyFileName(CString str) {
-	//bool SoundplayerApp::GetLikelyFileName(_Out_ CString& result, CString str) {
-	//	CString directory = L"";
-	//	bool tryAgain = false;
-	//	do {
-	//		tryAgain = false;
-	//		directory = Global::config.Get(ConfigKey::SoundFolder, L"");
-	//		if(!DirectoryExists(directory)) {
-	//			SoundFolderSelector dialog;
-	//			auto result = dialog.DoModal();
-	//			if(result == IDOK) {
-	//				tryAgain = true;
-	//			} else {
-	//				//return L""; // TODO
-	//				return false;
-	//			}
-	//		}
-	//	} while(tryAgain);
-	//
-	//
-	//	if(directory.Right(1) != "\\" && directory.Right(1) != "/") {
-	//		directory += "\\";
-	//	}
-	//
-	//
-	//	vector<CString> files;
-	//	ListFilesInDirectory(_Out_ files, directory);
-	//
-	//	int hits = 0;
-	//
-	//	for(auto& file : files) {
-	//		if( EqualsIgnoreCaseAndWhitespace(file.Left(str.GetLength()), str) ) {
-	//		//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
-	//			//return directory + file;
-	//			result = directory + file;
-	//			++hits;
-	//		}
-	//	}
-	//
-	//	if(hits > 1) {
-	//		Log::Warning(L"Multiple hits");
-	//	}
-	//
-	//	if(hits < 1) {
-	//		Log::Warning(L"Zero hits");
-	//	}
-	//
-	//	return (hits == 1);
-	//}
-
-
-
 
 	void SoundplayerApp::OpenDeveloperConsole() {
 		CreateConsole();
@@ -456,67 +322,7 @@ namespace TSPlugin {
 	}
 
 
-	//
-	//bool SoundplayerApp::TryPlayQuickSound(CString str) {
-	//
-	//	
-	//	//quicksoundhandler.
-	//	
-	//	if(str.GetLength() != 3) return false;
-	//	if(str[0] != L'V' && str[0] != L'v') return false;
-	//	if(!iswdigit(str[1]) ) return false;
-	//	if(!iswdigit(str[2])) return false;
-	//
-	//	
-	//	int n = _wtoi(static_cast<const wchar_t*>(str) + 1);
-	//
-	//	CString dir1 = ToString(n / 10);
-	//	CString dir2 = ToString(n % 10);
-	//	
-	//	//CString path = 
-	//	CPath directory = Global::config.Get(ConfigKey::SoundFolder, L"");
-	//	directory.Append(L"cod");
-	//	directory.Append(dir1);
-	//	directory.Append(dir2);
-	//	
-	//	if(DirectoryExists(directory)) {
-	//		CPath file = directory;
-	//		file += PickRandomFile(directory);
-	//		AsyncPlayFile(file);
-	//		return true;
-	//	}
-	//	return false;
-	//}
-
-
-	//void SoundplayerApp::ProcessCommand(const CString& inputString) {
-
-
-	//	if (TryEnqueueFileFromCommand(inputString)) {
-	//		return;
-	//	}
-
-
-	//	if (auto fileName = TryGetLikelyFileName(inputString)) {
-	//		AsyncPlayFile(*fileName);
-	//	} else {
-	//		PlayAlarmSound();
-	//	}
-
-	//	selectedFileIndex = 0;
-
-	//}
-
 	void SoundplayerApp::UpdateObserverDialog() {
-		//if (inputObserverDialog) {
-		//	inputObserverDialog->SetFiles(possibleFiles);
-		//	inputObserverDialog->SetSelectedIndex((int)selectedFileIndex);
-		//}
-
-		//std::thread([this] {
-		//	ts3Functions.requestInfoUpdate(Global::connection, GetPluginInfoData_lastType, GetPluginInfoData_lastId);
-		//}).detach();
-
 		RefreshTsInterface();
 	}
 
@@ -596,30 +402,6 @@ namespace TSPlugin {
 		ts3Functions.requestSendChannelTextMsg(Global::connection, utfMessage, channelId, NULL);
 	}
 
-	//
-	//// https://docs.microsoft.com/en-us/windows/desktop/api/winuser/nf-winuser-keybd_event
-	//static void SetScrollLock(BOOL bState) {
-	//	BYTE keyState[256];
-	//
-	//	GetKeyboardState((LPBYTE)&keyState);
-	//	if ((bState && !(keyState[VK_NUMLOCK] & 1)) ||
-	//		(!bState && (keyState[VK_NUMLOCK] & 1))) {
-	//		// Simulate a key press
-	//		keybd_event(VK_NUMLOCK,
-	//			0x45,
-	//			KEYEVENTF_EXTENDEDKEY | 0,
-	//			0);
-	//
-	//		// Simulate a key release
-	//		keybd_event(VK_NUMLOCK,
-	//			0x45,
-	//			KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP,
-	//			0);
-	//	}
-	//
-	//}
-
-
 	void SoundplayerApp::AsyncOpenAudioProcessorDialog() {
 		std::thread dialogThread([&] {
 			AudioProcessorDialog dialog(audioProcessor);
@@ -646,10 +428,6 @@ namespace TSPlugin {
 				soundPlaying = true;
 				defaultVadState = Ts::GetPreProcessorConfigValue(Ts::VoiceActivation);
 				Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, Ts::False);
-
-				//ts3Functions.flushClientSelfUpdates(Global::connection, NULL);
-				// ezt lehet hogy célszerubb nem baszogatni
-				//Ts::GetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED);
 			}
 
 
@@ -672,43 +450,14 @@ namespace TSPlugin {
 #endif
 
 
-	static const CStringA testSecret = "looofasz";
 
 
 
 
 	void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited) {
 
-		//if(GetKeyState(VK_CONTROL) < 0) {
-		//	ts3Functions.ts3client_setLocalTestMode(Global::connection, 1);
-		//} else {
-		//	ts3Functions.ts3client_setLocalTestMode(Global::connection, 0);
-		//	
-		//}
-
-
-
-		//unsigned int ts3client_setLocalTestMode(serverConnectionHandlerID, status);
-#if NEW_SOUND_PROCESSING_VERSION
 		assert(channels == 1);
 
-		//static std::vector<uint8_t> buffer;
-		//if(onlineMicrophone.TryGetSamples(buffer)) {
-		//	memcpy(samples, buffer.data(), buffer.size()*sizeof(short));
-		//}
-
-
-		//if(onlineMicrophone.TryGetSamples(buffer)) {
-		//	memcpy(samples, buffer.data(), buffer.size() * sizeof(short));
-		//}
-
-		//pcmFormat
-		//audioPlayer.SetPcmFormat(pcmFormat);
-		//audioPlayer.AddSamples(samples, sampleCount);
-
-
-		//CachedAudioSample48k playbackSamples;
-		//bool success = audioBufferForCapture.TryGetSamples20ms(playbackSamples);
 		CachedAudioSample48k playbackSamples = audioBufferForCapture.TryGetSamples(sampleCount, channels);
 		if (playbackSamples) {
 
@@ -731,47 +480,18 @@ namespace TSPlugin {
 			tsVoiceHandler.ResetMicrophone();
 			*edited &= ~1;
 		}
-#endif
+
 		//If the sound data will be send, (*edited | 2) is true.
 		//If the sound data is changed, set bit 1 (*edited |= 1).
 		//If the sound should not be send, clear bit 2. (*edited &= ~2)
-
-		//if(*edited & 0x2) {
-		//	bool enabled = audioProcessor.Process(samples, sampleCount, channels);
-
-		//	if(enabled) {
-		//		*edited |= 1;
-		//	} else {
-		//		*edited &= ~1;
-		//	}
-		//}
-
-
-		//if (steganographyEnabled) {
-		//	Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
-		//	ONCE(Log::Debug(CString("Channels - write") + ToString(channels)));
-		//}
 
 	}
 
 
 
 	void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
-#if NEW_SOUND_PROCESSING_VERSION
 
-		//audioBufferForPlayback.outputChannels = channels;
-
-
-		//CachedAudioSample48k playbackSamples;
-
-		//bool success = audioBufferForPlayback.TryGetSamples20ms(playbackSamples);
 		CachedAudioSample48k playbackSamples = audioBufferForPlayback.TryGetSamples(sampleCount, channels);
-
-		//assert(sampleCount == playbackSamples->size() && "Ha ezt látod akkor ne ijedj meg..., hosszu történet....majd egyszer kijavitom");
-
-
-
-
 
 		if (playbackSamples) {
 
@@ -794,22 +514,10 @@ namespace TSPlugin {
 
 		}
 
-
-#endif
 	}
 
 	void SoundplayerApp::OnEditPlaybackVoiceDataEvent(anyID clientID, short* samples, int sampleCount, int channels) {
-
-		//ONCE(Log::Debug(CString("Channels - read") + ToString(channels)));
-		//if (steganographyEnabled) {
-		//	CStringA receivedSecret = Steganography::ReadSecret(samples, sampleCount*channels);
-		//	bool success = receivedSecret == testSecret;
-
-		//	if (success) {
-		//		ONCE(MessageBoxA(0, "megvan+", 0, 0));
-		//	}
-		//	//Steganography::WriteSecret(samples, sampleCount*channels, testSecret);
-		//}
+		// már semmi, ki is lehetne rakni
 	}
 
 #ifdef _DEBUG
@@ -881,17 +589,6 @@ namespace TSPlugin {
 
 	HookResult SoundplayerApp::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) {
 
-		//this->runLoop.Add([this] {
-		//	Sleep(1000);
-		//	UpdatePossibleFiles();
-		//	UpdateObserverDialog();
-		//});
-		//return HookResult::PassEvent;
-
-
-
-
-
 		if (shouldDisableHookWhenScrollLockIsEnabled && IsScrollLockPressed()) {
 			return HookResult::PassEvent;
 		}
@@ -900,32 +597,6 @@ namespace TSPlugin {
 			return HookResult::PassEvent;
 		}
 
-		//bool commandWasInProgressBeforeProcessing = commandInProgress;
-
-#if 0
-
-		Finally finally = [this] {
-			UpdatePossibleFiles();
-			UpdateObserverDialog();
-		};
-
-#else
-		//int a = 42;
-		//this->runLoop.Add([this] {
-		//
-		//	UpdatePossibleFiles();
-		//	UpdateObserverDialog();
-		//});
-
-		//Finally finally = [this] {
-		//	this->runLoop.Add([this] {
-		//		UpdatePossibleFiles();
-		//		UpdateObserverDialog();
-		//	});
-		//};
-
-#endif
-
 		if (keyData.hookData.vkCode == VK_ESCAPE) {
 			const StopResult result = StopPlayback();
 			if (result == StopResult::DidStop) {
@@ -933,9 +604,6 @@ namespace TSPlugin {
 			}
 		}
 
-		//if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
-		//	return HookResult::ConsumeEvent;
-		//}
 
 		if (inputHandler.TryConsumeEvent(keyData) == HookResult::ConsumeEvent) {
 			return HookResult::ConsumeEvent;
@@ -948,23 +616,12 @@ namespace TSPlugin {
 		return HookResult::PassEvent;
 
 
-		//if (OnKeyData(keyData) == HookResult::ConsumeEvent) {
-		//	return HookResult::ConsumeEvent;
-		//}
-		//
-		//
-		////bool shouldConsumeEvent = commandWasInProgressBeforeProcessing || commandInProgress;
-		//
-		//return shouldConsumeEvent ? HookResult::ConsumeEvent : HookResult::PassEvent;
 	}
 
 	void SoundplayerApp::OnMessage(const CString& message) {
 		std::wcout << message << std::endl;
 	}
 
-	//void SoundplayerApp::OnCommand(const CString& command) {
-	//	ProcessCommand(command);
-	//}
 
 
 	void SoundplayerApp::OnPossibleFilesChanged(const FileList& fileList) {
