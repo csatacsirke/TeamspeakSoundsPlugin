@@ -15,6 +15,9 @@ namespace TSPlugin {
 
 	HookResult InputHandler::TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
 
+		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
+			return HookResult::ConsumeEvent;
+		}
 
 		if (commandInProgress) {
 
