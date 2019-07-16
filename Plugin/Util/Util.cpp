@@ -200,10 +200,6 @@ namespace TSPlugin {
 
 	std::vector<CString> GetPossibleFiles(const CString & inputString) {
 
-		if (inputString.GetLength() == 0) {
-			return std::vector<CString>();
-		}
-
 		optional<CString> directoryOrNull = TryGetSoundsDirectory();
 		if (!directoryOrNull) {
 			return std::vector<CString>();
@@ -222,30 +218,42 @@ namespace TSPlugin {
 
 		std::vector<CString> results;
 
+		if (inputString.GetLength() > 0) {
+			const CString sanitizedInputString = MakeComparable(inputString);
 
-		const CString sanitizedInputString = MakeComparable(inputString);
+			for (const CString& fileName : files) {
+				const CString sanitizedFileName = MakeComparable(fileName);
 
-		for (const CString& fileName : files) {
-			const CString sanitizedFileName = MakeComparable(fileName);
+				//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
+				if (sanitizedFileName.Find(sanitizedInputString) == 0) {
+					//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
+						//return directory + file;
+					CString result = directory + fileName;
+					results.push_back(result);
+				}
+			}
 
-			//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
-			if (sanitizedFileName.Find(sanitizedInputString) == 0) {
-				//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
-					//return directory + file;
-				CString result = directory + fileName;
-				results.push_back(result);
+
+			for (const CString& fileName : files) {
+				const CString sanitizedFileName = MakeComparable(fileName);
+
+				// akkor is a lista végére füzzük, ha nem az elején van a cucc
+				if (sanitizedFileName.Find(sanitizedInputString) > 0) {
+					CString result = directory + fileName;
+					results.push_back(result);
+				}
 			}
 		}
+		
 
-
-		for (const CString& fileName : files) {
-			const CString sanitizedFileName = MakeComparable(fileName);
-
-			// akkor is a lista végére füzzük, ha nem az elején van a cucc
-			if (sanitizedFileName.Find(sanitizedInputString) > 0) {
-				CString result = directory + fileName;
+		const int minimumFileCount = 20;
+		const int additionalFileCount = minimumFileCount - results.size();
+		for (int i = 0; i < additionalFileCount; ++i) {
+			if (i < files.size()) {
+				const CString result = directory + files[i];
 				results.push_back(result);
 			}
+			
 		}
 
 

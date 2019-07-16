@@ -15,18 +15,16 @@ namespace TSPlugin {
 
 	HookResult InputHandler::TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
 
-		if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
-			return HookResult::ConsumeEvent;
-		}
+		
 
 		if (commandInProgress) {
-
+			
 			if (keyData.hookData.vkCode == VK_ESCAPE) {
 
 				commandInProgress = false;
 				inputBuffer = "";
 
-				OnInputBufferChanged();
+				OnInputEventConsumed();
 				return HookResult::ConsumeEvent;
 			}
 
@@ -35,7 +33,7 @@ namespace TSPlugin {
 					inputBuffer.Truncate(inputBuffer.GetLength() - 1);
 				}
 
-				OnInputBufferChanged();
+				OnInputEventConsumed();
 				return HookResult::ConsumeEvent;
 			}
 		}
@@ -45,13 +43,19 @@ namespace TSPlugin {
 		if (unicodeLiteral == CString("/")) {
 			commandInProgress = true;
 			inputBuffer = "";
-			OnInputBufferChanged();
+			OnInputEventConsumed();
 
 			return HookResult::ConsumeEvent;
 		}
 
 
 		if (commandInProgress) {
+			if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
+				OnInputEventConsumed();
+				return HookResult::ConsumeEvent;
+			}
+			
+
 			if (keyData.hookData.vkCode == VK_RETURN) {
 
 				_Log(inputBuffer);
@@ -62,15 +66,17 @@ namespace TSPlugin {
 				inputBuffer = "";
 				commandInProgress = false;
 
-				OnInputBufferChanged();
+				OnInputEventConsumed();
 				return HookResult::ConsumeEvent;
-			} else {
-				inputBuffer += unicodeLiteral;
-				OnInputBufferChanged();
+			} 
 
-				return HookResult::ConsumeEvent;
-				//Log::Debug(unicodeLiteral);
-			}
+
+			inputBuffer += unicodeLiteral;
+			OnInputEventConsumed();
+
+			return HookResult::ConsumeEvent;
+			//Log::Debug(unicodeLiteral);
+
 		}
 
 
@@ -120,32 +126,38 @@ namespace TSPlugin {
 	void InputHandler::OnCommandFinished() {
 		CString threadsafeInputBuffer = inputBuffer;
 		runLoop.Add([threadsafeInputBuffer, this] {
-			UpdatePossibleFiles(threadsafeInputBuffer);
-			delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
+			// UpdatePossibleFiles(threadsafeInputBuffer);
+			// delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
 			delegate.OnInputCommandFinished();
 			selectedFileIndex = 0;
 		});
 	}
 
-	void InputHandler::OnInputBufferChanged() {
+	void InputHandler::OnInputEventConsumed() {
 		CString threadsafeInputBuffer = inputBuffer;
-		runLoop.Add([threadsafeInputBuffer, this] {
-			UpdatePossibleFiles(threadsafeInputBuffer);
+		bool threadsafeCommandInProgress = commandInProgress;
+		runLoop.Add([threadsafeInputBuffer, threadsafeCommandInProgress, this] {
+			UpdatePossibleFiles(threadsafeInputBuffer, threadsafeCommandInProgress);
 			delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
 		});
 	}
 
-	void InputHandler::UpdatePossibleFiles(const CString& threadsafeInputBuffer) {
-
-		this->possibleFiles = GetPossibleFiles(threadsafeInputBuffer);
-		if (selectedFileIndex < possibleFiles.size()) {
-			if (possibleFiles.size() == 0) {
-				selectedFileIndex = 0;
-			} else {
-				selectedFileIndex = std::min<size_t>(possibleFiles.size() - 1u, selectedFileIndex);
+	void InputHandler::UpdatePossibleFiles(const CString& threadsafeInputBuffer, bool threadsafeCommandInProgress) {
+		if (!threadsafeCommandInProgress) {
+			possibleFiles.resize(0);
+			selectedFileIndex = 0;
+		} else {
+			possibleFiles = GetPossibleFiles(threadsafeInputBuffer);
+			if (selectedFileIndex < possibleFiles.size()) {
+				if (possibleFiles.size() == 0) {
+					selectedFileIndex = 0;
+				} else {
+					selectedFileIndex = std::min<size_t>(possibleFiles.size() - 1u, selectedFileIndex);
+				}
 			}
-
 		}
+
+		
 	}
 
 	HookResult InputHandler::TryEnqueueFileFromCommand(CString str) {

@@ -37,10 +37,10 @@ namespace TSPlugin {
 		void RotateSelection(int indexDelta);
 		HookResult TryEnqueueFileFromCommand(CString str);
 
-		void UpdatePossibleFiles(const CString& threadsafeInputBuffer);
+		void UpdatePossibleFiles(const CString& threadsafeInputBuffer, bool threadsafeCommandInProgress);
 
 		void OnCommandFinished();
-		void OnInputBufferChanged();
+		void OnInputEventConsumed();
 	protected:
 		InputHandlerDelegate& delegate;
 
