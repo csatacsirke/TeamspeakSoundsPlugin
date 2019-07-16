@@ -245,9 +245,9 @@ namespace TSPlugin {
 			}
 		}
 		
-
+		
 		const int minimumFileCount = 20;
-		const int additionalFileCount = minimumFileCount - results.size();
+		const int additionalFileCount = minimumFileCount - (int)results.size();
 		for (int i = 0; i < additionalFileCount; ++i) {
 			if (i < files.size()) {
 				const CString result = directory + files[i];
