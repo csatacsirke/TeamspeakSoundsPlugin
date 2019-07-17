@@ -230,6 +230,8 @@ namespace TSPlugin {
 		}
 
 		WaveTrackPtr FetchTrack() {
+			std::unique_lock<std::mutex> lock(mutex);
+
 			if (trackQueue.empty()) {
 				return nullptr;
 			}
