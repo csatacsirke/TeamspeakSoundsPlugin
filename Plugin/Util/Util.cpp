@@ -116,13 +116,46 @@ namespace TSPlugin {
 		return files;
 	}
 
+	static inline FILETIME GetModificationDateForFile(const CString& fileName) {
+		WIN32_FIND_DATA findData;
+		HANDLE h = FindFirstFile(fileName, &findData);
+		FindClose(h);
+		
+		//return findData.ftLastWriteTime;
+		return findData.ftCreationTime;
+	}
+
+	struct FileInfo {
+		CString directory;
+		CString fileName;
+		FILETIME ftLastWriteTime;
+		FileInfo(const CString& directory, const CString& fileName) : directory(directory), fileName(fileName) { ftLastWriteTime = GetModificationDateForFile(directory + fileName); }
+		//bool operator < (const FileInfo& other) const { return CompareFileTime(&ftLastWriteTime, &other.ftLastWriteTime) == 1; }
+		operator CString() const { return this->fileName; }
+	};
+
+	vector<CString> SortFilesByModificationDate(const CString& directory, const vector<CString>& filesNames) {
+		//vector<FileInfo> fileInfos(filesNames.begin(), filesNames.end());
+		vector<FileInfo> fileInfos;
+		fileInfos.reserve(filesNames.size());
+		for (const CString& fileName : filesNames) {
+			fileInfos.push_back(FileInfo(directory, fileName));
+		}
+
+
+		std::sort(fileInfos.begin(), fileInfos.end(), [](const auto& a, const auto& b) { return CompareFileTime(&a.ftLastWriteTime, &b.ftLastWriteTime) == 1; });
+		vector<CString> sorted(fileInfos.begin(), fileInfos.end());
+
+		return sorted;
+	}
+
+
 	CString PickRandomFile(CString directory) {
 		std::vector<CString> files = ListFilesInDirectory(directory);
 
 		if (files.size() == 0) return L"";
 
 		return files[rand() % files.size()];
-
 	}
 
 
@@ -132,7 +165,6 @@ namespace TSPlugin {
 			if (path[i] == L'/' || path[i] == L'\\') break;
 		}
 		return path.Right(path.GetLength() - 1 - i);
-
 	}
 
 	//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
@@ -246,16 +278,26 @@ namespace TSPlugin {
 		}
 		
 		
+		// separator
+		results.push_back(L"");
+
+		vector<CString> filesByModificationDate = SortFilesByModificationDate(directory, files);
+		for (const CString& fileName : filesByModificationDate) {
+			const CString result = directory + fileName;
+			results.push_back(result);
+		}
+		/*
+
 		const int minimumFileCount = 20;
 		const int additionalFileCount = minimumFileCount - (int)results.size();
 		for (int i = 0; i < additionalFileCount; ++i) {
-			if (i < files.size()) {
-				const CString result = directory + files[i];
+			if (i < filesByModificationDate.size()) {
+				const CString result = directory + filesByModificationDate[i];
 				results.push_back(result);
 			}
 			
 		}
-
+*/
 
 		return results;
 	}

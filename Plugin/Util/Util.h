@@ -3,6 +3,7 @@
 #include <string>
 #include <queue>
 #include <thread>
+#include <map>
 #include <optional>
 
 #include <pluginsdk\include\teamspeak/public_errors.h>
@@ -345,6 +346,8 @@ namespace TSPlugin {
 
 	//void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
 	std::vector<CString> ListFilesInDirectory(CString path, CString filter = L"");
+	std::vector<CString> SortFilesByModificationDate(const std::vector<CString>& filesNames);
+
 	CString FileNameFromPath(CString path);
 	CString PickRandomFile(CString path);
 

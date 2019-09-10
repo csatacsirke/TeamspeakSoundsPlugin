@@ -26,11 +26,8 @@ első futtatásnál 0x707 hiba a lejátszásnál
 normálisan beálíltani a lejátszás paramétereket, új soundpalyer osztály?
 megnézni hogy lehet e használni a acquiredata függvényt
 update jelzö
-*backspace - ez mitnha meglenne
 reload plugin ne fagyjon szét
-*chatbe küldés
 hangtorzitás :^)
-*nem létező fájlnál ne pampogjon
 hangfelvétel
 A Sleep paraméterét normálisan kiszámolni ????
 cachelni a reasamplezott cuccokat
