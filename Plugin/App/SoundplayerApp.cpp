@@ -4,6 +4,7 @@
 #include "Wave\wave.h"
 #include "Wave\AudioDecoder.h"
 #include "Wave\Steganography.h"
+#include "Web/Http.h"
 
 #include "Gui\SettingsDialog.h"
 #include <gui/AudioProcessorDialog.h>
@@ -15,6 +16,7 @@
 #include "afxdlgs.h"
 #include <Mmsystem.h>
 #include <atlpath.h>
+#include <filesystem>
 
 
 
@@ -65,6 +67,12 @@ namespace TSPlugin {
 
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
+
+
+		std::thread([this] {
+			CheckForUpdates();
+		}).detach();
+		
 	}
 
 	void SoundplayerApp::Shutdown() {
@@ -115,6 +123,7 @@ namespace TSPlugin {
 		menuHandler.Add("Play sound from file...", [&] { this->AsyncOpenAndPlayFile(); });
 		menuHandler.Add("Enqueue sound from file...", [&] { this->AsyncEnqueueFile(); });
 		menuHandler.Add("Open observer...", [&] { this->OpenObserverDialog(); });
+		menuHandler.Add("Check for updates", [&] { this->CheckForUpdates(); });
 
 #ifdef _DEBUG
 		menuHandler.Add("Open Developer Console", [&] { this->OpenDeveloperConsole(); });
@@ -658,6 +667,59 @@ namespace TSPlugin {
 		}
 
 		return nullopt;
+	}
+
+	static void DownloadAndInstallNewVerison() {
+		
+		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/downloads/SoundplayerPlugin_x64.ts3_plugin");
+		if (!result) {
+			return;
+		}
+
+		TCHAR tempDirectoryPath[MAX_PATH];
+		GetTempPath(MAX_PATH, tempDirectoryPath);
+
+		using namespace std::filesystem;
+
+		path tempPath = path(tempDirectoryPath) / "SoundplayerPlugin_x64.ts3_plugin";
+
+		ofstream out(tempPath, ios::binary);
+		out.write((const char*)result->data(), result->size());
+		out.close();
+
+
+		ShellExecute(0, 0, tempPath.wstring().c_str(), 0, 0, SW_SHOW);
+
+		
+	}
+
+	// defined in plugin.h
+	extern "C" const char* ts3plugin_version();
+
+	void SoundplayerApp::CheckForUpdates() {
+		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/version");
+
+		if (!result) {
+			return;
+		}
+
+		
+
+		const CStringA versionOnServer = CStringA((const char*)result->data(), (int)result->size());
+		const CStringA currentVersion = ts3plugin_version();
+
+		if (currentVersion.Compare(versionOnServer) >= 0) {
+			// we are newer or equal to the server
+			return;
+		}
+		
+		const CString title = L"Update available";
+		const CString message = L"Newer version exists. Would you like to download it? -- you might have to quit TS after downloading";
+		const int messageBoxResult = MessageBox(HWND(0), message, title, MB_YESNO);
+		if (messageBoxResult == IDYES) {
+			DownloadAndInstallNewVerison();
+		}
+
 	}
 
 }

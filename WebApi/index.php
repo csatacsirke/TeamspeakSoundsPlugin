@@ -12,7 +12,7 @@ if ($res === TRUE) {
     // Version = 19.09.10
     $preg_result = preg_match("/Version = (.*)/", $package_ini_contents, &$matches);
     if($preg_result) {
-        echo $matches[1];
+        echo trim($matches[1]);
     }
     $zip->close();
 } else {

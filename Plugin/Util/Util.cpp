@@ -24,6 +24,33 @@ namespace TSPlugin {
 	}
 
 
+	CStringW Utf8ToCString(const CStringA& utf8Str) {
+
+		const int utf8StrLen = (int)strlen(utf8Str);
+
+		if (utf8StrLen == 0) {
+			return L"";
+		}
+
+		CStringW cstr;
+		LPWSTR ptr = cstr.GetBuffer(utf8StrLen + 1);
+
+		// CString is UNICODE string so we decode
+		const int newLen = MultiByteToWideChar(
+			CP_UTF8, 0,
+			utf8Str, utf8StrLen, ptr, utf8StrLen + 1
+		);
+
+		if (!newLen) {
+			cstr.ReleaseBuffer(0);
+			return cstr;
+		}
+
+		cstr.ReleaseBuffer(newLen);
+
+		return cstr;
+	}
+
 	// https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
 	CStringA ConvertUnicodeToUTF8(const CStringW& uni) {
 		if (uni.IsEmpty()) return ""; // nothing to do

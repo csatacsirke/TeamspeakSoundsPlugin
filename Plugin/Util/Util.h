@@ -149,6 +149,8 @@ namespace TSPlugin {
 
 	// https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
 	CStringA ConvertUnicodeToUTF8(const CStringW& uni);
+	CStringW Utf8ToCString(const CStringA& utf8Str);
+
 	BOOL DirectoryExists(CString szPath);
 
 	template<typename T>
