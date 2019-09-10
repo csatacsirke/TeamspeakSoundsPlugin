@@ -220,6 +220,7 @@ void ts3plugin_shutdown() {
 	/* Your plugin cleanup code here */
 	printf("PLUGIN: shutdown\n");
 
+	theApp->Shutdown();
 	theApp = nullptr;
 
 	/*

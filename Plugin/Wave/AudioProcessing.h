@@ -11,6 +11,10 @@
 namespace TSPlugin {
 
 
+	//void PostProcessWaveTrack(class WaveTrack& waveTrack);
+	float CalculateMaxVolume(const class WaveTrack& waveTrack);
+
+
 
 	template<typename PtrType>
 	struct AudioDataT {

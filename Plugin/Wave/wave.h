@@ -22,10 +22,17 @@ namespace TSPlugin {
 		std::vector<uint8_t> data;
 		int numberOfSamples;
 		size_t dataLength;
+
+		struct Metadata {
+			float maxVolume = 1.0f;
+		} metadata;
 	public:
 		static std::shared_ptr<WaveTrack> LoadWaveFile(const wchar_t* fileName);
 		bool Save(const CString& fileName);
 
+	private:
+		void FillMetadata();
+		void NormalizeVolume();
 	};
 
 

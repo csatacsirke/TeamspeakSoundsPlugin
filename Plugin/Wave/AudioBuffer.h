@@ -249,11 +249,7 @@ namespace TSPlugin {
 
 		}
 
-		//bool TryGetSamples20ms(_Out_ CachedAudioSample48k sample) {
 
-		// hubazdmeg itt össze van baszva minden a channelek és a smaplecount zavarban
-		// ha ez egyszer jó lesz, ez lesz az a függvény amihez még bottal se szabad hozzányulni
-		// DRÁGA MARCI! C++ POINTERARITMETIKA LUXUS???
 		CachedAudioSample48k TryGetSamples(const int sampleCountForOneChannel, const int outputChannels) {
 			WaveTrackPtr trackPtr = FetchTrack();
 			if (!trackPtr) return false;
@@ -266,45 +262,28 @@ namespace TSPlugin {
 			const int frameLengthMillisecs = sampleCountForOneChannel * 1000 / outputFrequency;
 
 			const int64_t inputSampleCount = header.nSamplesPerSec * header.nChannels * frameLengthMillisecs / 1000;
-			//const int64_t outputSampleCountof= outputFrequency * outputChannels * frameLengthMillisecs / 1000;
 			const int64_t outputSampleCount = sampleCountForOneChannel * outputChannels;
 
 
-
-			//const short* const start = (short*)track.data.data();
-
 			const uint8_t* start = track.data.data();
-			//const short* const start = (short*)track.data.data();
-			//const short* const end = start + header.nSamplesPerSec * header.nChannels;
 			const uint8_t* const end = start + track.dataLength;
-			//const short* const end = start + track.dataLength;
-			//const short* const end = start + track.numberOfSamples;
 
 			const uint8_t* offset = trackPtr.GetNextDataSegment(inputSampleCount * sizeof(short));
 
-			//const short* offset = (const short*)trackPtr.GetNextDataSegment(inputSampleCount*sizeof(short));
-			//for(offset = start; offset < end - inputSampleCount; offset += inputSampleCount) {
 			if (end - offset > inputSampleCount) {
 
-
-				//CachedAudioSample48k data = Global::audioBufferCache.GetNewBuffer(outputSampleCount);
 				CachedAudioSample48k data = cache.GetNewBuffer(outputSampleCount);
 				memset(data->data(), 0, GetDataSizeInBytes(*data));
-				//AudioBufferCache cache;
 
 				if (outputSampleCount != inputSampleCount) {
 					SgnProc::Resample((const short*)offset, inputSampleCount, header.nChannels, data->data(), data->size(), outputChannels);
-
 				} else {
 					memcpy(data->data(), offset, GetDataSizeInBytes(*data));
-					//memcpy(data->data(), offset, inputSampleCount * sizeof(short) * outputChannels);
 				}
 				return data;
-				//std::unique_lock<std::mutex> lock(mutex);
-				//buffers.push(data);
+
 			} else if (end - offset > 0) {
 				// overflow, ami nem egész 20ms adat
-				//CachedAudioSample48k data = Global::audioBufferCache.GetNewBuffer(outputSampleCount);
 				CachedAudioSample48k data = cache.GetNewBuffer(outputSampleCount);
 				memset(data->data(), 0, GetDataSizeInBytes(*data));
 
@@ -313,10 +292,8 @@ namespace TSPlugin {
 				SgnProc::Resample((const short*)offset, inputOverflowSampleCount, header.nChannels, data->data(), outputOverflowSampleCount, outputChannels);
 
 
-
 				return data;
-				//std::unique_lock<std::mutex> lock(mutex);
-				//buffers.push(data);
+
 			}
 
 			return nullptr;
@@ -332,53 +309,6 @@ namespace TSPlugin {
 		bool IsEmpty() const {
 			return trackQueue.empty();
 		}
-
-		//void TryGetSamples20ms(_Out_ CachedAudioSample48k) {
-		//void lofasz() {
-		//	const WAVEFORMATEX& header = track.header;
-
-
-		//	const int inputSampleCount = header.nSamplesPerSec * header.nChannels * frameLengthMillisecs / 1000;
-		//	const int outputSampleCount = outputFrequency * outputChannels * frameLengthMillisecs / 1000;
-
-		//	const short* const start = (short*)track.data.data();
-		//	const short* const end = start + track.numberOfSamples;
-
-		//	const short* offset = start;
-		//	for(offset = start; offset < end - inputSampleCount; offset += inputSampleCount) {
-
-		//		
-		//		CachedAudioSample48k data = Global::audioBufferCache.GetNewBuffer(outputSampleCount);
-		//		if(outputSampleCount != inputSampleCount) {
-		//			SgnProc::Resample(offset, inputSampleCount, header.nChannels, data->data(), data->size(), outputChannels);
-
-		//		} else {
-		//			memcpy(data->data(), offset, GetDataSizeInBytes(*data));
-		//			//memcpy(data->data(), offset, inputSampleCount * sizeof(short) * outputChannels);
-		//		}
-		//		
-		//		std::unique_lock<std::mutex> lock(mutex);
-		//		buffers.push(data);
-		//	}
-
-		//	// overflow, ami nem egész 20ms adat
-		//	if(end - offset > 0) {
-		//		CachedAudioSample48k data = Global::audioBufferCache.GetNewBuffer(outputSampleCount);
-		//		memset(data->data(), 0, GetDataSizeInBytes(*data));
-
-		//		size_t inputOverflowSampleCount = end - offset;
-		//		size_t outputOverflowSampleCount = outputSampleCount * inputOverflowSampleCount / inputSampleCount;
-		//		SgnProc::Resample(offset, inputOverflowSampleCount, header.nChannels, data->data(), outputOverflowSampleCount, outputChannels);
-
-		//		
-
-
-		//		std::unique_lock<std::mutex> lock(mutex);
-		//		buffers.push(data);
-		//	}
-		//	
-
-		//}
 
 	};
 

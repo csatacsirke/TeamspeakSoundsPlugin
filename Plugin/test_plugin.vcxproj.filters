@@ -259,6 +259,9 @@
     <ClCompile Include="exe\main.cpp">
       <Filter>Exe</Filter>
     </ClCompile>
+    <ClCompile Include="Wave\AudioProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="test_plugin.rc" />

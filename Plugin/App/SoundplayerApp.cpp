@@ -67,6 +67,9 @@ namespace TSPlugin {
 		TryGetSoundsDirectory(AskGui);
 	}
 
+	void SoundplayerApp::Shutdown() {
+		Global::config.Save();
+	}
 
 
 	/*
@@ -180,6 +183,17 @@ namespace TSPlugin {
 			return;
 		}
 
+		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+
+
+		if (!track) {
+			Log::Warning(L"LoadWaveFile failed");
+			return;
+		}
+
+
+
+
 #ifdef DEBUG 
 		if (playerLock.try_lock()) {
 			playerLock.unlock();
@@ -192,13 +206,6 @@ namespace TSPlugin {
 
 		this->lastFile = fileName; // csak nem akad össze...
 
-		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
-
-
-		if (!track) {
-			Log::Warning(L"LoadWaveFile failed");
-			return;
-		}
 
 		
 		audioBufferForCapture.AddSamples(track);

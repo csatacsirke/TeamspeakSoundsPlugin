@@ -14,7 +14,20 @@ namespace TSPlugin {
 		Config config;
 	}
 
+	Config::Config() {
+		using namespace ConfigKey;
+
+		dictionary = {
+			{ Volume, L"1.0" },
+			{ NormalizeVolume, L"1" },
+			{ TargetNormalizedVolume, L"0.2" },
+			
+		};
+	}
+
 	void Config::LoadFromFile(CString fileName) {
+		std::unique_lock lock(mutex);
+
 		this->fileName = fileName;
 
 		std::wifstream in(fileName);
@@ -30,6 +43,9 @@ namespace TSPlugin {
 	}
 
 	void Config::SaveToFile(CString fileName) {
+		std::unique_lock lock(mutex);
+
+
 		std::wofstream out(fileName);
 		assert((bool)out);
 
@@ -50,35 +66,30 @@ namespace TSPlugin {
 
 		CString value_cs = CString(value.c_str()).TrimLeft();
 		CString key_cs = key.c_str();
-		dictionary.insert(std::make_pair(key_cs, value_cs));
-	}
-
-
-	Config Config::CreateDefault() {
-		Config config;
-		config.LoadFromFile(config.defaultFileName);
-		return config;
+		dictionary.insert_or_assign(key_cs, value_cs);
 	}
 
 
 	void Config::Add(CString key, CString value) {
-		//auto asd = std::make_pair<CString, CString>(key, value);
-		//std::make_pair<CString, CString>()
-		//dictionary.insert_or_assign(std::make_pair(key, value));
+		std::unique_lock lock(mutex);
+
 		dictionary.insert_or_assign(key, value);
-		//dictionary.insert(key, value);
 	}
 
-	CString Config::Get(CString key, CString defaultValue) {
-		CString result = defaultValue;
-		if (dictionary.find(key) != dictionary.end()) {
-			result = dictionary[key];
+	CString Config::Get(CString key) {
+		std::unique_lock lock(mutex);
+
+		const auto it = dictionary.find(key);
+		if (it != dictionary.end()) {
+			return it->second;
 		}
 
-		return result;
+		return CString();
 	}
 
 	bool Config::TryGet(CString key, _Out_ CString& value) {
+		std::unique_lock lock(mutex);
+
 		if (dictionary.find(key) != dictionary.end()) {
 			value = dictionary[key];
 			return true;
@@ -88,6 +99,8 @@ namespace TSPlugin {
 	}
 
 	optional<CString> Config::TryGet(CString key) {
+		std::unique_lock lock(mutex);
+
 		if (dictionary.find(key) != dictionary.end()) {
 			return dictionary[key];
 		} else {

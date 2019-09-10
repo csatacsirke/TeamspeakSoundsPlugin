@@ -3,6 +3,7 @@
 
 
 #include "wave.h"
+#include <Util/Config.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -175,9 +176,6 @@ namespace TSPlugin {
 
 		if (stream.fail()) {
 			Log::Warning(L"(warning) ReadData: in.fail()");
-			//Log::Warning(L"LoadWaveFile: in.fail()");
-			//Log::Error(L"LoadWaveFile: in.fail()");
-			//return NULL;
 		}
 
 
@@ -213,6 +211,60 @@ namespace TSPlugin {
 	}
 
 
+	static float CalculateMaxVolume(const class WaveTrack& waveTrack) {
+
+		const auto& header = waveTrack.header;
+
+		const int bytesPerSample = header.wBitsPerSample / 8;
+		const uint8_t* data = waveTrack.data.data();
+		const size_t dataSize = waveTrack.data.size();
+
+		float absMaxSample = 0;
+
+		if (bytesPerSample == 1) {
+			for (size_t offset = 0; offset < dataSize; offset += bytesPerSample) {
+				const int sample = *reinterpret_cast<const uint8_t*>(data + offset);
+				const float sampleAsFloat = float(sample) / float(1 << 8);
+				absMaxSample = std::max<float>(abs(sampleAsFloat), absMaxSample);
+			}
+		} else if (bytesPerSample == 2) {
+			for (size_t offset = 0; offset < dataSize; offset += bytesPerSample) {
+				const int sample = *reinterpret_cast<const short*>(data + offset);
+				const float sampleAsFloat = float(sample) / float(1 << 16);
+				absMaxSample = std::max<float>(abs(sampleAsFloat), absMaxSample);
+			}
+		} else {
+			ASSERT(0);
+			return 1.0f;
+		}
+
+		return absMaxSample;
+	}
+
+
+	void WaveTrack::FillMetadata() {
+		metadata.maxVolume = CalculateMaxVolume(*this);
+	}
+
+
+	void WaveTrack::NormalizeVolume() {
+		
+		const float maxVolume = CalculateMaxVolume(*this);
+		const float targetVolume = float(_wtof(Global::config.Get(ConfigKey::NormalizeVolume)));
+		const BOOL normalizeVolume = _wtoi(Global::config.Get(ConfigKey::NormalizeVolume));
+		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKey::TargetNormalizedVolume)));
+
+		const float multiplier = normalizeVolume ? targetNormalizedVolume / maxVolume * targetVolume : targetVolume;
+
+		short* dataStart = (short*)data.data();
+		short* dataEnd = (short*)(data.data() + data.size());
+		for (short* data = dataStart; data != dataEnd; ++data) {
+			*data = short(float(*data) * multiplier);
+		}
+
+	}
+	
+
 	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const wchar_t* fileName) {
 
 		std::shared_ptr<WaveTrack> result(new WaveTrack);
@@ -237,6 +289,12 @@ namespace TSPlugin {
 
 		in.close();
 
+
+		//result->FillMetadata();
+
+		
+		result->NormalizeVolume();
+		
 
 		return result;
 
@@ -281,165 +339,5 @@ namespace TSPlugin {
 		return true;
 	}
 
-	//
-	////int readWave(const wchar_t* filename, int* freq, int* channels, short** data, size_t* buffer_size, int* samples) {
-	////int readWave(const wchar_t* filename, _Out_ int& freq, _Out_ int& channels, short** data, size_t* buffer_size, int* samples) {
-	//std::unique_ptr<WaveTrack> readWave(const wchar_t* filename) {
-	//
-	//	std::unique_ptr<WaveTrack> result(new WaveTrack);
-	//
-	//	struct WaveHeader wh;
-	//	FILE *f;
-	//	int i;
-	//	int elemsRead;
-	//
-	//	memset(&wh, 0, sizeof(wh));
-	//	
-	//	f = _wfopen(filename, L"rb");
-	//	if (!f) {
-	//		wprintf(L"error: could not open wave %s\n",filename);
-	//		return 0;
-	//	}
-	//
-	//	fread(&wh, sizeof(wh), 1, f);
-	//	
-	//	for(i=0; i<4; i++) {
-	//		if ((wh.riffId[i] != riff[i]) ||
-	//			(wh.riffType[i] != wave[i]) ||
-	//			(wh.fmtId[i] != fmt[i]) ||
-	//			(wh.dataId[i] != dat[i])){
-	//				goto closeError;
-	//		}
-	//	}
-	//	// Format chunk
-	//	if (wh.fmtLen != 16) goto closeError;
-	//	if (wh.formatTag != 1) goto closeError;
-	//	int channels = wh.channels;
-	//	result->channels = wh.channels;
-	//	if (channels <1 || channels >2) goto closeError;
-	//	//*freq = wh.samplesPerSec;
-	//	result->frequency = wh.samplesPerSec;
-	//	if (wh.blockAlign != channels * sizeof(short)) goto closeError;
-	//	result->numberOfSamples = wh.dataLen / (channels * sizeof(short));
-	//
-	//
-	//
-	//	// what? what's wrong with short files...?
-	//	//if (*samples < *freq) {
-	//	//	fclose(f);
-	//	//	printf("error: wave file is too short\n");
-	//	//	return 0;
-	//	//}
-	//	
-	//	result->data.resize(wh.dataLen);
-	//	short* data = (short*)result->data.data();
-	//	//(*data) = (short*) malloc(wh.dataLen);
-	//	//*buffer_size = wh.dataLen;
-	//	//if (!*data){
-	//	//	printf("error: could not allocate memory for wave\n");
-	//	//	return 0;
-	//	//}
-	//
-	//	elemsRead = fread(data, wh.dataLen, 1, f);
-	//	fclose(f);
-	//	if (elemsRead != 1){
-	//		//printf("error: reading wave file\n");
-	//		Log::Error(L"error: reading wave file");
-	//		return 0;
-	//	}
-	//
-	//	return result;
-	//
-	//closeError:
-	//	fclose(f);
-	//	//wprintf(L"error: invalid wave file %s\n",filename);
-	//	Log::Error(L"error: invalid wave file :" + CString(filename));
-	//	return 0;
-	//}
-	//
-	//
-	//
-	//
-	//void WaveTrack::Save(CString fileName) {
-	//	struct WaveHeader wh;
-	//	int i;
-	//	int elemWritten;
-	//	FILE *f;
-	//
-	//	for(i = 0; i < 4; i++) {
-	//		wh.riffId[i] = riff[i];
-	//		wh.riffType[i] = wave[i];
-	//		wh.fmtId[i] = fmt[i];
-	//		wh.dataId[i] = dat[i];
-	//	}
-	//
-	//	/* Format chunk */
-	//	wh.fmtLen = 16;
-	//	wh.formatTag = 1;  /* PCM */
-	//	wh.channels = header.nChannels;
-	//	wh.samplesPerSec = header.nSamplesPerSec;
-	//	wh.avgBytesPerSec = header.nSamplesPerSec * header.nChannels * sizeof(short);
-	//	wh.blockAlign = header.nChannels * sizeof(short);
-	//	wh.bitsPerSample = sizeof(short) * 8;
-	//	wh.dataLen = this->numberOfSamples * header.nChannels * sizeof(short);
-	//	wh.len = 36 + wh.dataLen;
-	//
-	//	f = _wfopen(fileName, L"wb");
-	//	if(!f) {
-	//		//printf("error: could not write wave\n");
-	//		Log::Error(L"error: could not write wave");
-	//		return;
-	//	}
-	//
-	//	elemWritten = fwrite(&wh, sizeof(wh), 1, f);
-	//	if(elemWritten) elemWritten = fwrite(data.data(), wh.dataLen, 1, f);
-	//	fclose(f);
-	//
-	//	if(!elemWritten) {
-	//		//printf("error: could not write wave\n");
-	//		Log::Error(L"error: could not write wave");
-	//	}
-	//}
-
-	//void writeWave(const char* filename, int freq, int channels, short* data, int samples) {
-	//	struct WaveHeader wh;
-	//	int i;
-	//	int elemWritten;
-	//	FILE *f;
-	//
-	//	for(i = 0; i<4; i++) {
-	//		wh.riffId[i] = riff[i];
-	//		wh.riffType[i] = wave[i];
-	//		wh.fmtId[i] = fmt[i];
-	//		wh.dataId[i] = dat[i];
-	//	}
-	//
-	//	/* Format chunk */
-	//	wh.fmtLen = 16;
-	//	wh.formatTag = 1;  /* PCM */
-	//	wh.channels = channels;
-	//	wh.samplesPerSec = freq;
-	//	wh.avgBytesPerSec = freq * channels * sizeof(short);
-	//	wh.blockAlign = channels * sizeof(short);
-	//	wh.bitsPerSample = sizeof(short) * 8;
-	//	wh.dataLen = samples * channels * sizeof(short);
-	//	wh.len = 36 + wh.dataLen;
-	//
-	//	f = fopen(filename, "wb");
-	//	if(!f) {
-	//		printf("error: could not write wave\n");
-	//		return;
-	//	}
-	//
-	//	elemWritten = fwrite(&wh, sizeof(wh), 1, f);
-	//	if(elemWritten) elemWritten = fwrite(data, wh.dataLen, 1, f);
-	//	fclose(f);
-	//
-	//	if(!elemWritten) {
-	//		printf("error: could not write wave\n");
-	//	}
-	//}
-	//
-	//
 }
 

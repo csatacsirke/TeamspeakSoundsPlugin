@@ -49,7 +49,7 @@ namespace TSPlugin {
 
 		pathEdit.Create(WS_VISIBLE | WS_CHILD, CRect(editOffset, editOffset + editSize), this, 0);
 		pathEdit.EnableWindow(FALSE);
-		pathEdit.SetWindowText(Global::config.Get(CString(key), L""));
+		pathEdit.SetWindowText(Global::config.Get(CString(key)));
 
 		CRect editRect;
 		pathEdit.GetWindowRect(editRect);
@@ -65,7 +65,7 @@ namespace TSPlugin {
 				Global::config.Add(CString(key), path);
 				Global::config.Save();
 
-				pathEdit.SetWindowText(Global::config.Get(CString(key), L""));
+				pathEdit.SetWindowText(Global::config.Get(CString(key)));
 			}
 		};
 

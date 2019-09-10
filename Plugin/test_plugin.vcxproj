@@ -420,6 +420,7 @@
     <ClCompile Include="Wave\AudioClipSample.cpp" />
     <ClCompile Include="Wave\AudioDecoder.cpp" />
     <ClCompile Include="Wave\AudioPlayer.cpp" />
+    <ClCompile Include="Wave\AudioProcessing.cpp" />
     <ClCompile Include="Wave\AudioProcessor.cpp" />
     <ClCompile Include="Wave\AudioRecorder.cpp" />
     <ClCompile Include="Wave\OnlineMicophone.cpp" />

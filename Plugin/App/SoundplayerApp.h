@@ -37,6 +37,8 @@ namespace TSPlugin {
 		void Init();
 		void InitKeyboardHook();
 
+		void Shutdown();
+
 		void InitMenus(struct PluginMenuItem*** menuItems, char** menuIcon);
 		void OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 selectedItemID);
 
