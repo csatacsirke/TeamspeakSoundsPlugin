@@ -5,6 +5,8 @@ using System.Windows.Forms;
 
 using System.IO.Compression;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace PluginInstaller {
     static class Program {
@@ -15,41 +17,60 @@ namespace PluginInstaller {
         static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
+
             //Application.Run(new Form1());
 
-            if (args.Length < 1)
-            {
-                
+            if (args.Length < 1) {
+
                 Console.WriteLine("Nem adtál meg source filet te hülye! %0 :  sourceFile");
                 return;
             }
 
             string sourceFile = args[0];
-            try
-            {
+            try {
                 CreateTsPluginInstallerFile(sourceFile);
-            } catch(Exception e)
-            {
+            } catch (Exception e) {
                 Console.WriteLine("Fatal error");
                 Console.WriteLine(e.ToString());
             }
-            
+
         }
 
+        static string RunCommand(string path, string arguments) {
+            Process process = new Process() {
+                StartInfo = new ProcessStartInfo {
+                    FileName = path,
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                }
+            };
+               
+    
 
-        static void CreatePackageIni(ZipArchive zip) {
+            process.Start();
+            //* Read the output (or the error)
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            return output;
+        }
+
+        static void CreatePackageIni(ZipArchive zip, string version) {
 
             var packageIniEntry = zip.CreateEntry("package.ini");
             var stream = packageIniEntry.Open();
 
             var writer = new StreamWriter(stream, System.Text.Encoding.UTF8);
 
-            var packageIniContents = @"
+            //var version = DateTime.Now.ToString("yy.MM.dd");
+
+
+           var packageIniContents = $@"
 Name = Battlechicken's soundplayer plugin
 Type = Plugin
 Author = Battlechicken
-Version = 1.0
+Version = {version}
 Platforms = win64
 Description = ""Just another soundboard""
 ";
@@ -61,8 +82,9 @@ Description = ""Just another soundboard""
             stream.Close();
         }
 
-        static void CreateTsPluginInstallerFile(string sourceFilePath)
-        {
+
+        static void CreateTsPluginInstallerFile(string sourceFilePath) {
+
             string directory = Path.GetDirectoryName(sourceFilePath);
             string sourceFileName = Path.GetFileName(sourceFilePath);
 
@@ -70,6 +92,9 @@ Description = ""Just another soundboard""
 
             string outputFileName = Path.ChangeExtension(sourceFileName, "ts3_plugin");
             string outputFilePath = Path.Combine(directory, outputFileName);
+
+
+            var version = RunCommand("TsVersionFinder.exe", sourceFilePath);
 
             //string outputFilePath = sourceFilePath + ".ts3_plugin";
 
@@ -84,7 +109,7 @@ Description = ""Just another soundboard""
             //ZipArchive zip = ZipFile.
             zip.CreateEntryFromFile(sourceFilePath, "plugins/" + sourceFileName);
 
-            CreatePackageIni(zip);
+            CreatePackageIni(zip, version);
 
             //zip.CreateEntryFromFile("package.ini", "package.ini");
 
@@ -103,3 +128,4 @@ Description = ""Just another soundboard""
         }
     }
 }
+

@@ -9,8 +9,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundplayerPlugin", "Plugin
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginInstaller", "PluginInstaller\PluginInstaller.csproj", "{C286915A-7669-4708-AC86-9DBB02CC2727}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B} = {D39F0CD2-4746-4446-8979-78F7E8E5E26B}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundPlayerTests", "SoundPlayerTests\SoundPlayerTests.vcxproj", "{FD5D601C-0B06-45F4-84AD-703DBFCAF78A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TsVersionFinder", "TsVersionFinder\TsVersionFinder.vcxproj", "{D39F0CD2-4746-4446-8979-78F7E8E5E26B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -111,6 +116,32 @@ Global
 		{FD5D601C-0B06-45F4-84AD-703DBFCAF78A}.TestExecutable|x64.Build.0 = Release|x64
 		{FD5D601C-0B06-45F4-84AD-703DBFCAF78A}.TestExecutable|x86.ActiveCfg = Release|Win32
 		{FD5D601C-0B06-45F4-84AD-703DBFCAF78A}.TestExecutable|x86.Build.0 = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|ARM.ActiveCfg = Debug|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|Win32.Build.0 = Debug|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|x64.ActiveCfg = Debug|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|x64.Build.0 = Debug|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|x86.ActiveCfg = Debug|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Debug|x86.Build.0 = Debug|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|Any CPU.ActiveCfg = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|ARM.ActiveCfg = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|Win32.ActiveCfg = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|Win32.Build.0 = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|x64.ActiveCfg = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|x64.Build.0 = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|x86.ActiveCfg = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.Release|x86.Build.0 = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|Any CPU.ActiveCfg = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|Any CPU.Build.0 = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|ARM.ActiveCfg = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|ARM.Build.0 = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|Win32.ActiveCfg = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|Win32.Build.0 = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|x64.ActiveCfg = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|x64.Build.0 = Release|x64
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|x86.ActiveCfg = Release|Win32
+		{D39F0CD2-4746-4446-8979-78F7E8E5E26B}.TestExecutable|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
