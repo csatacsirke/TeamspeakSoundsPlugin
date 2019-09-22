@@ -71,9 +71,6 @@
     <ClInclude Include="Gui\SoundFolderSelector.h">
       <Filter>Gui</Filter>
     </ClInclude>
-    <ClInclude Include="Util\HotkeyHandler.h">
-      <Filter>Util</Filter>
-    </ClInclude>
     <ClInclude Include="Gui\DlgScrollable.h">
       <Filter>Gui</Filter>
     </ClInclude>
@@ -140,9 +137,6 @@
     <ClInclude Include="Gui\InputObserverDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Util\MenuHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Util\Maybe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -155,12 +149,6 @@
     <ClInclude Include="App\plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Util\QuickSoundHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Util\InputHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Wave\AudioProcessing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -169,6 +157,18 @@
     </ClInclude>
     <ClInclude Include="Wave\PitchFilter.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\QuickSoundHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\MenuHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\InputHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\HotkeyHandler.h">
+      <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -195,9 +195,6 @@
     </ClCompile>
     <ClCompile Include="Gui\SoundFolderSelector.cpp">
       <Filter>Gui</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\HotkeyHandler.cpp">
-      <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="Gui\DlgScrollable.cpp">
       <Filter>Gui</Filter>
@@ -241,19 +238,10 @@
     <ClCompile Include="Gui\InputObserverDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Util\MenuHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Util\Config.cpp">
       <Filter>Util</Filter>
     </ClCompile>
     <ClCompile Include="App\plugin.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\QuickSoundHandler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Util\InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="exe\main.cpp">
@@ -261,6 +249,18 @@
     </ClCompile>
     <ClCompile Include="Wave\AudioProcessing.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\QuickSoundHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\MenuHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\InputHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\HotkeyHandler.cpp">
+      <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

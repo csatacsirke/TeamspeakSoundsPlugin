@@ -10,15 +10,17 @@
 //#include "KeyboardHook\PipeHandler.h"
 
 #include <Util\Config.h>
-#include <Util\HotkeyHandler.h>
-#include <Util\MenuHandler.h>
-#include <Util\QuickSoundHandler.h>
-#include <Util\InputHandler.h>
 #include <Wave\OnlineMicrophone.h>
 #include <Wave\AudioProcessor.h>
 #include <Wave\AudioPlayer.h>
 #include <Wave\AudioBuffer.h>
 #include <Gui\InputObserverDialog.h>
+
+
+#include "HotkeyHandler.h"
+#include "MenuHandler.h"
+#include "QuickSoundHandler.h"
+#include "InputHandler.h"
 
 #include <optional>
 
