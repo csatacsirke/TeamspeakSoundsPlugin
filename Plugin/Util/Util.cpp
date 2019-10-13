@@ -332,7 +332,7 @@ namespace TSPlugin {
 	optional<CString> TryGetLikelyFileName(const CString& inputString) {
 
 		vector<CString> possibleFiles = GetPossibleFiles(inputString);
-		if (possibleFiles.size() == 1) {
+		if (possibleFiles.size() >= 1) {
 			return possibleFiles.front();
 		}
 

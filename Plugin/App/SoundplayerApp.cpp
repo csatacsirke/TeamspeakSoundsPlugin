@@ -570,6 +570,30 @@ namespace TSPlugin {
 			Log::Debug(CString("masik channel: ") + CString(name));
 		}
 
+		if (ownChannelId == clientChannelId) {
+
+			const static std::map<CStringA, CString> userWelcomeSoundsMapping = {
+				{"Hodi", L"szarhazi"},
+				{"Ugyis", L"itt a ku"},
+				{"Battlechicken", L"itt vagyok"},
+			};
+
+
+			const auto it = userWelcomeSoundsMapping.find(name);
+			if (it != userWelcomeSoundsMapping.end()) {
+				const CString soundName = it->second;
+				std::thread([=] {
+
+					Sleep(500);
+					if (auto fileName = TryGetLikelyFileName(soundName)) {
+						AsyncPlayFile(*fileName);
+					}
+
+				}).detach();
+			}
+
+		}
+/*
 		bool nameMatchHodi = (strcmp(name, "Hodi") == 0);
 		bool nameMatchTomi = (strcmp(name, "Ugyis") == 0);
 		if (ownChannelId == clientChannelId && (nameMatchHodi || nameMatchTomi)) {
@@ -591,7 +615,7 @@ namespace TSPlugin {
 			});
 			playAndSleepThread.detach();
 
-		}
+		}*/
 	}
 
 
