@@ -87,7 +87,6 @@
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
 
-#include <Gui\WindowUtil.h>
 #include <afxcontrolbars.h>
 
 
@@ -98,6 +97,13 @@ namespace TSPlugin {
 
 
 
+
+#ifdef _WIN32
+#define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
+#define snprintf sprintf_s
+#else
+#define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
+#endif
 
 
 

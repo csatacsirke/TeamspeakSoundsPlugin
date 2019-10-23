@@ -4,6 +4,8 @@
 
 #include "wave.h"
 #include <Util/Config.h>
+#include <Util/Log.h>
+#include <Util/Util.h>
 
 #include <stdio.h>
 #include <string.h>

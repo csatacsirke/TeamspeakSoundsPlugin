@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "PipeHandler.h"
 
+#include <Util/Log.h>
+#include <Util/Util.h>
+
 #include <vector>
 #include <thread>
 

@@ -4,6 +4,7 @@
 #include <Wave\SignalProcessing.h>
 #include <Wave\Wave.h>
 
+#include <Util/Util.h>
 
 
 namespace TSPlugin {

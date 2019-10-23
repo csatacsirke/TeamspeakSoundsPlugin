@@ -1,5 +1,6 @@
 #pragma once
 
+#include "WindowUtil.h"
 
 namespace TSPlugin {
 
