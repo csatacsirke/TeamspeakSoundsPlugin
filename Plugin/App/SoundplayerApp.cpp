@@ -576,10 +576,16 @@ namespace TSPlugin {
 				{"Hodi", L"szarhazi"},
 				{"Ugyis", L"itt a ku"},
 				{"Battlechicken", L"itt vagyok"},
+				{"yoloczki", L"dorime"},
+				{"Antekirt", L"jaj egy szazmeteres"},
 			};
 
+			//(name, predicate);
+			auto predicate = [&](const pair<CStringA, CString>& pair) -> bool {
+				return CStringA(name).Find(pair.first) >= 0;
+			};
 
-			const auto it = userWelcomeSoundsMapping.find(name);
+			const auto it = find_if(userWelcomeSoundsMapping.begin(), userWelcomeSoundsMapping.end(), predicate);
 			if (it != userWelcomeSoundsMapping.end()) {
 				const CString soundName = it->second;
 				std::thread([=] {
