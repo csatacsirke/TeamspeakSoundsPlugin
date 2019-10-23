@@ -30,7 +30,7 @@ namespace TSPlugin {
 	public:
 
 		QuickSoundsFileSystem() {
-			auto soundFolderOrNull = Global::config.TryGet(ConfigKey::SoundFolder);
+			auto soundFolderOrNull = Global::config.TryGet(ConfigKeys::SoundFolder);
 			if (!soundFolderOrNull) {
 				return;
 			}

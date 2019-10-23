@@ -43,7 +43,7 @@ namespace TSPlugin {
 		BOOL result = CDialog::OnInitDialog();
 
 
-		CString path = Global::config.Get(ConfigKey::SoundFolder);
+		CString path = Global::config.Get(ConfigKeys::SoundFolder);
 		this->folderPathEdit.SetWindowText(path);
 
 		return result;
@@ -67,11 +67,11 @@ namespace TSPlugin {
 			folder += "\\";
 		}
 
-		Global::config.Add(ConfigKey::SoundFolder, folder);
+		Global::config.Add(ConfigKeys::SoundFolder, folder);
 		Global::config.Save();
 
 
-		CString path = Global::config.Get(ConfigKey::SoundFolder);
+		CString path = Global::config.Get(ConfigKeys::SoundFolder);
 		this->folderPathEdit.SetWindowText(path);
 
 		CDialogEx::OnOK();

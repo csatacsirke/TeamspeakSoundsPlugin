@@ -235,7 +235,7 @@ namespace TSPlugin {
 
 		while (true) {
 
-			CString directory = Global::config.Get(ConfigKey::SoundFolder);
+			CString directory = Global::config.Get(ConfigKeys::SoundFolder);
 			if (DirectoryExists(directory)) {
 				return directory;
 			} else {

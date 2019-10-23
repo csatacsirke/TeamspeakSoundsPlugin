@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Util/Util.h>
+#include <Util/Config.h>
 
 namespace TSPlugin {
 
@@ -31,7 +32,7 @@ namespace TSPlugin {
 		const CString& GetBuffer() { return inputBuffer; }
 
 	private:
-		std::optional<CString> TryGetSelectedFile(const CString& inputString);
+		//std::optional<CString> TryGetSelectedFile(const CString& inputString);
 
 		HookResult TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData);
 		void RotateSelection(int indexDelta);
@@ -53,6 +54,10 @@ namespace TSPlugin {
 		size_t selectedFileIndex = 0;
 
 		RunLoop runLoop = RunLoop();
+
+		//CString queuePrefix = L"q ";
+		CString queuePrefix = Global::config.Get(ConfigKeys::QueueCommand);
+		CString commandStarterCharacter = Global::config.Get(ConfigKeys::CommandStarterCharacter);
 
 	};
 

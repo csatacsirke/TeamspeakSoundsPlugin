@@ -11,16 +11,19 @@ namespace TSPlugin {
 
 	namespace Global {
 		// TODO igy nem a legszebb
+		// update: mé' nem?
 		Config config;
 	}
 
 	Config::Config() {
-		using namespace ConfigKey;
+		using namespace ConfigKeys;
 
 		dictionary = {
 			{ Volume, L"1.0" },
 			{ NormalizeVolume, L"1" },
 			{ TargetNormalizedVolume, L"0.2" },
+			{ QueueCommand, L"q " },
+			{ CommandStarterCharacter, L"/" },
 			
 		};
 	}

@@ -3,11 +3,10 @@
 #include <afx.h>
 
 #include <optional>
-#include <any>
+
 
 namespace TSPlugin {
 
-	using std::any;
 
 	class Config {
 		map<CString, CString> dictionary;
@@ -34,11 +33,15 @@ namespace TSPlugin {
 
 	};
 
-	namespace ConfigKey {
+
+
+	namespace ConfigKeys {
 		static const CString SoundFolder = L"SoundFolder";
 		static const CString NormalizeVolume = L"NormalizeVolume";
 		static const CString Volume = L"Volume";
 		static const CString TargetNormalizedVolume = L"TargetNormalizedVolume";
+		static const CString QueueCommand = L"QueueCommand";
+		static const CString CommandStarterCharacter = L"CommandStarterCharacter";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}

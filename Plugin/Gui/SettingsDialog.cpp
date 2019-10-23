@@ -62,7 +62,7 @@ namespace TSPlugin {
 		DDX_Control(pDX, IDC_DEAULT_SOUND_FOLDER_EDIT, defaultSoundfolderEdit);
 		DDX_Control(pDX, IDC_HOTKEYS_GROUP, hotkeysGroup);
 
-		defaultSoundfolderEdit.SetWindowText(Global::config.TryGet(ConfigKey::SoundFolder).value_or(L"<unset>"));
+		defaultSoundfolderEdit.SetWindowText(Global::config.TryGet(ConfigKeys::SoundFolder).value_or(L"<unset>"));
 	}
 
 	void SettingsDialog::AddButton(CString caption, std::function<void()> onClick) {

@@ -40,7 +40,7 @@ namespace TSPlugin {
 
 
 		CString unicodeLiteral = keyData.unicodeLiteral;
-		if (unicodeLiteral == CString("/")) {
+		if (unicodeLiteral == commandStarterCharacter) {
 			commandInProgress = true;
 			inputBuffer = "";
 			OnInputEventConsumed();
@@ -161,7 +161,7 @@ namespace TSPlugin {
 	}
 
 	HookResult InputHandler::TryEnqueueFileFromCommand(CString str) {
-		CString queuePrefix = L"q ";
+		
 
 		if (StartsWith(str, queuePrefix)) {
 			CString command = str.Right(str.GetLength() - queuePrefix.GetLength());

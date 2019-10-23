@@ -296,7 +296,7 @@ namespace TSPlugin {
 
 	void SoundplayerApp::PlayRandom() {
 		CString folder;
-		if (Global::config.TryGet(ConfigKey::SoundFolder, folder)) {
+		if (Global::config.TryGet(ConfigKeys::SoundFolder, folder)) {
 
 
 			if (folder.Right(1) != "\\" && folder.Right(1) != "/") {

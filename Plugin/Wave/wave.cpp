@@ -250,9 +250,9 @@ namespace TSPlugin {
 	void WaveTrack::NormalizeVolume() {
 		
 		const float maxVolume = CalculateMaxVolume(*this);
-		const float targetVolume = float(_wtof(Global::config.Get(ConfigKey::NormalizeVolume)));
-		const BOOL normalizeVolume = _wtoi(Global::config.Get(ConfigKey::NormalizeVolume));
-		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKey::TargetNormalizedVolume)));
+		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::NormalizeVolume)));
+		const BOOL normalizeVolume = _wtoi(Global::config.Get(ConfigKeys::NormalizeVolume));
+		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKeys::TargetNormalizedVolume)));
 
 		const float multiplier = normalizeVolume ? targetNormalizedVolume / maxVolume * targetVolume : targetVolume;
 
