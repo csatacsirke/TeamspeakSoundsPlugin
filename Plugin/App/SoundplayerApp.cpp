@@ -681,6 +681,17 @@ namespace TSPlugin {
 		}
 	}
 
+	void SoundplayerApp::OnHotkeyCommand(const CString& command) {
+		if (auto fileToPlay = TryGetLikelyFileName(command)) {
+			AsyncPlayFile(*fileToPlay);
+		}
+		//std::vector<CString> possibleFiles = GetPossibleFiles(command);
+		//if (possibleFiles.size() > 0) {
+		//	const CString& fileToPlay = possibleFiles[rand() % possibleFiles.size()];
+		//	AsyncPlayFile(fileToPlay);
+		//}
+	}
+
 	void SoundplayerApp::OnQuickSoundMatch(const CString& path) {
 		AsyncPlayFile(path);
 	}

@@ -24,7 +24,10 @@ namespace TSPlugin {
 			{ TargetNormalizedVolume, L"0.2" },
 			{ QueueCommand, L"q " },
 			{ CommandStarterCharacter, L"/" },
+			{ ClearBindingAfterUse, L"1" },
+			{ BindCommand, L"bind" },
 			
+
 		};
 	}
 
@@ -109,6 +112,10 @@ namespace TSPlugin {
 		} else {
 			return nullopt;
 		}
+	}
+
+	bool Config::GetBool(const CString& key) {
+		return _wtoi(Global::config.Get(key)) != 0;
 	}
 
 

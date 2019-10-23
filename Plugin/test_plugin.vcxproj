@@ -439,6 +439,7 @@
     <ClInclude Include="Gui\SettingsDialog.h" />
     <ClInclude Include="Gui\SoundFolderSelector.h" />
     <ClInclude Include="Gui\WindowUtil.h" />
+    <ClInclude Include="Util\RunLoop.h" />
     <ClInclude Include="Wave\AudioProcessing.h" />
     <ClInclude Include="Wave\FourierUtils.h" />
     <ClInclude Include="Wave\PitchFilter.h" />

@@ -170,6 +170,9 @@
     <ClInclude Include="App\HotkeyHandler.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Util\RunLoop.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

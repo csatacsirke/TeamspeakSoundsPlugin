@@ -69,6 +69,22 @@ namespace TSPlugin {
 		}
 	};
 
+	template<typename ... Args>
+	std::string string_format(const std::string& format, Args ... args) {
+		size_t size = snprintf(nullptr, 0, format.c_str(), args ...) + 1; // Extra space for '\0'
+		std::unique_ptr<char[]> buf(new char[size]);
+		snprintf(buf.get(), size, format.c_str(), args ...);
+		return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
+	}
+
+	template<typename ... Args>
+	CString FormatString(const CString& format, Args ... args) {
+		CString result;
+		result.Format(format, args...); 
+		return result;
+	}
+
+
 #define ONCE(X) {static bool first = true; if(first) { first = false; X; }}
 
 
@@ -352,85 +368,6 @@ namespace TSPlugin {
 
 	CString FileNameFromPath(CString path);
 	CString PickRandomFile(CString path);
-
-
-	class RunLoop {
-
-		std::thread workerThread;
-
-		std::queue<std::function<void()>> taskQueue;
-		std::mutex queueMutex;
-		std::condition_variable condition;
-		volatile bool stop = false;
-	public:
-		enum DeferredInit_t { DeferredInit };
-
-		RunLoop() {
-			Start();
-		}
-
-		RunLoop(DeferredInit_t) {
-			// nem csinál semmit
-		}
-
-		~RunLoop() {
-			StopAndWait();
-		}
-
-
-		void Start() {
-			workerThread = std::thread([this] { Loop(); });
-		}
-
-		void Stop() {
-			stop = true;
-		}
-
-		void StopAndWait() {
-			Stop();
-
-			condition.notify_one();
-			if (workerThread.joinable()) {
-				workerThread.join();
-			}
-		}
-
-		void Add(std::function<void()>&& fn) {
-			std::unique_lock<std::mutex> lock(queueMutex);
-			taskQueue.push(fn);
-			lock.unlock();
-			condition.notify_one();
-		}
-	private:
-
-		void Loop() {
-			while (!stop) {
-				ExecuteTaskInQueue();
-				SleepUntilNotified();
-			}
-			
-		}
-
-		void SleepUntilNotified() {
-			std::unique_lock<std::mutex> lock(queueMutex);
-			if (taskQueue.empty()) {
-				condition.wait(lock);
-			}
-		}
-
-		void ExecuteTaskInQueue() {
-
-			std::unique_lock<std::mutex> lock(queueMutex);
-			if (!taskQueue.empty()) {
-				auto task = std::move(taskQueue.front());
-				taskQueue.pop();
-				lock.unlock();
-				task();
-			}
-			
-		}
-
-	};
 
 
 

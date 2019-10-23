@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "InputHandler.h"
 
+#include <regex>
+
 
 namespace TSPlugin {
 
@@ -77,6 +79,10 @@ namespace TSPlugin {
 			return HookResult::ConsumeEvent;
 			//Log::Debug(unicodeLiteral);
 
+		} else {
+
+			TryBoundKeyCommand(keyData);
+			
 		}
 
 
@@ -95,7 +101,7 @@ namespace TSPlugin {
 
 	HookResult InputHandler::TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData) {
 
-		if (possibleFiles.size() == 0) {
+		if (possibleFilesForCurrentInput.size() == 0) {
 			return HookResult::PassEvent;
 		}
 
@@ -113,24 +119,88 @@ namespace TSPlugin {
 	}
 
 	void InputHandler::RotateSelection(int indexDelta) {
-		if (possibleFiles.size() == 0) {
+		if (possibleFilesForCurrentInput.size() == 0) {
 			selectedFileIndex = 0;
 			return;
 		}
 
 
-		selectedFileIndex = (selectedFileIndex + indexDelta) % possibleFiles.size();
+		selectedFileIndex = (selectedFileIndex + indexDelta) % possibleFilesForCurrentInput.size();
 
 	}
 
 	void InputHandler::OnCommandFinished() {
 		CString threadsafeInputBuffer = inputBuffer;
 		runLoop.Add([threadsafeInputBuffer, this] {
+
+			if (TrySetBinding(threadsafeInputBuffer)) {
+				// semmi
+			} else {
+				delegate.OnInputCommandFinished();
+			}
 			// UpdatePossibleFiles(threadsafeInputBuffer);
 			// delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
-			delegate.OnInputCommandFinished();
+			
 			selectedFileIndex = 0;
 		});
+	}
+
+
+	bool InputHandler::TrySetBinding(const CString& threadsafeInputBuffer) {
+
+		const CString regex_format = FormatString(L"%s (\\w) (.*)", bindCommand);
+
+		try {
+			const wregex binding_regex(regex_format, regex_constants::icase);
+
+			wcmatch matches;
+			if (!regex_match((const wchar_t*)threadsafeInputBuffer, matches, binding_regex)) {
+				return false;
+			}
+
+
+			const CString hotkey = matches[1].str().c_str();
+			const CString command = matches[2].str().c_str();
+
+			nextHotkeyBinding = make_shared<InputHandlerBinding>(InputHandlerBinding{ hotkey, command});
+			
+			return true;
+
+		} catch (const regex_error&) {
+			//return false;
+		}
+
+		
+
+		return false;
+	}
+
+	void InputHandler::TryBoundKeyCommand(const KeyboardHook::KeyData& keyData) {
+		const shared_ptr<const InputHandlerBinding> nextHotkeyBinding_guard = nextHotkeyBinding;
+		if (!nextHotkeyBinding_guard) {
+			return;
+		}
+
+		if (keyData.unicodeLiteral == nextHotkeyBinding_guard->key) {
+			const CString command = nextHotkeyBinding_guard->command;
+
+			if (clearBindingAfterUse) {
+				nextHotkeyBinding = nullptr;
+			}
+
+			runLoop << [command, this] {
+				//std::vector<CString> possibleFiles = GetPossibleFiles(command);
+				//if (possibleFiles.size() > 0) {
+				//	delegate.Play
+				//}
+				
+
+				delegate.OnHotkeyCommand(command);
+				//UpdatePossibleFiles(threadsafeInputBuffer, threadsafeCommandInProgress);
+				//delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
+			};
+		}
+
 	}
 
 	void InputHandler::OnInputEventConsumed() {
@@ -138,21 +208,21 @@ namespace TSPlugin {
 		bool threadsafeCommandInProgress = commandInProgress;
 		runLoop.Add([threadsafeInputBuffer, threadsafeCommandInProgress, this] {
 			UpdatePossibleFiles(threadsafeInputBuffer, threadsafeCommandInProgress);
-			delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
+			delegate.OnPossibleFilesChanged({ possibleFilesForCurrentInput, selectedFileIndex });
 		});
 	}
 
 	void InputHandler::UpdatePossibleFiles(const CString& threadsafeInputBuffer, bool threadsafeCommandInProgress) {
 		if (!threadsafeCommandInProgress) {
-			possibleFiles.resize(0);
+			possibleFilesForCurrentInput.resize(0);
 			selectedFileIndex = 0;
 		} else {
-			possibleFiles = GetPossibleFiles(threadsafeInputBuffer);
-			if (selectedFileIndex < possibleFiles.size()) {
-				if (possibleFiles.size() == 0) {
+			possibleFilesForCurrentInput = GetPossibleFiles(threadsafeInputBuffer);
+			if (selectedFileIndex < possibleFilesForCurrentInput.size()) {
+				if (possibleFilesForCurrentInput.size() == 0) {
 					selectedFileIndex = 0;
 				} else {
-					selectedFileIndex = std::min<size_t>(possibleFiles.size() - 1u, selectedFileIndex);
+					selectedFileIndex = std::min<size_t>(possibleFilesForCurrentInput.size() - 1u, selectedFileIndex);
 				}
 			}
 		}

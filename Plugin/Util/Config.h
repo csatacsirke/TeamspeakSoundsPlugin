@@ -27,6 +27,7 @@ namespace TSPlugin {
 		CString Get(CString key);
 		bool TryGet(CString key, _Out_ CString& value);
 		optional<CString> TryGet(CString key);
+		bool GetBool(const CString& key);
 
 	private:
 		void StoreLine(wstring line);
@@ -41,7 +42,9 @@ namespace TSPlugin {
 		static const CString Volume = L"Volume";
 		static const CString TargetNormalizedVolume = L"TargetNormalizedVolume";
 		static const CString QueueCommand = L"QueueCommand";
+		static const CString BindCommand = L"BindCommand";
 		static const CString CommandStarterCharacter = L"CommandStarterCharacter";
+		static const CString ClearBindingAfterUse = L"ClearBindingAfterUse";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}

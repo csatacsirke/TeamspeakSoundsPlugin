@@ -99,6 +99,7 @@ namespace TSPlugin {
 
 		void InputHandlerDelegate::OnPossibleFilesChanged(const FileList& fileList) override;
 		void InputHandlerDelegate::OnInputCommandFinished() override;
+		void InputHandlerDelegate::OnHotkeyCommand(const CString& command) override;
 		
 
 		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const CString& path);
