@@ -187,7 +187,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -213,7 +213,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -240,7 +240,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -269,7 +269,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -295,7 +295,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -321,7 +321,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -347,7 +347,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -373,7 +373,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;NDEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -491,7 +491,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets" Condition="Exists('..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets')" />
+    <Import Project="..\packages\asio-cppp-latest.1.12.2\build\native\asio-cppp-latest.targets" Condition="Exists('..\packages\asio-cppp-latest.1.12.2\build\native\asio-cppp-latest.targets')" />
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
@@ -502,6 +502,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets'))" />
+    <Error Condition="!Exists('..\packages\asio-cppp-latest.1.12.2\build\native\asio-cppp-latest.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\asio-cppp-latest.1.12.2\build\native\asio-cppp-latest.targets'))" />
   </Target>
 </Project>

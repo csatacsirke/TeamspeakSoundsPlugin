@@ -22,7 +22,7 @@
 
 
 
-#define USE_KEYBOARD_HOOK TRUE
+#define USE_KEYBOARD_HOOK FALSE
 
 /*
 TODO LIST
@@ -67,6 +67,11 @@ namespace TSPlugin {
 		InitKeyboardHook();
 #endif
 
+
+#ifdef _DEBUG
+		OpenDeveloperConsole();
+#endif
+
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
 
@@ -74,6 +79,25 @@ namespace TSPlugin {
 		std::thread([this] {
 			CheckForUpdates();
 		}).detach();
+
+
+		if (Global::config.GetBool(ConfigKeys::CanReceiveNetworkSoundData)) {
+			networkAudioHandler->StartService();
+
+			unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
+			unique_lock<std::mutex> playbackBuffersLock(playbackBuffersMutex);
+
+
+			captureBuffers.insert(networkAudioHandler->GetOutboundAudioBuffer());
+			playbackBuffers.insert(networkAudioHandler->GetInboundAudioBuffer());
+
+			//playbackBuffers.insert(networkAudioHandler->GetOutboundAudioBuffer());
+			//captureBuffers.insert(networkAudioHandler->GetInboundAudioBuffer());
+
+			//playbackBuffers.insert(networkAudioHandler->GetCaptureBuffer());
+			//playbackBuffers.insert(networkAudioHandler->GetPlaybackBuffer());
+
+		}
 		
 	}
 
@@ -221,17 +245,18 @@ namespace TSPlugin {
 
 		unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
 		for (const auto& captureBuffer : captureBuffers) {
-			audioBufferForCapture->AddSamples(track);
+			captureBuffer->AddSamples(track);
 		}
 		captureBuffersLock.unlock();
 
 
 
-		unique_lock<std::mutex> playbackBuffersLock(playbackBuffersMutex);
-		for (const auto& playbackBuffer : playbackBuffers) {
-			audioBufferForPlayback->AddSamples(track);
-		}
-		playbackBuffersLock.unlock();
+		//unique_lock<std::mutex> playbackBuffersLock(playbackBuffersMutex);
+		//for (const auto& playbackBuffer : playbackBuffers) {
+		//	audioBufferForPlayback->AddSamples(track);
+		//}
+		audioBufferForPlayback->AddSamples(track);
+		//playbackBuffersLock.unlock();
 		
 
 
@@ -527,9 +552,10 @@ namespace TSPlugin {
 		//	memset(samples, 0, sizeof(short)*sampleCount*channels);
 		//}
 
-		unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
+		//unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
 
-		for (auto& buffer : captureBuffers) {
+		//for (auto& buffer : captureBuffers) {
+			auto& buffer = audioBufferForCapture;
 			CachedAudioSample48k playbackSamples = buffer->TryGetSamples(sampleCount, channels);
 			if (playbackSamples) {
 				if (sampleCount*channels == playbackSamples->size()) {
@@ -539,13 +565,19 @@ namespace TSPlugin {
 					//WarnForBullshit();
 				}
 			}
-		}
+		//}
 
-		captureBuffersLock.unlock();
+		//captureBuffersLock.unlock();
 
 		if (didChangeData) {
+			// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
+			tsVoiceHandler.ForceEnableMicrophone();
+
 			*edited |= 1;
-			*edited |= 2;
+			//*edited |= 2;
+		} else {
+			tsVoiceHandler.ResetMicrophone();
+			*edited &= ~1;
 		}
 
 

@@ -97,7 +97,7 @@ namespace TSPlugin {
 }
 
 
-
+#define ASIO_STANDALONE
 
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)

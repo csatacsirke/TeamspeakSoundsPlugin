@@ -17,33 +17,7 @@
 
 namespace TSPlugin {
 
-	//  NE HASZNÁLD! EZ SZAR!!!! HA MÁZLID VAN MüKÖDIK, DE KURVÁRA NEM VALID!
-	struct WaveHeader {
-
-		// (.cpp ben)
-		bool ReadFrom(std::istream& stream);
-		WAVEFORMATEX ToWaveFormatEx();
-	public:
-		// Riff chunk
-		char riffId[4];  // 'RIFF'
-		unsigned int len;
-		char riffType[4];  // 'WAVE'
-
-						   // Format chunk
-		char fmtId[4];  // 'fmt '
-		unsigned int fmtLen;
-		unsigned short formatTag;
-		unsigned short channels;
-		unsigned int samplesPerSec;
-		unsigned int avgBytesPerSec;
-		unsigned short blockAlign;
-		unsigned short bitsPerSample;
-
-		// Data chunk
-		char dataId[4];  // 'data'
-		unsigned int dataLen;
-
-	};
+	
 
 
 	bool WaveHeader::ReadFrom(std::istream& stream) {
@@ -113,15 +87,15 @@ namespace TSPlugin {
 
 
 	WAVEFORMATEX WaveHeader::ToWaveFormatEx() {
-		WAVEFORMATEX header;
+		WAVEFORMATEX format;
 
-		header.wFormatTag = WAVE_FORMAT_PCM;
-		header.nChannels = this->channels;
-		header.nSamplesPerSec = this->samplesPerSec;
-		header.nAvgBytesPerSec = this->avgBytesPerSec;
-		header.nBlockAlign = this->blockAlign;
-		header.wBitsPerSample = this->bitsPerSample;
-		header.cbSize = 0; // ennek utána kéne nézni *
+		format.wFormatTag = WAVE_FORMAT_PCM;
+		format.nChannels = this->channels;
+		format.nSamplesPerSec = this->samplesPerSec;
+		format.nAvgBytesPerSec = this->avgBytesPerSec;
+		format.nBlockAlign = this->blockAlign;
+		format.wBitsPerSample = this->bitsPerSample;
+		format.cbSize = 0; // ennek utána kéne nézni *
 
 
 		//*cbSize
@@ -135,37 +109,51 @@ namespace TSPlugin {
 		//	in a WAVEFORMATEXTENSIBLE structure, this value must be at least 22.
 
 
+		return format;
+	}
+
+	std::shared_ptr<WaveTrack> WaveTrack::MakeFromData(const WAVEFORMATEX& format, std::vector<uint8_t>&& data) {
+		std::shared_ptr<WaveTrack> track(new WaveTrack());
+
+		track->format = format;
+		track->data = std::move(data);
+
+		//track->NormalizeVolume();
+
+		return track;
+	}
+
+	optional<WaveHeader> WaveTrack::ReadHeader(std::istream& stream) {
+
+		WaveHeader header;
+		if (!header.ReadFrom(stream)) {
+			return nullopt;
+		}
+
+		this->format = header.ToWaveFormatEx();
+		//numberOfSamples = header.dataLen / (header.channels * sizeof(short));
+		//dataLength = header.dataLen;
+
 		return header;
 	}
 
-	bool WaveTrack::ReadHeader(std::istream& stream) {
 
-		WaveHeader header;
-		header.ReadFrom(stream);
-		this->header = header.ToWaveFormatEx();
-		numberOfSamples = header.dataLen / (header.channels * sizeof(short));
-		dataLength = header.dataLen;
+	bool WaveTrack::ReadData(const WaveHeader& header, std::istream& stream) {
 
-		return true;
-	}
+		Log::Debug(L"Data Length :" + ToString(header.dataLen));
 
-
-	bool WaveTrack::ReadData(std::istream& stream) {
-
-		Log::Debug(L"Data Length :" + ToString(dataLength));
-
-		data.resize(dataLength, 0);
+		data.resize(header.dataLen, 0);
 
 
 
 
-		stream.read((char*)data.data(), dataLength);
+		stream.read((char*)data.data(), data.size());
 
 
 		//short* data = (short*)result->data.data();
 
-		if (header.wBitsPerSample == 8) {
-			header.wBitsPerSample = 16;
+		if (format.wBitsPerSample == 8) {
+			format.wBitsPerSample = 16;
 			std::vector<uint8_t> buffer16Bit(data.size() * 2, 0);
 
 			for (int i = 0; i < data.size(); ++i) {
@@ -184,12 +172,12 @@ namespace TSPlugin {
 
 		// Add smooth ending, so there will be no clicking sound because of the abrupt ending
 		const int fadeoutMs = 20;
-		const size_t fadeoutSampleCount = header.nSamplesPerSec / (1000 / fadeoutMs);
-		const size_t fadeoutSize = fadeoutSampleCount * header.nChannels * sizeof(short);
+		const size_t fadeoutSampleCount = format.nSamplesPerSec / (1000 / fadeoutMs);
+		const size_t fadeoutSize = fadeoutSampleCount * format.nChannels * sizeof(short);
 		const size_t originalSize = data.size();
 		data.resize(originalSize + fadeoutSize);
 
-		if (header.nChannels == 1 && data.size() > sizeof(short)) {
+		if (format.nChannels == 1 && data.size() > sizeof(short)) {
 
 			short* const start = (short*)(data.data() + originalSize);
 			short* const end = (short*)(data.data() + data.size());
@@ -215,9 +203,9 @@ namespace TSPlugin {
 
 	static float CalculateMaxVolume(const class WaveTrack& waveTrack) {
 
-		const auto& header = waveTrack.header;
+		const auto& format = waveTrack.format;
 
-		const int bytesPerSample = header.wBitsPerSample / 8;
+		const int bytesPerSample = format.wBitsPerSample / 8;
 		const uint8_t* data = waveTrack.data.data();
 		const size_t dataSize = waveTrack.data.size();
 
@@ -267,39 +255,44 @@ namespace TSPlugin {
 	}
 	
 
-	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const wchar_t* fileName) {
+	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(std::istream& stream) {
 
-		std::shared_ptr<WaveTrack> result(new WaveTrack);
+		std::shared_ptr<WaveTrack> result(new WaveTrack());
 
 
-
-		std::ifstream in(fileName, std::ifstream::binary);
-
-		if (!in) {
+		if (!stream) {
 			Log::Error(L"LoadWaveFile: failed to open stream");
 			return NULL;
 		}
 
 
-		if (!result->ReadHeader(in)) {
+		auto header = result->ReadHeader(stream);
+		if (!header) {
 			return NULL;
 		}
 
-		if (!result->ReadData(in)) {
+		if (!result->ReadData(*header, stream)) {
 			return NULL;
 		}
 
-		in.close();
+		
 
 
 		//result->FillMetadata();
 
-		
+
 		result->NormalizeVolume();
-		
+
 
 		return result;
 
+	}
+
+	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const wchar_t* fileName) {
+
+		std::ifstream stream(fileName, std::ifstream::binary);
+
+		return LoadWaveFile(stream);
 	}
 
 
@@ -318,7 +311,7 @@ namespace TSPlugin {
 
 
 
-		uint32_t headerChunkSize = sizeof(header);
+		uint32_t headerChunkSize = sizeof(format);
 		uint32_t dataChunkSize = data.size();
 		uint32_t mainChunkSize = sizeof(chunk_id_wave) + headerChunkSize + dataChunkSize;
 
@@ -331,7 +324,7 @@ namespace TSPlugin {
 
 		out.write((const char*)&chunk_id_fmt, sizeof(chunk_id_fmt));
 		out.write((const char*)&headerChunkSize, sizeof(headerChunkSize));
-		out.write((const char*)&header, sizeof(header));
+		out.write((const char*)&format, sizeof(format));
 
 
 		out.write(chunk_id_data, sizeof(chunk_id_data));

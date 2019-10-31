@@ -32,6 +32,7 @@ namespace Log {
 	static inline void Write(const wchar_t* msg) {
 		Write(msg, Log::logFile);
 		Write(msg, std::wcout);
+		TRACE(msg);
 	}
 
 	static void Write(const wchar_t* msg, Log::Level level) {
@@ -79,7 +80,7 @@ namespace Log {
 	}
 
 	static void Debug(CString msg) {
-		Write(msg, Log::Level_Debug);
+		Write(CString("[D]") + msg, Log::Level_Debug);
 	}
 
 	static void Warning(CString msg) {
