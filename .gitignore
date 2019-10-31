@@ -36,3 +36,4 @@ x64/TestExecutable/SoundplayerPlugin_x64.exp
 *.dll
 *.exp
 .vs/
+packages/

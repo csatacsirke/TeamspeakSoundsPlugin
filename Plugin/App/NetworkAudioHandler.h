@@ -10,6 +10,7 @@ namespace TSPlugin {
 	class NetworkAudioHandler {
 		shared_ptr<AudioBuffer> CaptureBuffer = make_shared<AudioBuffer>();
 		shared_ptr<AudioBuffer> PlaybackBuffer = make_shared<AudioBuffer>();
+
 	public:
 		shared_ptr<AudioBuffer> GetCaptureBuffer() const;
 		shared_ptr<AudioBuffer> GetPlaybackBuffer() const;

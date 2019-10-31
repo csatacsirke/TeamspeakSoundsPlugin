@@ -8,7 +8,8 @@
 
 
 #include "Gui\SettingsDialog.h"
-#include <gui/AudioProcessorDialog.h>
+#include <Gui/AudioProcessorDialog.h>
+#include <Gui/ConfigDialog.h>
 
 #include "Util\TSSoundPlayer.h"
 #include "Util\Util.h"
@@ -123,7 +124,8 @@ namespace TSPlugin {
 
 		menuHandler.Add("Play sound from file...", [&] { this->AsyncOpenAndPlayFile(); });
 		menuHandler.Add("Enqueue sound from file...", [&] { this->AsyncEnqueueFile(); });
-		menuHandler.Add("Open observer...", [&] { this->OpenObserverDialog(); });
+		menuHandler.Add("Settings...", [&] { this->OpenConfigDialog(); });
+		//menuHandler.Add("Open observer...", [&] { this->OpenObserverDialog(); });
 		menuHandler.Add("Check for updates", [&] { this->CheckForUpdates(); });
 
 #ifdef _DEBUG
@@ -305,6 +307,14 @@ namespace TSPlugin {
 		assert(0 && "nincs megirva...");
 	}
 
+	void SoundplayerApp::OpenConfigDialog() {
+		// mivel dll ben vagyunk fasztudja, hogy az AfxGetMainWnd() tényleg jót ad e vissza...
+		ConfigDialog dialog(Global::config.MakeCopyOfEntries(), AfxGetMainWnd());
+		const INT_PTR dialogResult = dialog.DoModal();
+		if (dialogResult == IDOK) {
+			Global::config.SetEntries(dialog.m_configDictionary);
+		}
+	}
 
 	void SoundplayerApp::PlayRandom() {
 		CString folder;

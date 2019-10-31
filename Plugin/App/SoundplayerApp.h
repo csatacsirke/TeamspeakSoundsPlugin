@@ -63,6 +63,7 @@ namespace TSPlugin {
 
 		void OpenSettingsDialog(void* handle, void* qParentWidget);
 		void OpenSoundsFolderSelectorDialog();
+		void OpenConfigDialog();
 
 		void AsyncOpenAudioProcessorDialog();
 

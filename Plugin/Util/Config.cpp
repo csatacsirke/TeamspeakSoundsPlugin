@@ -18,7 +18,7 @@ namespace TSPlugin {
 	Config::Config() {
 		using namespace ConfigKeys;
 
-		dictionary = {
+		entries = {
 			{ Volume, L"1.0" },
 			{ NormalizeVolume, L"1" },
 			{ TargetNormalizedVolume, L"0.2" },
@@ -26,7 +26,7 @@ namespace TSPlugin {
 			{ CommandStarterCharacter, L"/" },
 			{ ClearBindingAfterUse, L"1" },
 			{ BindCommand, L"bind" },
-			
+			{ CanReceiveNetworkSoundData, L"1" },
 
 		};
 	}
@@ -55,7 +55,7 @@ namespace TSPlugin {
 		std::wofstream out(fileName);
 		assert((bool)out);
 
-		for (auto& elem : dictionary) {
+		for (auto& elem : entries) {
 			out << (const wchar_t*)elem.first << L" " << (const wchar_t*)elem.second << std::endl;
 		}
 		out.close();
@@ -72,21 +72,21 @@ namespace TSPlugin {
 
 		CString value_cs = CString(value.c_str()).TrimLeft();
 		CString key_cs = key.c_str();
-		dictionary.insert_or_assign(key_cs, value_cs);
+		entries.insert_or_assign(key_cs, value_cs);
 	}
 
 
 	void Config::Add(CString key, CString value) {
 		std::unique_lock lock(mutex);
 
-		dictionary.insert_or_assign(key, value);
+		entries.insert_or_assign(key, value);
 	}
 
 	CString Config::Get(CString key) {
 		std::unique_lock lock(mutex);
 
-		const auto it = dictionary.find(key);
-		if (it != dictionary.end()) {
+		const auto it = entries.find(key);
+		if (it != entries.end()) {
 			return it->second;
 		}
 
@@ -96,8 +96,8 @@ namespace TSPlugin {
 	bool Config::TryGet(CString key, _Out_ CString& value) {
 		std::unique_lock lock(mutex);
 
-		if (dictionary.find(key) != dictionary.end()) {
-			value = dictionary[key];
+		if (entries.find(key) != entries.end()) {
+			value = entries[key];
 			return true;
 		} else {
 			return false;
@@ -107,8 +107,8 @@ namespace TSPlugin {
 	optional<CString> Config::TryGet(CString key) {
 		std::unique_lock lock(mutex);
 
-		if (dictionary.find(key) != dictionary.end()) {
-			return dictionary[key];
+		if (entries.find(key) != entries.end()) {
+			return entries[key];
 		} else {
 			return nullopt;
 		}
@@ -118,6 +118,17 @@ namespace TSPlugin {
 		return _wtoi(Global::config.Get(key)) != 0;
 	}
 
+
+	ConfigDictionary Config::MakeCopyOfEntries() const {
+		// na most ebben nem vagyok biztos, hogy tart a lock addig amig lemásolja.... #YOLO
+		std::unique_lock lock(mutex);
+		return entries;
+	}
+
+	void Config::SetEntries(const ConfigDictionary& newEntries) {
+		std::unique_lock lock(mutex);
+		entries = newEntries;
+	}
 
 	void Config::Save() {
 		SaveToFile(this->fileName);

@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "NetworkAudioHandler.h"
 
+//#include <WinSock2.h>
+#include <asio>
+
+
+
 namespace TSPlugin {
 
 	//NetworkAudioHandler::NetworkAudioHandler(const shared_ptr<AudioBuffer>& captureBuffer, const shared_ptr<AudioBuffer>& playbackBuffer) 

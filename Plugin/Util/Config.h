@@ -7,11 +7,12 @@
 
 namespace TSPlugin {
 
+	typedef map<CString, CString> ConfigDictionary;
 
 	class Config {
-		map<CString, CString> dictionary;
+		ConfigDictionary entries;
 		CString fileName;
-		std::mutex mutex;
+		mutable std::mutex mutex;
 	public:
 		const CString defaultFileName = _T("soundplayer.cfg");
 	public:
@@ -29,6 +30,9 @@ namespace TSPlugin {
 		optional<CString> TryGet(CString key);
 		bool GetBool(const CString& key);
 
+		ConfigDictionary MakeCopyOfEntries() const;
+		void SetEntries(const ConfigDictionary& newEntries);
+
 	private:
 		void StoreLine(wstring line);
 
@@ -45,6 +49,7 @@ namespace TSPlugin {
 		static const CString BindCommand = L"BindCommand";
 		static const CString CommandStarterCharacter = L"CommandStarterCharacter";
 		static const CString ClearBindingAfterUse = L"ClearBindingAfterUse";
+		static const CString CanReceiveNetworkSoundData = L"CanReceiveNetworkSoundData";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}

@@ -135,6 +135,7 @@
     <IntDir>$(SolutionDir)\Temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Platform)</TargetName>
     <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Managed Debug|Win32'">
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
@@ -154,6 +155,7 @@
     <TargetName>$(ProjectName)_$(Platform)</TargetName>
     <IntDir>$(SolutionDir)\Temp\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Managed Debug|x64'">
     <IncludePath>$(ProjectDir);$(SolutionDir);$(IncludePath);</IncludePath>
@@ -400,6 +402,7 @@
     <ClCompile Include="App\InputHandler.cpp" />
     <ClCompile Include="App\QuickSoundHandler.cpp" />
     <ClCompile Include="App\NetworkAudioHandler.cpp" />
+    <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="exe\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
@@ -433,6 +436,7 @@
     <ClInclude Include="App\InputHandler.h" />
     <ClInclude Include="App\QuickSoundHandler.h" />
     <ClInclude Include="App\NetworkAudioHandler.h" />
+    <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />
@@ -482,11 +486,22 @@
   <ItemGroup>
     <Text Include="..\changelog.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets" Condition="Exists('..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets')" />
+  </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties RESOURCE_FILE="test_plugin.rc" />
     </VisualStudio>
   </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\asio-cpp.1.10.2.0\build\native\asio-cpp.targets'))" />
+  </Target>
 </Project>

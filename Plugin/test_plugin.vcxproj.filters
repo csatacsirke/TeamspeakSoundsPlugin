@@ -179,6 +179,9 @@
     <ClInclude Include="App\NetworkAudioHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Gui\ConfigDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -274,11 +277,17 @@
     <ClCompile Include="App\NetworkAudioHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Gui\ConfigDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="test_plugin.rc" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\changelog.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
