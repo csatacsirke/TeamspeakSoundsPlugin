@@ -56,7 +56,7 @@ namespace TSPlugin {
 			if (!this->get()) {
 				this->reset(new AudioSample48k(sampleCount));
 			}
-
+			assert(sampleCount == 960); // defaq?
 			// ha nem jó a méret, akkor nicns értelme a cachelésnek
 			assert((*this)->size() == sampleCount && "AudioSample48k GetNewBuffer(size_t size) : más a méret...");
 			if ((*this)->size() != sampleCount) {

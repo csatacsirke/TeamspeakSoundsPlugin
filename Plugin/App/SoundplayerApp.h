@@ -21,6 +21,7 @@
 #include "MenuHandler.h"
 #include "QuickSoundHandler.h"
 #include "InputHandler.h"
+#include "NetworkAudioHandler.h"
 
 #include <optional>
 
@@ -126,9 +127,19 @@ namespace TSPlugin {
 
 
 
-		// TODO : EZ KIBASZOTT ANTIHATÉKONY, CSAK ELÖSZÖR MUKODJON EGYALTALAN
-		AudioBuffer audioBufferForCapture;
-		AudioBuffer audioBufferForPlayback;
+		shared_ptr<AudioBuffer> audioBufferForCapture = make_shared<AudioBuffer>();
+		shared_ptr<AudioBuffer> audioBufferForPlayback = make_shared<AudioBuffer>();
+
+
+		mutex captureBuffersMutex;
+		set<shared_ptr<AudioBuffer>> captureBuffers = {
+			audioBufferForCapture
+		};
+
+		mutex playbackBuffersMutex;
+		set<shared_ptr<AudioBuffer>> playbackBuffers = {
+			audioBufferForPlayback
+		};
 
 
 		LocalKeyboardHookInstaller localHookInstaller = LocalKeyboardHookInstaller(*this);

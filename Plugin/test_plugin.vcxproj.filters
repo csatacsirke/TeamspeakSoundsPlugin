@@ -176,6 +176,9 @@
     <ClInclude Include="Util\InputStream.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\NetworkAudioHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -267,6 +270,9 @@
     </ClCompile>
     <ClCompile Include="App\HotkeyHandler.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="App\NetworkAudioHandler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
