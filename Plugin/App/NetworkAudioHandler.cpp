@@ -7,6 +7,7 @@
 #include <asio.hpp>
 
 #include <array>
+#include <random>
 
 
 
@@ -22,7 +23,26 @@ namespace TSPlugin {
 	static const int TCP_PORT = 8891;
 	static const int TCP_LOCAL_PORT = 8892;
 	
-	static const std::string UDP_MSG_QUERY = "Are you there?";
+	static uint64_t GenerateRandomUint64() {
+		std::random_device rd;
+		std::mt19937 mt(rd());
+		const uint64_t random_number = uint64_t(mt()) + (uint64_t(mt()) << 4*8);
+		return random_number;
+	}
+
+	uint64_t MAGIC_NUMBER = 0x5345341253425334;
+	struct UdpQuery {
+		uint64_t magic_number = 0;
+		uint64_t random_number = 0;
+	};
+
+	//static bool operator==(const UdpQuery& a, const UdpQuery& b) {
+	//	return (a.magic_number == b.magic_number && a.random_number == )
+	//}
+
+	const UdpQuery UDP_QUERY_MSG = { MAGIC_NUMBER, GenerateRandomUint64() };
+
+	//static const std::string UDP_MSG_QUERY = "Are you there?";
 	//static const std::string UDP_MSG_REPONSE = "Here I am";
 
 	//using namespace asio;
@@ -48,6 +68,8 @@ namespace TSPlugin {
 		//NetworkAudioHandler(const shared_ptr<AudioBuffer>& captureBuffer, const shared_ptr<AudioBuffer>& playbackBuffer);
 
 		void LoopTaskInBackground(const function<void()>& task);
+
+		bool IsAddressLocalhost(const asio::ip::address& address);
 	};
 
 
@@ -92,6 +114,33 @@ namespace TSPlugin {
 	}
 
 
+	bool NetworkAudioHandlerImpl::IsAddressLocalhost(const asio::ip::address& address) {
+		
+		try {
+
+			
+			asio::ip::tcp::resolver resolver(io_service);
+			asio::ip::tcp::resolver::query query(address.to_string().c_str(), "80");
+			//asio::ip::tcp::resolver::iterator iter = resolver.resolve(query);
+			auto results = resolver.resolve(query);
+			for (auto& result : results) {
+				Log::Debug(FormatString(L"Local address: %S", result.endpoint().address().to_string().c_str()));
+				if (result.endpoint().address() == address) {
+					return true;
+				}
+			}
+
+		} catch (const asio::system_error& error) {
+			if (error.code().value() != 10004) {
+				CString exceptionMessage(error.what());
+				Log::Debug(exceptionMessage);
+				assert(0);
+			}
+		}
+		
+		return false;
+	}
+	
 
 	void NetworkAudioHandlerImpl::ListenUdp() {
 		try {
@@ -103,7 +152,7 @@ namespace TSPlugin {
 			
 			
 			udp::endpoint remote_endpoint;
-			std::string recv_buffer(100, '\0');
+			//std::string recv_buffer(100, '\0');
 			
 
 			//auto handle_receive = [&](const asio::error_code& error, size_t bytes_transferred) {
@@ -125,16 +174,35 @@ namespace TSPlugin {
 			//	handle_receive
 			//);
 
+			UdpQuery recv_buffer;
+
 			const size_t received_size = socket.receive_from(
-				asio::buffer(recv_buffer),
+				asio::buffer(&recv_buffer, sizeof recv_buffer),
 				remote_endpoint
 			);
 
-			recv_buffer.resize(received_size);
+			//recv_buffer.resize(received_size);
 
-			Log::Debug(CString(recv_buffer.c_str()));
-			if (recv_buffer == UDP_MSG_QUERY) {
-				ConnectAndTransmitAudio(remote_endpoint.address());
+			//Log::Debug(FormatString(L"Connecting to remote address: %S", remote_endpoint.address().to_string().c_str()));
+
+			
+
+			//!remote_endpoint.address().is_loopback();
+			//const bool canConnectToThisAddress = !IsAddressLocalhost(remote_endpoint.address());
+
+			//Log::Debug(FormatString(L"magic number: 0x%16llx random number: 0x%16llx", recv_buffer.magic_number, recv_buffer.random_number));
+
+			if (recv_buffer.magic_number == UDP_QUERY_MSG.magic_number) {
+
+				const bool canConnectToThisAddress = recv_buffer.random_number != UDP_QUERY_MSG.random_number;
+
+				if (canConnectToThisAddress) {
+
+					ConnectAndTransmitAudio(remote_endpoint.address());
+				} else {
+					//Log::Debug(L"Loopback address responded");
+				}
+
 				//std::string address = remote_endpoint.address().to_string();
 				//std::thread([address, this] {
 				//	ConnectAndTransmitAudio(address);
@@ -166,7 +234,8 @@ namespace TSPlugin {
 			udp::endpoint remote_endpoint(asio::ip::address_v4::broadcast(), UDP_PORT);
 			//socket.bind(remote_endpoint);
 
-			asio::const_buffer buffer(UDP_MSG_QUERY.data(), UDP_MSG_QUERY.size());
+			//asio::const_buffer buffer(UDP_MSG_QUERY.data(), UDP_MSG_QUERY.size());
+			asio::const_buffer buffer(&UDP_QUERY_MSG, sizeof UDP_QUERY_MSG);
 			socket.send_to(buffer, remote_endpoint);
 
 
@@ -183,6 +252,7 @@ namespace TSPlugin {
 	void NetworkAudioHandlerImpl::ConnectAndTransmitAudio(const asio::ip::address& address) {
 
 		try {
+			Log::Debug(FormatString(L"Connecting to remote address: %S", address.to_string().c_str()));
 
 			asio::ip::tcp::endpoint remote_endpoint(address, TCP_PORT);
 			//asio::ip::tcp::endpoint local_endpoint(asio::ip::address_v4::any(), TCP_LOCAL_PORT);
@@ -228,9 +298,9 @@ namespace TSPlugin {
 
 
 	void NetworkAudioHandlerImpl::ListenForAudioTransmission() {
-
+		
 		try {
-			asio::ip::tcp::endpoint remote_endpoint(asio::ip::address_v4::any(), TCP_PORT);
+			asio::ip::tcp::endpoint remote_endpoint(asio::ip::address_v4::any(), 0);
 			asio::ip::tcp::endpoint local_endpoint(asio::ip::address_v4::any(), TCP_PORT);
 
 			
@@ -264,7 +334,6 @@ namespace TSPlugin {
 
 				Log::Debug(FormatString(L"Received TCP data with size: %ld", data.size()));
 
-				std::this_thread::sleep_for(1s);
 
 				auto track = WaveTrack::MakeFromData(format, std::move(data));
 				inboundAudioBuffer->AddSamples(track);

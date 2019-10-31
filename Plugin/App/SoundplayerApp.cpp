@@ -22,7 +22,7 @@
 
 
 
-#define USE_KEYBOARD_HOOK FALSE
+#define USE_KEYBOARD_HOOK TRUE
 
 /*
 TODO LIST
@@ -68,7 +68,7 @@ namespace TSPlugin {
 #endif
 
 
-#ifdef _DEBUG
+#if defined(_DEBUG ) && FALSE	
 		OpenDeveloperConsole();
 #endif
 
