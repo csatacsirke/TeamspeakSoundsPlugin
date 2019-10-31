@@ -66,7 +66,7 @@ namespace TSPlugin {
 		size_t ourChunkLength = ((char*)dataId - (char*)&formatTag);
 
 		if (data.size() < ourChunkLength) {
-			Log::Error(L"WaveHeader::ReadFrom: data.size() < ourChuckLength");
+			Log::Warning(L"WaveHeader::ReadFrom: data.size() < ourChuckLength");
 			return false;
 		}
 		memcpy(&formatTag, data.data(), ourChunkLength);
@@ -87,23 +87,23 @@ namespace TSPlugin {
 				(fmtId[i] != fmt[i]) ||
 				(dataId[i] != dat[i])
 				) {
-				Log::Error(L"WaveHeader::ReadFrom: different wav magic number");
+				Log::Warning(L"WaveHeader::ReadFrom: different wav magic number");
 				return false;
 			}
 		}
 
 		//if(fmtLen != 16) return false;
 		if (formatTag != 1) {
-			Log::Error(L"WaveHeader::ReadFrom: formatTag != 1");
+			Log::Warning(L"WaveHeader::ReadFrom: formatTag != 1");
 			return false;
 		}
 		if (channels < 1 || channels >2) {
-			Log::Error(L"WaveHeader::ReadFrom: channels < 1 || channels >2");
+			Log::Warning(L"WaveHeader::ReadFrom: channels < 1 || channels >2");
 			return false;
 		}
 		//if(blockAlign != channels * sizeof(short)) {
 		if (blockAlign != channels * this->bitsPerSample / 8) {
-			Log::Error(L"WaveHeader::ReadFrom: blockAlign != channels * this->bitsPerSample / 8");
+			Log::Warning(L"WaveHeader::ReadFrom: blockAlign != channels * this->bitsPerSample / 8");
 
 			return false;
 		}
