@@ -27,10 +27,14 @@ namespace TSPlugin {
 		void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
 		BOOL OnInitDialog() override;
 
+
+		afx_msg void OnEdit(NMHDR* pNotifyStruct, LRESULT* result);
+
 		DECLARE_MESSAGE_MAP()
 	public:
-		CListCtrl ConfigListControl;
+		CListCtrl configListControl;
 		ConfigDictionary m_configDictionary;
+		map<int, CString> listIndexToKeyMapping;
 	};
 
 } // namespace TSPlugin

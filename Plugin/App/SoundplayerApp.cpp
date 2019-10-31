@@ -338,6 +338,7 @@ namespace TSPlugin {
 		const INT_PTR dialogResult = dialog.DoModal();
 		if (dialogResult == IDOK) {
 			Global::config.SetEntries(dialog.m_configDictionary);
+			Global::config.Save();
 		}
 	}
 

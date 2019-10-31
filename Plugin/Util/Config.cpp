@@ -70,9 +70,11 @@ namespace TSPlugin {
 		std::getline(ss, value);
 
 
-		CString value_cs = CString(value.c_str()).TrimLeft();
-		CString key_cs = key.c_str();
-		entries.insert_or_assign(key_cs, value_cs);
+		CString value_cs = CString(value.c_str()).Trim();
+		CString key_cs = CString(key.c_str()).Trim();
+		if (key_cs.GetLength() != 0) {
+			entries.insert_or_assign(key_cs, value_cs);
+		}
 	}
 
 
