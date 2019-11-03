@@ -95,7 +95,7 @@ namespace TSPlugin {
 		auto loop_task = [=] {
 			while (run) {
 				task();
-				std::this_thread::sleep_for(1s);
+				//std::this_thread::sleep_for(1s);
 			}
 		};
 
@@ -263,6 +263,7 @@ namespace TSPlugin {
 			socket.send_to(buffer, remote_endpoint);
 
 
+			
 
 		} catch (asio::system_error& error) {
 			if (error.code().value() != 10004) {
@@ -271,6 +272,8 @@ namespace TSPlugin {
 				assert(0);
 			}
 		}
+
+		std::this_thread::sleep_for(1s);
 	}
 
 	void NetworkAudioHandlerImpl::ConnectAndTransmitAudio(const asio::ip::address& address) {
@@ -320,7 +323,7 @@ namespace TSPlugin {
 
 		} catch (asio::system_error& error) {
 			if (error.code().value() != 10004) {
-				CString exceptionMessage(error.what());
+				CString exceptionMessage = CString(error.what()) + ToString(error.code().value());
 				Log::Debug(exceptionMessage);
 				//assert(0);
 			}
