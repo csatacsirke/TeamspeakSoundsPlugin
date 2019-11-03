@@ -21,8 +21,8 @@ namespace TSPlugin {
 	//	// null
 	//}
 
-	static const int UDP_PORT = 8889;
-	static const int TCP_PORT = 8891;
+	static const int UDP_PORT = 28970;
+	static const int TCP_PORT = 28980;
 	//static const int TCP_LOCAL_PORT = 8892;
 	
 	static uint64_t GenerateRandomUint64() {
