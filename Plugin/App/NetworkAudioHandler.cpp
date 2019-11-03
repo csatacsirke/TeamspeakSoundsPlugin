@@ -7,7 +7,9 @@
 #include <asio.hpp>
 
 #include <array>
+#include <future>
 #include <random>
+#include <list>
 
 
 
@@ -55,6 +57,9 @@ namespace TSPlugin {
 	class NetworkAudioHandlerImpl : public NetworkAudioHandler {
 		asio::io_service io_service;
 		volatile bool run = true;
+		list<shared_future<void>> taskResults;
+
+		tcp::acceptor acceptor = tcp::acceptor(io_service);
 	public:
 		void StartService() override;
 		void Stop() override;
@@ -64,9 +69,9 @@ namespace TSPlugin {
 
 		void ListenUdp();
 		void BroadcastUdp();
+		void ListenForAudioTransmission();
 
 		void ConnectAndTransmitAudio(const asio::ip::address& address);
-		void ListenForAudioTransmission();
 		//NetworkAudioHandler(const shared_ptr<AudioBuffer>& captureBuffer, const shared_ptr<AudioBuffer>& playbackBuffer);
 
 		void LoopTaskInBackground(const function<void()>& task);
@@ -87,12 +92,19 @@ namespace TSPlugin {
 
 
 	void NetworkAudioHandlerImpl::LoopTaskInBackground(const function<void()>& task) {
-		std::thread([=] {
+		auto loop_task = [=] {
 			while (run) {
 				task();
 				std::this_thread::sleep_for(1s);
 			}
-		}).detach();
+		};
+
+
+		shared_future<void> task_result = std::async(loop_task);
+
+
+		taskResults.push_back(task_result);
+		//std::thread().detach();
 	}
 
 
@@ -117,6 +129,12 @@ namespace TSPlugin {
 	void NetworkAudioHandlerImpl::Stop() {
 		run = false;
 		io_service.stop();
+		acceptor.cancel();
+		for (auto& taskResult : taskResults) {
+			taskResult.wait();
+			
+		}
+		
 	}
 
 
@@ -317,10 +335,11 @@ namespace TSPlugin {
 			asio::ip::tcp::endpoint local_endpoint(asio::ip::address_v4::any(), 0);
 
 			
-			tcp::acceptor acceptor(io_service);
+			
 			acceptor.open(tcp::v4());
 			acceptor.bind(local_endpoint);
 			acceptor.listen();
+
 
 
 			asio::ip::tcp::socket socket(io_service);
