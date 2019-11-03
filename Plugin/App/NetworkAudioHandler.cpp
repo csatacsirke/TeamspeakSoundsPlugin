@@ -21,7 +21,7 @@ namespace TSPlugin {
 
 	static const int UDP_PORT = 8889;
 	static const int TCP_PORT = 8891;
-	static const int TCP_LOCAL_PORT = 8892;
+	//static const int TCP_LOCAL_PORT = 8892;
 	
 	static uint64_t GenerateRandomUint64() {
 		std::random_device rd;
@@ -283,11 +283,16 @@ namespace TSPlugin {
 
 					//const uint64_t headerSize = sizeof(track->format);
 					//socket.send(asio::const_buffer(&headerSize, sizeof(headerSize)));
-					socket.send(asio::const_buffer(&track->format, sizeof(track->format)));
+
+					//socket.send(asio::const_buffer(&track->format, sizeof(track->format)));
+					asio::write(socket, asio::const_buffer(&track->format, sizeof(track->format)));
 
 					const uint64_t dataSize = track->data.size();
-					socket.send(asio::const_buffer(&dataSize, sizeof(dataSize)));
-					socket.send(asio::const_buffer(track->data.data(), track->data.size()));
+					//socket.send(asio::const_buffer(&dataSize, sizeof(dataSize)));
+					//socket.send(asio::const_buffer(track->data.data(), track->data.size()));
+
+					asio::write(socket, asio::const_buffer(&dataSize, sizeof(dataSize)));
+					asio::write(socket, asio::const_buffer(track->data.data(), track->data.size()));
 
 					//Log::Debug(CString("Sent data with size: ") + ToString(track->data.size()));
 				} else {
@@ -309,7 +314,7 @@ namespace TSPlugin {
 		
 		try {
 			asio::ip::tcp::endpoint remote_endpoint(asio::ip::address_v4::any(), 0);
-			asio::ip::tcp::endpoint local_endpoint(asio::ip::address_v4::any(), TCP_PORT);
+			asio::ip::tcp::endpoint local_endpoint(asio::ip::address_v4::any(), 0);
 
 			
 			tcp::acceptor acceptor(io_service);
@@ -331,13 +336,17 @@ namespace TSPlugin {
 				//socket.receive(asio::mutable_buffer(&headerSize, sizeof(headerSize)));
 
 				WAVEFORMATEX format;
-				socket.receive(asio::mutable_buffer(&format, sizeof(format)));
+				//socket.receive(asio::mutable_buffer(&format, sizeof(format)));
+				asio::read(socket, asio::mutable_buffer(&format, sizeof(format)));
+				
 
 				uint64_t dataSize;
-				socket.receive(asio::mutable_buffer(&dataSize, sizeof(dataSize)));
+				//socket.receive(asio::mutable_buffer(&dataSize, sizeof(dataSize)));
+				asio::read(socket, asio::mutable_buffer(&dataSize, sizeof(dataSize)));
 
 				vector<uint8_t> data(dataSize);
-				socket.receive(asio::mutable_buffer(data.data(), data.size()));
+				//socket.receive(asio::mutable_buffer(data.data(), data.size()));
+				asio::read(socket, asio::mutable_buffer(data.data(), data.size()));
 
 
 				Log::Debug(FormatString(L"Received TCP data with size: %ld", data.size()));
