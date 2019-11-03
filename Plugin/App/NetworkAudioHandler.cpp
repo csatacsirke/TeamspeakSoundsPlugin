@@ -58,6 +58,8 @@ namespace TSPlugin {
 	public:
 		void StartService() override;
 		void Stop() override;
+
+		~NetworkAudioHandlerImpl() override;
 	private:
 
 		void ListenUdp();
@@ -77,6 +79,10 @@ namespace TSPlugin {
 
 	shared_ptr<NetworkAudioHandler> NetworkAudioHandler::Create() {
 		return make_shared<NetworkAudioHandlerImpl>();
+	}
+
+	NetworkAudioHandlerImpl::~NetworkAudioHandlerImpl() {
+		Stop();
 	}
 
 

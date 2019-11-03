@@ -13,6 +13,9 @@ namespace TSPlugin {
 		shared_ptr<AudioBuffer> inboundAudioBuffer = make_shared<AudioBuffer>();
 
 	public:
+
+		virtual ~NetworkAudioHandler() = default;
+
 		const shared_ptr<AudioBuffer>& GetOutboundAudioBuffer() { return outboundAudioBuffer; }
 		const shared_ptr<AudioBuffer>& GetInboundAudioBuffer() { return inboundAudioBuffer; }
 

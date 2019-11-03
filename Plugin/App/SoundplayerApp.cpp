@@ -103,6 +103,9 @@ namespace TSPlugin {
 
 	void SoundplayerApp::Shutdown() {
 		Global::config.Save();
+		if (networkAudioHandler) {
+			networkAudioHandler->Stop();
+		}
 	}
 
 
