@@ -40,7 +40,7 @@ using namespace std;
 #define SLEEP(x) usleep(x*1000)
 #endif
 
-const char* version = "19.10.31";
+const char* version = "19.11.03";
 
 
 //#define AUDIO_PROCESS_SECONDS 10

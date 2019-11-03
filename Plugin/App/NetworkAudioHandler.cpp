@@ -295,7 +295,7 @@ namespace TSPlugin {
 
 			Log::Debug(FormatString(L"Successfully connected to remote address: %S", address.to_string().c_str()));
 
-			while (true) {
+			while (run) {
 				auto track = outboundAudioBuffer->TryPopTrack();
 				if (track) {
 
