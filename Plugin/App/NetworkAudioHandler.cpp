@@ -335,13 +335,13 @@ namespace TSPlugin {
 		
 		try {
 			asio::ip::tcp::endpoint remote_endpoint(asio::ip::address_v4::any(), 0);
-			asio::ip::tcp::endpoint local_endpoint(asio::ip::address_v4::any(), 0);
+			asio::ip::tcp::endpoint local_endpoint(tcp::v4(), TCP_PORT);
 
 			
-			
-			acceptor.open(tcp::v4());
-			acceptor.bind(local_endpoint);
-			acceptor.listen();
+			acceptor = tcp::acceptor(io_service, local_endpoint);
+			//acceptor.open(tcp::v4());
+			//acceptor.bind(local_endpoint);
+			//acceptor.listen();
 
 
 
