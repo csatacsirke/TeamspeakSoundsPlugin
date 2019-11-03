@@ -68,7 +68,7 @@ namespace TSPlugin {
 #endif
 
 
-#if defined(_DEBUG ) && FALSE	
+#if defined(_DEBUG ) && TRUE
 		OpenDeveloperConsole();
 #endif
 

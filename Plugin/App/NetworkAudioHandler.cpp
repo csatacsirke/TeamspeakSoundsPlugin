@@ -272,6 +272,8 @@ namespace TSPlugin {
 			socket.connect(remote_endpoint);
 
 
+			Log::Debug(FormatString(L"Successfully connected to remote address: %S", address.to_string().c_str()));
+
 			while (true) {
 				auto track = outboundAudioBuffer->TryPopTrack();
 				if (track) {
@@ -297,7 +299,7 @@ namespace TSPlugin {
 			if (error.code().value() != 10004) {
 				CString exceptionMessage(error.what());
 				Log::Debug(exceptionMessage);
-				assert(0);
+				//assert(0);
 			}
 		}
 	}
