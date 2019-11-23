@@ -37,7 +37,7 @@ namespace TSPlugin {
 
 
 		void ProcessData(OutputAudioData& dataToProcess) override {
-			SplitChannels(dataToProcess);
+			//SplitChannels(dataToProcess);
 		}
 
 	};

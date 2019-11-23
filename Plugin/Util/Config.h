@@ -50,6 +50,7 @@ namespace TSPlugin {
 		static const CString CommandStarterCharacter = L"CommandStarterCharacter";
 		static const CString ClearBindingAfterUse = L"ClearBindingAfterUse";
 		static const CString CanReceiveNetworkSoundData = L"CanReceiveNetworkSoundData";
+		static const CString ShouldDisplayOverlay = L"ShouldDisplayOverlay";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}

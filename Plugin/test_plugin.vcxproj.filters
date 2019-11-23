@@ -182,6 +182,12 @@
     <ClInclude Include="Gui\ConfigDialog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Gui\OverlayWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\NetworkAudioHandlerImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -274,10 +280,13 @@
     <ClCompile Include="App\HotkeyHandler.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="App\NetworkAudioHandler.cpp">
+    <ClCompile Include="Gui\ConfigDialog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Gui\ConfigDialog.cpp">
+    <ClCompile Include="Gui\OverlayWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\NetworkAudioHandlerImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

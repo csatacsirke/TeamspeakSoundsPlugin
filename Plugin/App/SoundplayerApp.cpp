@@ -10,6 +10,7 @@
 #include "Gui\SettingsDialog.h"
 #include <Gui/AudioProcessorDialog.h>
 #include <Gui/ConfigDialog.h>
+#include <Gui/OverlayWindow.h>
 
 #include "Util\TSSoundPlayer.h"
 #include "Util\Util.h"
@@ -22,7 +23,7 @@
 
 
 
-#define USE_KEYBOARD_HOOK TRUE
+#define USE_KEYBOARD_HOOK FALSE
 
 /*
 TODO LIST
@@ -98,7 +99,10 @@ namespace TSPlugin {
 			//playbackBuffers.insert(networkAudioHandler->GetPlaybackBuffer());
 
 		}
-		
+
+		if (Global::config.GetBool(ConfigKeys::ShouldDisplayOverlay)) {
+			UpdateOverlay();
+		}
 	}
 
 	void SoundplayerApp::Shutdown() {
@@ -385,6 +389,12 @@ namespace TSPlugin {
 		QuickSoundsFileSystem fs;
 	}
 
+	void SoundplayerApp::UpdateOverlay() {
+#if 0
+		const shared_ptr<OverlayWindow>& window = OverlayWindow::GetInstance();
+		window->SetInfoData(GetPluginInfoData());
+#endif
+	}
 
 	void SoundplayerApp::UpdateObserverDialog() {
 		RefreshTsInterface();
@@ -428,6 +438,10 @@ namespace TSPlugin {
 	void SoundplayerApp::RefreshTsInterface() {
 		// https://forum.teamspeak.com/threads/81701-Client-window-refresh?p=415973#post415973
 		ts3Functions.requestServerVariables(Global::connection);
+		if (Global::config.GetBool(ConfigKeys::ShouldDisplayOverlay)) {
+			UpdateOverlay();
+		}
+		
 	}
 
 	void SoundplayerApp::OnServerUpdatedEvent() {

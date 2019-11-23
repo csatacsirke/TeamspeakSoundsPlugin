@@ -113,7 +113,7 @@ namespace TSPlugin {
 		void SendFileNameToChat(CString fileName);
 		void SendMessageToChannelChat(CString message);
 		void OpenDeveloperConsole();
-
+		void UpdateOverlay();
 
 	private:
 		MenuHandler menuHandler;

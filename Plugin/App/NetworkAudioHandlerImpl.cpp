@@ -1,15 +1,9 @@
 #include "stdafx.h"
 
 
-#include "NetworkAudioHandler.h"
+#include "NetworkAudioHandlerImpl.h"
 
 //#include <WinSock2.h>
-#include <asio.hpp>
-
-#include <array>
-#include <future>
-#include <random>
-#include <list>
 
 
 
@@ -48,37 +42,7 @@ namespace TSPlugin {
 	//static const std::string UDP_MSG_REPONSE = "Here I am";
 
 	//using namespace asio;
-	using asio::ip::udp;
-	using asio::ip::tcp;
-	using asio::ip::address;
-
-
-
-	class NetworkAudioHandlerImpl : public NetworkAudioHandler {
-		asio::io_service io_service;
-		volatile bool run = true;
-		list<shared_future<void>> taskResults;
-
-		tcp::acceptor acceptor = tcp::acceptor(io_service);
-	public:
-		void StartService() override;
-		void Stop() override;
-
-		~NetworkAudioHandlerImpl() override;
-	private:
-
-		void ListenUdp();
-		void BroadcastUdp();
-		void ListenForAudioTransmission();
-
-		void ConnectAndTransmitAudio(const asio::ip::address& address);
-		//NetworkAudioHandler(const shared_ptr<AudioBuffer>& captureBuffer, const shared_ptr<AudioBuffer>& playbackBuffer);
-
-		void LoopTaskInBackground(const function<void()>& task);
-
-		bool IsAddressLocalhost(const asio::ip::address& address);
-	};
-
+	
 
 
 
@@ -130,6 +94,12 @@ namespace TSPlugin {
 		run = false;
 		io_service.stop();
 		acceptor.cancel();
+		//if (auto udp_receiver_socket_guard = udp_receiver_socket) {
+		//	udp_receiver_socket_guard->close();
+		//}
+		udp_receiver_socket.close();
+		
+
 		for (auto& taskResult : taskResults) {
 			taskResult.wait();
 			
@@ -169,10 +139,15 @@ namespace TSPlugin {
 	void NetworkAudioHandlerImpl::ListenUdp() {
 		try {
 			
-			asio::ip::udp::socket socket(io_service);
+			//udp_receiver_socket = make_shared<asio::ip::udp::socket>(io_service);
+			//Finally close_udp_receiver_socket = [&] {
+			//	udp_receiver_socket = nullptr;
+			//};
 
-			socket.open(udp::v4());
-			socket.bind(udp::endpoint(asio::ip::address_v4::any(), UDP_PORT));
+			udp_receiver_socket = asio::ip::udp::socket(io_service);
+
+			udp_receiver_socket.open(udp::v4());
+			udp_receiver_socket.bind(udp::endpoint(asio::ip::address_v4::any(), UDP_PORT));
 			
 			
 			udp::endpoint remote_endpoint;
@@ -200,7 +175,7 @@ namespace TSPlugin {
 
 			UdpQuery recv_buffer;
 
-			const size_t received_size = socket.receive_from(
+			const size_t received_size = udp_receiver_socket.receive_from(
 				asio::buffer(&recv_buffer, sizeof recv_buffer),
 				remote_endpoint
 			);
@@ -234,6 +209,7 @@ namespace TSPlugin {
 			}
 
 
+
 			//io_service.run();
 		} catch (const asio::system_error& error) {
 			if (error.code().value() != 10004) {
@@ -242,6 +218,8 @@ namespace TSPlugin {
 				assert(0);
 			}
 		}
+
+		
 		
 	}
 

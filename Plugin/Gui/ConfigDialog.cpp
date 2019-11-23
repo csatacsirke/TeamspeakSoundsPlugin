@@ -11,6 +11,11 @@ namespace TSPlugin {
 
 	IMPLEMENT_DYNAMIC(ConfigDialog, CDialogEx)
 
+
+	BEGIN_MESSAGE_MAP(ConfigDialog, CDialogEx)
+		ON_NOTIFY(LVN_ENDLABELEDIT, IDC_CONFIG_LIST, OnEdit)
+	END_MESSAGE_MAP()
+
 	ConfigDialog::ConfigDialog(const ConfigDictionary& configDictionary, CWnd* pParent /*=nullptr*/)
 		: CDialogEx(IDD_CONFIG_DIALOG, pParent), m_configDictionary(configDictionary)
 	{
@@ -80,9 +85,6 @@ namespace TSPlugin {
 		*result = TRUE;
 	}
 
-	BEGIN_MESSAGE_MAP(ConfigDialog, CDialogEx)
-		ON_NOTIFY(LVN_ENDLABELEDIT, IDC_CONFIG_LIST, OnEdit)
-	END_MESSAGE_MAP()
 
 
 	// ConfigDialog message handlers
