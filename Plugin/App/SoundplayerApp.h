@@ -42,7 +42,7 @@ namespace TSPlugin {
 
 		void Shutdown();
 
-		void CheckForUpdates();
+		//void CheckForUpdates();
 
 		void InitMenus(struct PluginMenuItem*** menuItems, char** menuIcon);
 		void OnMenuItemEvent(PluginMenuType type, int menuItemID, uint64 selectedItemID);
@@ -151,7 +151,7 @@ namespace TSPlugin {
 		shared_ptr<NetworkAudioHandler> networkAudioHandler = NetworkAudioHandler::Create();
 
 		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
-		shared_ptr<FileList> unsafeFileList;
+		shared_ptr<const FileList> unsafeFileList;
 		
 	};
 

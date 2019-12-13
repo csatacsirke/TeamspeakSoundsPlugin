@@ -1,11 +1,12 @@
 ﻿#include "stdafx.h"
 
 #include "SoundplayerApp.h"
+
+#include <App/UpdateHandler.h>
+
 #include "Wave\wave.h"
 #include "Wave\AudioDecoder.h"
 #include "Wave\Steganography.h"
-#include "Web/Http.h"
-
 
 #include "Gui\SettingsDialog.h"
 #include <Gui/AudioProcessorDialog.h>
@@ -77,9 +78,9 @@ namespace TSPlugin {
 		TryGetSoundsDirectory(AskGui);
 
 
-		std::thread([this] {
-			CheckForUpdates();
-		}).detach();
+		//std::thread([this] {
+		//	CheckForUpdates();
+		//}).detach();
 
 
 		if (Global::config.GetBool(ConfigKeys::CanReceiveNetworkSoundData)) {
@@ -157,7 +158,7 @@ namespace TSPlugin {
 		menuHandler.Add("Enqueue sound from file...", [&] { this->AsyncEnqueueFile(); });
 		menuHandler.Add("Settings...", [&] { this->OpenConfigDialog(); });
 		//menuHandler.Add("Open observer...", [&] { this->OpenObserverDialog(); });
-		menuHandler.Add("Check for updates", [&] { this->CheckForUpdates(); });
+		menuHandler.Add("Check for updates", [&] { CheckForUpdates(); });
 
 #ifdef _DEBUG
 		menuHandler.Add("Open Developer Console", [&] { this->OpenDeveloperConsole(); });
@@ -408,7 +409,7 @@ namespace TSPlugin {
 
 	CStringA SoundplayerApp::GetPluginInfoData() {
 
-		const shared_ptr<FileList> fileList = unsafeFileList;
+		const shared_ptr<const FileList> fileList = unsafeFileList;
 
 		if (!fileList) {
 			return "<No matching files>";
@@ -831,7 +832,7 @@ namespace TSPlugin {
 	}
 
 	optional<CString> SoundplayerApp::TryGetSelectedFile() {
-		shared_ptr<FileList> fileList = unsafeFileList;
+		shared_ptr<const FileList> fileList = unsafeFileList;
 
 		if (!fileList) {
 			return nullopt;
@@ -844,58 +845,6 @@ namespace TSPlugin {
 		return nullopt;
 	}
 
-	static void DownloadAndInstallNewVerison() {
-		
-		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/downloads/SoundplayerPlugin_x64.ts3_plugin");
-		if (!result) {
-			return;
-		}
-
-		TCHAR tempDirectoryPath[MAX_PATH];
-		GetTempPath(MAX_PATH, tempDirectoryPath);
-
-		using namespace std::filesystem;
-
-		path tempPath = path(tempDirectoryPath) / "SoundplayerPlugin_x64.ts3_plugin";
-
-		ofstream out(tempPath, ios::binary);
-		out.write((const char*)result->data(), result->size());
-		out.close();
-
-
-		ShellExecute(0, 0, tempPath.wstring().c_str(), 0, 0, SW_SHOW);
-
-		
-	}
-
-	// defined in plugin.h
-	extern "C" const char* ts3plugin_version();
-
-	void SoundplayerApp::CheckForUpdates() {
-		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/version");
-
-		if (!result) {
-			return;
-		}
-
-		
-
-		const CStringA versionOnServer = CStringA((const char*)result->data(), (int)result->size());
-		const CStringA currentVersion = ts3plugin_version();
-
-		if (currentVersion.Compare(versionOnServer) >= 0) {
-			// we are newer or equal to the server
-			return;
-		}
-		
-		const CString title = L"Update available";
-		const CString message = L"Newer version exists. Would you like to download it? -- you might have to quit TS after downloading";
-		const int messageBoxResult = MessageBox(HWND(0), message, title, MB_YESNO);
-		if (messageBoxResult == IDYES) {
-			DownloadAndInstallNewVerison();
-		}
-
-	}
 
 }
 

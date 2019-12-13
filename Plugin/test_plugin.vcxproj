@@ -404,6 +404,7 @@
     <ClCompile Include="App\NetworkAudioHandlerImpl.cpp" />
     <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Gui\OverlayWindow.cpp" />
+    <ClCompile Include="App\UpdateHandler.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="exe\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
@@ -440,6 +441,7 @@
     <ClInclude Include="App\NetworkAudioHandler.h" />
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
+    <ClInclude Include="App\UpdateHandler.h" />
     <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />

@@ -188,6 +188,9 @@
     <ClInclude Include="App\NetworkAudioHandlerImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\UpdateHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -287,6 +290,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="App\NetworkAudioHandlerImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\UpdateHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

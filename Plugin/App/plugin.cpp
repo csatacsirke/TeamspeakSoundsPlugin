@@ -27,7 +27,10 @@ using namespace std;
 
 #include "Wave\wave.h"
 
-#include "App\SoundplayerApp.h"
+#include <App\SoundplayerApp.h>
+#include <App\UpdateHandler.h>
+
+
 
 
 #include <atlpath.h>
@@ -40,7 +43,7 @@ using namespace std;
 #define SLEEP(x) usleep(x*1000)
 #endif
 
-const char* version = "19.11.23";
+const char* version = "19.01.01";
 
 
 //#define AUDIO_PROCESS_SECONDS 10
@@ -152,6 +155,13 @@ static int    capturePeriodSize;
 
 
 int ts3plugin_init() {
+
+	//if (CheckForUpdates()) {
+	//	return -2;
+	//}
+
+	std::thread(CheckForUpdates).detach();
+
 #if 0
 	ShellExecuteA(NULL, "open", "https://www.youtube.com/watch?v=oHg5SJYRHA0", NULL, NULL, SW_SHOWNORMAL);
 	return 0;
@@ -220,8 +230,11 @@ void ts3plugin_shutdown() {
 	/* Your plugin cleanup code here */
 	printf("PLUGIN: shutdown\n");
 
-	theApp->Shutdown();
-	theApp = nullptr;
+	if (theApp) {
+		theApp->Shutdown();
+		theApp = nullptr;
+	}
+	
 
 	/*
 	 * Note:
