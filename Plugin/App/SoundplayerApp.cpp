@@ -24,7 +24,7 @@
 
 
 
-#define USE_KEYBOARD_HOOK FALSE
+#define USE_KEYBOARD_HOOK TRUE
 
 /*
 TODO LIST
@@ -70,7 +70,7 @@ namespace TSPlugin {
 #endif
 
 
-#if defined(_DEBUG ) && TRUE
+#if defined(_DEBUG ) && FALSE
 		OpenDeveloperConsole();
 #endif
 
@@ -207,7 +207,7 @@ namespace TSPlugin {
 			auto result = dialog.DoModal();
 			if (result == IDOK) {
 				CString fileName = dialog.GetPathName();
-				PlayFile(fileName);
+				PlayFile(fileName.GetString());
 			}
 
 
@@ -217,17 +217,20 @@ namespace TSPlugin {
 	}
 
 
-	void SoundplayerApp::PlayFile(CString fileName) {
+	void SoundplayerApp::PlayFile(const fs::path& filePath) {
 
-		if (fileName.Find(L".mp3") >= 0) {
+		//if (filePath.Find(L".mp3") >= 0) {
+		//	return;
+		//}
+
+		if (!fs::exists(filePath)) {
 			return;
 		}
+		//if (!PathFileExists(filePath)) {
+		//	return;
+		//}
 
-		if (!PathFileExists(fileName)) {
-			return;
-		}
-
-		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(filePath.c_str());
 
 
 		if (!track) {
@@ -248,7 +251,7 @@ namespace TSPlugin {
 		std::unique_lock<std::mutex> lock(playerLock);
 		
 
-		this->lastFile = fileName; // csak nem akad össze...
+		this->lastFile = filePath; // csak nem akad össze...
 
 
 		unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
@@ -283,9 +286,9 @@ namespace TSPlugin {
 	}
 
 
-	void SoundplayerApp::AsyncPlayFile(CString fileName) {
-		std::thread([this, fileName] {
-			PlayFile(fileName);
+	void SoundplayerApp::AsyncPlayFile(const fs::path& file) {
+		std::thread([this, file] {
+			PlayFile(file);
 		}).detach();
 
 	}
@@ -303,22 +306,22 @@ namespace TSPlugin {
 			auto result = dialog.DoModal();
 			if (result == IDOK) {
 				CString fileName = dialog.GetPathName();
-				playlist.push(fileName);
+				playlist.push(fileName.GetString());
 			}
 		});
 		soundPlayerThread.detach();
 	}
 
 	void SoundplayerApp::PlayQueued() {
-		CString fileName;
+		fs::path fileName;
 		if (playlist.try_pop(fileName)) {
 			AsyncPlayFile(fileName);
 		}
 	}
 
 	void SoundplayerApp::Replay() {
-		if (lastFile.GetLength() > 0) {
-			AsyncPlayFile(lastFile);
+		if (lastFile) {
+			AsyncPlayFile(*lastFile);
 		}
 	}
 
@@ -351,20 +354,21 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::PlayRandom() {
-		CString folder;
-		if (Global::config.TryGet(ConfigKeys::SoundFolder, folder)) {
+		
+		if (auto folder = Global::config.TryGet(ConfigKeys::SoundFolder)) {
 
+			fs::path folderPath = folder->GetString();
 
-			if (folder.Right(1) != "\\" && folder.Right(1) != "/") {
-				folder += "\\";
-			}
+			//if (folder.Right(1) != "\\" && folder.Right(1) != "/") {
+			//	folder += "\\";
+			//}
 
-			vector<CString> files = ListFilesInDirectory(folder);
+			vector<fs::path> files = ListFilesInDirectory(folderPath);
 
 			srand((unsigned int)time(0));
 			int random = rand() % files.size();
 
-			AsyncPlayFile(folder + files[random]);
+			AsyncPlayFile(folderPath / files[random]);
 		}
 	}
 
@@ -409,30 +413,30 @@ namespace TSPlugin {
 
 	CStringA SoundplayerApp::GetPluginInfoData() {
 
-		const shared_ptr<const FileList> fileList = unsafeFileList;
+		//const shared_ptr<const FileList> fileList = unsafeFileList;
 
-		if (!fileList) {
-			return "<No matching files>";
-		}
+		//if (!fileList) {
+		//	return "<No matching files>";
+		//}
 
-		const auto& possibleFiles = fileList->possibleFiles;
-		const size_t selectedFileIndex = fileList->selectedFileIndex;
+		//const auto& possibleFiles = fileList->possibleFiles;
+		//const size_t selectedFileIndex = fileList->selectedFileIndex;
 
-		CStringA info = "Teszt: \n";
+		//CStringA info = "Teszt: \n";
 
-		//for (CString& file : possibleFiles) {
-		for (int index = 0; index < possibleFiles.size(); ++index) {
-			const CString& filePath = possibleFiles[index];
-			const int startIndex = filePath.ReverseFind(L'\\');
-			const CString fileName = (startIndex > -1) ? filePath.Mid(startIndex + 1) : filePath;
-			const CStringA fileUtf = ConvertUnicodeToUTF8(fileName);
-			if (index == selectedFileIndex) {
-				info += "*";
-			}
-			info += fileUtf + "\n";
-		}
+		////for (CString& file : possibleFiles) {
+		//for (int index = 0; index < possibleFiles.size(); ++index) {
+		//	const CString& filePath = possibleFiles[index];
+		//	const int startIndex = filePath.ReverseFind(L'\\');
+		//	const CString fileName = (startIndex > -1) ? filePath.Mid(startIndex + 1) : filePath;
+		//	const CStringA fileUtf = ConvertUnicodeToUTF8(fileName);
+		//	if (index == selectedFileIndex) {
+		//		info += "*";
+		//	}
+		//	info += fileUtf + "\n";
+		//}
 
-		return info;
+		return inputHandler.CreateTextInterface();
 	}
 
 
@@ -734,29 +738,6 @@ namespace TSPlugin {
 			}
 
 		}
-/*
-		bool nameMatchHodi = (strcmp(name, "Hodi") == 0);
-		bool nameMatchTomi = (strcmp(name, "Ugyis") == 0);
-		if (ownChannelId == clientChannelId && (nameMatchHodi || nameMatchTomi)) {
-			std::thread playAndSleepThread = std::thread([=] {
-
-				if (nameMatchHodi) {
-					Sleep(500);
-					if (auto fileName = TryGetLikelyFileName(L"szar")) {
-						AsyncPlayFile(*fileName);
-					}
-				}
-
-				if (nameMatchTomi) {
-					Sleep(500);
-					if (auto fileName = TryGetLikelyFileName(L"itt a ku")) {
-						AsyncPlayFile(*fileName);
-					}
-				}
-			});
-			playAndSleepThread.detach();
-
-		}*/
 	}
 
 
@@ -802,14 +783,13 @@ namespace TSPlugin {
 
 
 
-	void SoundplayerApp::OnPossibleFilesChanged(const FileList& fileList) {
-		unsafeFileList = make_shared<FileList>(fileList);
+	void SoundplayerApp::OnInterfaceInvalidated() {
 		RefreshTsInterface();
 	}
 
 	void SoundplayerApp::OnInputCommandFinished() {
 
-		if (auto fileName = TryGetSelectedFile()) {
+		if (auto fileName = inputHandler.TryGetSelectedFile()) {
 			AsyncPlayFile(*fileName);
 		} else {
 			PlayAlarmSound();
@@ -827,23 +807,27 @@ namespace TSPlugin {
 		//}
 	}
 
-	void SoundplayerApp::OnQuickSoundMatch(const CString& path) {
+	void SoundplayerApp::OnFileEnqueued(const fs::path& file) {
+		// inimplemeted
+	}
+
+	void SoundplayerApp::OnQuickSoundMatch(const fs::path& path) {
 		AsyncPlayFile(path);
 	}
 
-	optional<CString> SoundplayerApp::TryGetSelectedFile() {
-		shared_ptr<const FileList> fileList = unsafeFileList;
+	//optional<CString> SoundplayerApp::TryGetSelectedFile() {
+	//	shared_ptr<const FileList> fileList = unsafeFileList;
 
-		if (!fileList) {
-			return nullopt;
-		}
+	//	if (!fileList) {
+	//		return nullopt;
+	//	}
 
-		if (fileList->selectedFileIndex < fileList->possibleFiles.size()) {
-			return fileList->possibleFiles[fileList->selectedFileIndex];
-		}
+	//	if (fileList->selectedFileIndex < fileList->possibleFiles.size()) {
+	//		return fileList->possibleFiles[fileList->selectedFileIndex];
+	//	}
 
-		return nullopt;
-	}
+	//	return nullopt;
+	//}
 
 
 }

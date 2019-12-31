@@ -261,7 +261,8 @@ namespace TSPlugin {
 
 
 		if (!stream) {
-			Log::Error(L"LoadWaveFile: failed to open stream");
+			//Log::Error(L"LoadWaveFile: failed to open stream");
+			Log::Warning(L"LoadWaveFile: failed to open stream");
 			return NULL;
 		}
 

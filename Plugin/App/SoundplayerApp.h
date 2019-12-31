@@ -68,8 +68,8 @@ namespace TSPlugin {
 		void AsyncOpenAudioProcessorDialog();
 
 		void AsyncOpenAndPlayFile();
-		void AsyncPlayFile(CString fileName);
-		void PlayFile(CString fileName);
+		void AsyncPlayFile(const fs::path& fileName);
+		void PlayFile(const fs::path& fileName);
 		
 		enum class StopResult { DidStop, WasNotPlaying };
 		StopResult StopPlayback();
@@ -99,16 +99,16 @@ namespace TSPlugin {
 		void LocalKeyboardHookInstallerDelegate::OnMessage(const CString& message) override;
 
 
-		void InputHandlerDelegate::OnPossibleFilesChanged(const FileList& fileList) override;
+		void InputHandlerDelegate::OnInterfaceInvalidated() override;
 		void InputHandlerDelegate::OnInputCommandFinished() override;
 		void InputHandlerDelegate::OnHotkeyCommand(const CString& command) override;
+		void InputHandlerDelegate::OnFileEnqueued(const fs::path& file) override;
+
+		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const fs::path& path) override;
 		
-
-		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const CString& path);
-
 	private:
 
-		optional<CString> SoundplayerApp::TryGetSelectedFile();
+		//optional<CString> SoundplayerApp::TryGetSelectedFile();
 
 		void SendFileNameToChat(CString fileName);
 		void SendMessageToChannelChat(CString message);
@@ -120,9 +120,9 @@ namespace TSPlugin {
 
 		std::mutex playerLock;
 
-		concurrency::concurrent_queue<CString> playlist;
+		concurrency::concurrent_queue<fs::path> playlist;
 
-		CString lastFile;
+		optional<fs::path> lastFile;
 
 		AudioProcessor audioProcessor;
 
@@ -151,7 +151,7 @@ namespace TSPlugin {
 		shared_ptr<NetworkAudioHandler> networkAudioHandler = NetworkAudioHandler::Create();
 
 		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
-		shared_ptr<const FileList> unsafeFileList;
+		//shared_ptr<const FileList> unsafeFileList;
 		
 	};
 

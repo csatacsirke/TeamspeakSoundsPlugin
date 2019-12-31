@@ -92,12 +92,18 @@ namespace TSPlugin {
 
 	void NetworkAudioHandlerImpl::Stop() {
 		run = false;
-		io_service.stop();
-		acceptor.cancel();
-		//if (auto udp_receiver_socket_guard = udp_receiver_socket) {
-		//	udp_receiver_socket_guard->close();
-		//}
-		udp_receiver_socket.close();
+
+		try {
+			io_service.stop();
+			acceptor.cancel();
+			//if (auto udp_receiver_socket_guard = udp_receiver_socket) {
+			//	udp_receiver_socket_guard->close();
+			//}
+			udp_receiver_socket.close();
+
+		} catch (const asio::system_error& error) {
+			// néger gyerekek potyognak, van ilyen
+		}
 		
 
 		for (auto& taskResult : taskResults) {

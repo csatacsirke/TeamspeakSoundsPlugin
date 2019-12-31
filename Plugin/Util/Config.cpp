@@ -26,7 +26,7 @@ namespace TSPlugin {
 			{ CommandStarterCharacter, L"/" },
 			{ ClearBindingAfterUse, L"1" },
 			{ BindCommand, L"bind" },
-			{ CanReceiveNetworkSoundData, L"1" },
+			{ CanReceiveNetworkSoundData, L"0" },
 			{ ShouldDisplayOverlay, L"1" },
 
 		};

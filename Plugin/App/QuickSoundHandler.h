@@ -22,7 +22,7 @@ IteratorType end(const std::pair<IteratorType, IteratorType>& iterator) {
 
 namespace TSPlugin {
 
-	namespace fs = std::experimental::filesystem;
+	//namespace fs = std::experimental::filesystem;
 
 
 
@@ -91,7 +91,7 @@ namespace TSPlugin {
 
 	class QuickSoundHandlerDelegate {
 	public:
-		virtual void OnQuickSoundMatch(const CString& path) = 0;
+		virtual void OnQuickSoundMatch(const fs::path& path) = 0;
 	};
 
 	class QuickSoundHandler {

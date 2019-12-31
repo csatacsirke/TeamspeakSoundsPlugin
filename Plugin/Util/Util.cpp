@@ -105,26 +105,28 @@ namespace TSPlugin {
 	}
 
 	// TODO test
-	std::vector<CString> ListFilesInDirectory(CString path, CString filter/* = L""*/) {
-		std::vector<CString> files;
+	std::vector<fs::path> ListFilesInDirectory(const fs::path& directoryPath, const CString& filter/* = L""*/) {
+		std::vector<fs::path> files;
 
-		if (path.Right(1) != "\\" && path.Right(1) != "/") {
-			path += "\\";
+		CString glob = directoryPath.c_str();
+
+		if (glob.Right(1) != "\\" && glob.Right(1) != "/") {
+			glob += "\\";
 		}
-		path += "*";
+		glob += "*";
 
 
 		WIN32_FIND_DATA findFileData;
 		HANDLE hFind;
 
 
-		if ((hFind = FindFirstFile(path, &findFileData)) != INVALID_HANDLE_VALUE) {
+		if ((hFind = FindFirstFile(glob, &findFileData)) != INVALID_HANDLE_VALUE) {
 			CString fileName(findFileData.cFileName);
 
 			//if(filter == 0 || fileName.find(filter) == fileName.length() -lstrlen(filter) ){
 			if (fileName.Right(filter.GetLength()) == filter) {
 				if (fileName != L"." && fileName != L"..") {
-					files.push_back(findFileData.cFileName);
+					files.push_back(directoryPath / findFileData.cFileName);
 				}
 			}
 
@@ -135,7 +137,7 @@ namespace TSPlugin {
 			//if(filter == 0 || fileName.find(filter) == fileName.length() -lstrlen(filter) ){
 			if (fileName.Right(filter.GetLength()) == filter) {
 				if (fileName != L"." && fileName != L"..") {
-					files.push_back(findFileData.cFileName);
+					files.push_back(directoryPath / findFileData.cFileName);
 				}
 			}
 		}
@@ -177,13 +179,13 @@ namespace TSPlugin {
 	}
 
 
-	CString PickRandomFile(CString directory) {
-		std::vector<CString> files = ListFilesInDirectory(directory);
-
-		if (files.size() == 0) return L"";
-
-		return files[rand() % files.size()];
-	}
+	//fs::path PickRandomFile(const fs::path& directoryPath) {
+	//	std::vector<CString> files = ListFilesInDirectory(directoryPath);
+	//
+	//	if (files.size() == 0) return L"";
+	//
+	//	return files[rand() % files.size()];
+	//}
 
 
 	CString FileNameFromPath(CString path) {
@@ -255,64 +257,72 @@ namespace TSPlugin {
 
 		return nullopt;
 	}
-
-
-	std::vector<CString> GetPossibleFiles(const CString & inputString) {
+	std::vector<fs::path> _GetPossibleFiles(const CString& inputString) {
 
 		optional<CString> directoryOrNull = TryGetSoundsDirectory();
 		if (!directoryOrNull) {
-			return std::vector<CString>();
-		}
-
-		CString directory = *directoryOrNull;
-
-
-		if (directory.Right(1) != "\\" && directory.Right(1) != "/") {
-			directory += "\\";
+			return {};
 		}
 
 
-		vector<CString> files = ListFilesInDirectory(directory);
+		fs::path directory = directoryOrNull->GetString();
+		//CString directory = *directoryOrNull;
 
 
-		std::vector<CString> results;
+		//if (directory.Right(1) != "\\" && directory.Right(1) != "/") {
+		//	directory += "\\";
+		//}
+
+
+		vector<fs::path> files = ListFilesInDirectory(directory);
+
+		return GetPossibleFiles(inputString, files);
+	}
+
+	std::vector<fs::path> GetPossibleFiles(const CString& inputString, std::vector<fs::path>& files) {
+
+
+		std::vector<fs::path> results;
 
 		if (inputString.GetLength() > 0) {
 			const CString sanitizedInputString = MakeComparable(inputString);
 
-			for (const CString& fileName : files) {
-				const CString sanitizedFileName = MakeComparable(fileName);
+			for (const fs::path& file : files) {
+				const CString sanitizedFileName = MakeComparable(file.filename().c_str());
 
 				//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
 				if (sanitizedFileName.Find(sanitizedInputString) == 0) {
 					//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
 						//return directory + file;
-					CString result = directory + fileName;
-					results.push_back(result);
+					//fs::path result = directory / file;
+					results.push_back(file);
 				}
 			}
 
 
-			for (const CString& fileName : files) {
-				const CString sanitizedFileName = MakeComparable(fileName);
+			for (const fs::path& file : files) {
+				const CString sanitizedFileName = MakeComparable(file.filename().c_str());
 
 				// akkor is a lista végére füzzük, ha nem az elején van a cucc
 				if (sanitizedFileName.Find(sanitizedInputString) > 0) {
-					CString result = directory + fileName;
-					results.push_back(result);
+					fs::path result = file;
+					results.push_back(file);
 				}
 			}
 		}
 		
 		
 		// separator
-		results.push_back(L"");
+		//results.push_back(L"");
 
-		vector<CString> filesByModificationDate = SortFilesByModificationDate(directory, files);
-		for (const CString& fileName : filesByModificationDate) {
-			const CString result = directory + fileName;
-			results.push_back(result);
-		}
+		//vector<CString> filesByModificationDate = SortFilesByModificationDate(directory, files);
+		//for (const CString& fileName : filesByModificationDate) {
+		//	const CString result = directory + fileName;
+		//	results.push_back(result);
+		//}
+
+
+
 		/*
 
 		const int minimumFileCount = 20;
@@ -329,9 +339,9 @@ namespace TSPlugin {
 		return results;
 	}
 
-	optional<CString> TryGetLikelyFileName(const CString& inputString) {
+	optional<fs::path> TryGetLikelyFileName(const CString& inputString) {
 
-		vector<CString> possibleFiles = GetPossibleFiles(inputString);
+		vector<fs::path> possibleFiles = _GetPossibleFiles(inputString);
 		if (possibleFiles.size() >= 1) {
 			return possibleFiles.front();
 		}

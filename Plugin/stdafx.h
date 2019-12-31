@@ -55,6 +55,8 @@
 #include <functional>
 #include <memory>
 #include <future>
+#include <optional>
+#include <filesystem>
 //using namespace std;
 
 
@@ -94,6 +96,7 @@
 
 namespace TSPlugin {
 	using namespace std;
+	namespace fs = std::filesystem;
 }
 
 

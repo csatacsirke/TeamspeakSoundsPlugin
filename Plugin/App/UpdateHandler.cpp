@@ -39,6 +39,10 @@ namespace TSPlugin {
 
 
 	bool CheckForUpdates() {
+#ifdef _DEBUG
+		return false;
+#endif
+
 		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/version");
 
 		if (!result) {

@@ -26,10 +26,15 @@ namespace TSPlugin {
 
 	CString ErrorToString(DWORD error);
 
-	std::vector<CString> GetPossibleFiles(const CString & inputString);
+	// ezt lehet igy cachelni
+	std::vector<fs::path> GetPossibleFiles(const CString& inputString, std::vector<fs::path>& files);
+	// ez lassu
+	std::vector<fs::path> _GetPossibleFiles(const CString& inputString);
+
+
 	enum TryGetSoundsDirectoryOptions { None, AskGui };
 	std::optional<CString> TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options = None);
-	std::optional<CString> TryGetLikelyFileName(const CString& inputString);
+	std::optional<fs::path> TryGetLikelyFileName(const CString& inputString);
 
 
 	struct Exception {
@@ -223,6 +228,11 @@ namespace TSPlugin {
 	}
 
 
+	inline int euclidean_reminder(int a, int b) {
+		int r = a % b;
+		return r >= 0 ? r : r + std::abs(b);
+	}
+
 	namespace Ts {
 		using namespace Global;
 
@@ -363,11 +373,11 @@ namespace TSPlugin {
 	}
 
 	//void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
-	std::vector<CString> ListFilesInDirectory(CString path, CString filter = L"");
-	std::vector<CString> SortFilesByModificationDate(const std::vector<CString>& filesNames);
+	std::vector<fs::path> ListFilesInDirectory(const fs::path& path, const CString& filter = L"");
+	std::vector<fs::path> SortFilesByModificationDate(const std::vector<fs::path>& files);
 
 	CString FileNameFromPath(CString path);
-	CString PickRandomFile(CString path);
+	//fs::path PickRandomFile(const fs::path& directoryPath);
 
 
 

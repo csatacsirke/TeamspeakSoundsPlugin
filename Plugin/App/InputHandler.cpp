@@ -17,67 +17,60 @@ namespace TSPlugin {
 
 	HookResult InputHandler::TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
 
-		
+		const CString& unicodeLiteral = keyData.unicodeLiteral;
+
+
+		// dupla '//' -re kirakunk egyet, és megszakitunk mindent
+		if (lastCharacter == commandStarterCharacter && unicodeLiteral == commandStarterCharacter) {
+			lastCharacter = L"";
+			commandInProgress = false;
+			ClearInput();
+			return HookResult::PassEvent;
+		}
+
+		lastCharacter = unicodeLiteral;
+ 
 
 		if (commandInProgress) {
-			
 			if (keyData.hookData.vkCode == VK_ESCAPE) {
 
 				commandInProgress = false;
-				inputBuffer = "";
-
-				OnInputEventConsumed();
+				ClearInput();
+				
 				return HookResult::ConsumeEvent;
 			}
 
-			if (keyData.hookData.vkCode == VK_BACK) {
-				if (inputBuffer.GetLength() > 0) {
-					inputBuffer.Truncate(inputBuffer.GetLength() - 1);
-				}
-
-				OnInputEventConsumed();
-				return HookResult::ConsumeEvent;
-			}
 		}
 
 
-		CString unicodeLiteral = keyData.unicodeLiteral;
+
 		if (unicodeLiteral == commandStarterCharacter) {
 			commandInProgress = true;
-			inputBuffer = "";
-			OnInputEventConsumed();
+			ClearInput();
 
 			return HookResult::ConsumeEvent;
 		}
-
+		
 
 		if (commandInProgress) {
 			if (TryConsumeArrowKeyEvent(keyData) == HookResult::ConsumeEvent) {
-				OnInputEventConsumed();
 				return HookResult::ConsumeEvent;
 			}
 			
 
 			if (keyData.hookData.vkCode == VK_RETURN) {
 
-				_Log(inputBuffer);
-
-				//delegate.OnCommand(inputBuffer);
 				OnCommandFinished();
-
-				inputBuffer = "";
+				ClearInput();
 				commandInProgress = false;
 
-				OnInputEventConsumed();
 				return HookResult::ConsumeEvent;
 			} 
 
 
-			inputBuffer += unicodeLiteral;
-			OnInputEventConsumed();
+			OnInputEventConsumed(keyData);
 
 			return HookResult::ConsumeEvent;
-			//Log::Debug(unicodeLiteral);
 
 		} else {
 
@@ -86,14 +79,10 @@ namespace TSPlugin {
 		}
 
 
-		//if (TryPlayQuickSound(inputBuffer)) {
-		//	return;
-		//}
-
 		return HookResult::PassEvent;
 
-		//SetScrollLockState();
 	}
+
 
 
 	
@@ -101,48 +90,58 @@ namespace TSPlugin {
 
 	HookResult InputHandler::TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData) {
 
-		if (possibleFilesForCurrentInput.size() == 0) {
-			return HookResult::PassEvent;
-		}
+
 
 		if (keyData.hookData.vkCode == VK_UP) {
-			RotateSelection(-1);
+			runLoop << [&] {
+				commandLineInterface.RotateSelection(-1);
+				delegate.OnInterfaceInvalidated();
+			};
 			return HookResult::ConsumeEvent;
 		}
 
 		if (keyData.hookData.vkCode == VK_DOWN) {
-			RotateSelection(1);
+			runLoop << [&] {
+				commandLineInterface.RotateSelection(1);
+				delegate.OnInterfaceInvalidated();
+			};
+			return HookResult::ConsumeEvent;
+		}
+
+		if (keyData.hookData.vkCode == VK_NEXT) {
+			runLoop << [&] {
+				commandLineInterface.PageDown();
+				delegate.OnInterfaceInvalidated();
+			};
+			return HookResult::ConsumeEvent;
+		}
+
+		if (keyData.hookData.vkCode == VK_PRIOR) {
+			runLoop << [&] {
+				commandLineInterface.PageUp();
+				delegate.OnInterfaceInvalidated();
+			};
 			return HookResult::ConsumeEvent;
 		}
 
 		return HookResult::PassEvent;
 	}
 
-	void InputHandler::RotateSelection(int indexDelta) {
-		if (possibleFilesForCurrentInput.size() == 0) {
-			selectedFileIndex = 0;
-			return;
-		}
-
-
-		selectedFileIndex = (selectedFileIndex + indexDelta) % possibleFilesForCurrentInput.size();
-
-	}
 
 	void InputHandler::OnCommandFinished() {
-		CString threadsafeInputBuffer = inputBuffer;
-		runLoop.Add([threadsafeInputBuffer, this] {
+
+		runLoop << [this] {
+			CString threadsafeInputBuffer = commandLineInterface.CopyBuffer();
 
 			if (TrySetBinding(threadsafeInputBuffer)) {
 				// semmi
 			} else {
 				delegate.OnInputCommandFinished();
 			}
-			// UpdatePossibleFiles(threadsafeInputBuffer);
-			// delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
 			
-			selectedFileIndex = 0;
-		});
+			commandLineInterface.Clear();
+			delegate.OnInterfaceInvalidated();
+		};
 	}
 
 
@@ -162,7 +161,7 @@ namespace TSPlugin {
 			const CString hotkey = matches[1].str().c_str();
 			const CString command = matches[2].str().c_str();
 
-			nextHotkeyBinding = make_shared<InputHandlerBinding>(InputHandlerBinding{ hotkey, command});
+			nextHotkeyBinding = make_shared<InputHandlerBinding>(InputHandlerBinding{ hotkey, command });
 			
 			return true;
 
@@ -189,56 +188,41 @@ namespace TSPlugin {
 			}
 
 			runLoop << [command, this] {
-				//std::vector<CString> possibleFiles = GetPossibleFiles(command);
-				//if (possibleFiles.size() > 0) {
-				//	delegate.Play
-				//}
 				
-
 				delegate.OnHotkeyCommand(command);
-				//UpdatePossibleFiles(threadsafeInputBuffer, threadsafeCommandInProgress);
-				//delegate.OnPossibleFilesChanged({ possibleFiles, selectedFileIndex });
+				
 			};
 		}
 
 	}
 
-	void InputHandler::OnInputEventConsumed() {
-		CString threadsafeInputBuffer = inputBuffer;
-		bool threadsafeCommandInProgress = commandInProgress;
-		runLoop.Add([threadsafeInputBuffer, threadsafeCommandInProgress, this] {
-			UpdatePossibleFiles(threadsafeInputBuffer, threadsafeCommandInProgress);
-			delegate.OnPossibleFilesChanged({ possibleFilesForCurrentInput, selectedFileIndex });
-		});
+	void InputHandler::OnInputEventConsumed(const KeyboardHook::KeyData& keyData) {
+		
+		runLoop << [keyData, this] {
+
+			commandLineInterface.AddInput(keyData);
+			delegate.OnInterfaceInvalidated();
+		};
 	}
 
-	void InputHandler::UpdatePossibleFiles(const CString& threadsafeInputBuffer, bool threadsafeCommandInProgress) {
-		if (!threadsafeCommandInProgress) {
-			possibleFilesForCurrentInput.resize(0);
-			selectedFileIndex = 0;
-		} else {
-			possibleFilesForCurrentInput = GetPossibleFiles(threadsafeInputBuffer);
-			if (selectedFileIndex < possibleFilesForCurrentInput.size()) {
-				if (possibleFilesForCurrentInput.size() == 0) {
-					selectedFileIndex = 0;
-				} else {
-					selectedFileIndex = std::min<size_t>(possibleFilesForCurrentInput.size() - 1u, selectedFileIndex);
-				}
-			}
-		}
-
+	void InputHandler::ClearInput() {
+		runLoop << [this] {
+			commandLineInterface.Clear();
+			delegate.OnInterfaceInvalidated();
+		};
 		
 	}
+
 
 	HookResult InputHandler::TryEnqueueFileFromCommand(CString str) {
 		
 
 		if (StartsWith(str, queuePrefix)) {
 			CString command = str.Right(str.GetLength() - queuePrefix.GetLength());
-			//CString fileName;
+			
 			if (auto fileName = TryGetLikelyFileName(command)) {
 				delegate.OnFileEnqueued(*fileName);
-				//playlist.push(*fileName);
+			
 			}
 
 			return ConsumeEvent;
@@ -246,5 +230,18 @@ namespace TSPlugin {
 		return PassEvent;
 	}
 
+
+	CStringA InputHandler::CreateTextInterface() {
+		if (commandInProgress) {
+			return commandLineInterface.CreateTextInterface();
+		} else {
+			return "";
+		}
+		
+	}
+
+	optional<fs::path> InputHandler::TryGetSelectedFile() {
+		return commandLineInterface.TryGetSelectedFile();
+	}
 }
 
