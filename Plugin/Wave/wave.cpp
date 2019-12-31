@@ -174,25 +174,49 @@ namespace TSPlugin {
 		const int fadeoutMs = 20;
 		const size_t fadeoutSampleCount = format.nSamplesPerSec / (1000 / fadeoutMs);
 		const size_t fadeoutSize = fadeoutSampleCount * format.nChannels * sizeof(short);
-		const size_t originalSize = data.size();
-		data.resize(originalSize + fadeoutSize);
+		//if()
+		//data.resize(originalSize + fadeoutSize);
 
-		if (format.nChannels == 1 && data.size() > sizeof(short)) {
 
-			short* const start = (short*)(data.data() + originalSize);
-			short* const end = (short*)(data.data() + data.size());
+		//if (data.size() > sizeof(short)*format.nChannels) {
+		if (data.size() > fadeoutSize) {
 
-			const short lastSample = *(end - 1);
-			const int64_t sampleCount = end - start;
-			int64_t currentIndex = 0;
+			const size_t originalSize = data.size() - fadeoutSize;
 
-			for (short* it = start; it < end; ++it, ++currentIndex) {
-				short& currentSample = *it;
-				currentSample = (short)(currentSample * (sampleCount - currentIndex) / sampleCount);
+			if (format.nChannels == 1) {
+
+				short* const start = (short*)(data.data() + originalSize);
+				short* const end = (short*)(data.data() + data.size());
+
+				const int64_t sampleCount = end - start;
+				int64_t currentIndex = 0;
+
+				for (short* it = start; it < end; ++it, ++currentIndex) {
+					short& currentSample = *it;
+					currentSample = (short)(currentSample * (sampleCount - currentIndex) / sampleCount);
+				}
+			} else {
+				const size_t stride = format.nChannels;
+
+				for (int channelIndex = 0; channelIndex < format.nChannels; ++channelIndex) {
+
+					short* const start = (short*)(data.data() + originalSize) + channelIndex;
+					short* const end = (short*)(data.data() + data.size()) + channelIndex;
+
+					const int64_t sampleCount = (end - start) / stride;
+					int64_t currentIndex = 0;
+
+					for (short* it = start; it < end; it += stride, ++currentIndex) {
+						short& currentSample = *it;
+						currentSample = (short)(currentSample * (sampleCount - currentIndex) / sampleCount);
+					}
+				}
+
 			}
+
+
+
 		}
-
-
 
 
 
@@ -238,10 +262,15 @@ namespace TSPlugin {
 
 
 	void WaveTrack::NormalizeVolume() {
-		
-		const float maxVolume = CalculateMaxVolume(*this);
-		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::NormalizeVolume)));
 		const BOOL normalizeVolume = _wtoi(Global::config.Get(ConfigKeys::NormalizeVolume));
+
+		if (!normalizeVolume) {
+			return;
+		}
+
+		const float maxVolume = CalculateMaxVolume(*this);
+		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::Volume)));
+		
 		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKeys::TargetNormalizedVolume)));
 
 		const float multiplier = normalizeVolume ? targetNormalizedVolume / maxVolume * targetVolume : targetVolume;

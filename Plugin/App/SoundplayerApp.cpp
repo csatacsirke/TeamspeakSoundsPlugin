@@ -646,6 +646,11 @@ namespace TSPlugin {
 		for (auto& buffer : playbackBuffers) {
 			CachedAudioSample48k playbackSamples = buffer->TryGetSamples(sampleCount, channels);
 			if (playbackSamples) {
+				// ha alapból üres lett volna, akk kinullázzuk, ( és kséőbb beállítjuk, hogy raktunk bele dolgot)
+				if (!(*channelFillMask & 0x3)) {
+					memset(samples, 0, sampleCount * channels * sizeof(short));
+				}
+
 				if (sampleCount*channels == playbackSamples->size()) {
 					SgnProc::Mix(samples, playbackSamples->data(), sampleCount*channels);
 					didAddAudio = true;
@@ -658,12 +663,8 @@ namespace TSPlugin {
 		playbackBuffersLock.unlock();
 
 		if (didAddAudio) {
+			// beállítjuk, hogy írtunk erre a 2 csatornára
 			*channelFillMask |= 3;
-			// ha alapból üres lett volna, akk kinullázzuk, és beállítjuk, hogy raktunk bele dolgot
-			//if (!(*channelFillMask & 0x3)) {
-			//	*channelFillMask |= 3;
-			//	//memset(samples, 0, sampleCount*channels * sizeof(short));
-			//}
 		}
 
 	}
