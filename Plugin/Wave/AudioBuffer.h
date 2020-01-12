@@ -139,7 +139,10 @@ namespace TSPlugin {
 
 
 
-
+	struct DataSegment {
+		uint8_t* start;
+		size_t size;
+	};
 
 
 	struct WaveTrackPtr {
@@ -160,10 +163,16 @@ namespace TSPlugin {
 			return (*currentOffset >= track->data.size());
 		}
 
-		uint8_t* GetNextDataSegment(size_t size) {
+		DataSegment GetNextDataSegment(size_t requestedSize) {
 			uint8_t* ptr = track->data.data() + *currentOffset;
-			*currentOffset += size;
-			return ptr;
+			
+			const size_t remainingDataSize = track->data.size() > *currentOffset ? track->data.size() - *currentOffset : 0;
+
+			const size_t segmentSize = std::min<size_t>(requestedSize, remainingDataSize);
+
+			*currentOffset += requestedSize;
+
+			return { ptr, segmentSize };
 		}
 
 		//WaveTrackPtr& operator=(const WaveTrackPtr& other) = delete;
@@ -282,31 +291,31 @@ namespace TSPlugin {
 			const int64_t outputSampleCount = sampleCountForOneChannel * outputChannels;
 
 
-			const uint8_t* start = track.data.data();
-			const uint8_t* const end = start + track.data.size();
+			//const uint8_t* start = track.data.data();
+			//const uint8_t* const end = start + track.data.size();
 
-			const uint8_t* offset = trackPtr.GetNextDataSegment(inputSampleCount * sizeof(short));
+			const DataSegment dataSegment = trackPtr.GetNextDataSegment(inputSampleCount * sizeof(short));
 
-			if (end - offset > inputSampleCount) {
+			if (dataSegment.size == inputSampleCount * format.nChannels) {
 
 				CachedAudioSample48k data = cache.GetNewBuffer(outputSampleCount);
 				memset(data->data(), 0, GetDataSizeInBytes(*data));
 
 				if (outputSampleCount != inputSampleCount) {
-					SgnProc::Resample((const short*)offset, inputSampleCount, format.nChannels, data->data(), data->size(), outputChannels);
+					SgnProc::Resample((const short*)dataSegment.start, inputSampleCount, format.nChannels, data->data(), data->size(), outputChannels);
 				} else {
-					memcpy(data->data(), offset, GetDataSizeInBytes(*data));
+					memcpy(data->data(), dataSegment.start, GetDataSizeInBytes(*data));
 				}
 				return data;
 
-			} else if (end - offset > 0) {
+			} else if (dataSegment.size > 0) {
 				// overflow, ami nem egész 20ms adat
 				CachedAudioSample48k data = cache.GetNewBuffer(outputSampleCount);
 				memset(data->data(), 0, GetDataSizeInBytes(*data));
 
-				size_t inputOverflowSampleCount = (end - offset) / sizeof(short);
-				size_t outputOverflowSampleCount = inputOverflowSampleCount * outputSampleCount / inputSampleCount;
-				SgnProc::Resample((const short*)offset, inputOverflowSampleCount, format.nChannels, data->data(), outputOverflowSampleCount, outputChannels);
+				const size_t inputOverflowSampleCount = dataSegment.size / sizeof(short);
+				const size_t outputOverflowSampleCount = inputOverflowSampleCount * outputSampleCount / inputSampleCount;
+				SgnProc::Resample((const short*)dataSegment.start, inputOverflowSampleCount, format.nChannels, data->data(), outputOverflowSampleCount, outputChannels);
 
 
 				return data;

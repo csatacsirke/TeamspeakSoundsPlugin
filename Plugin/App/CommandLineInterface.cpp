@@ -66,6 +66,11 @@ namespace TSPlugin {
 			interfaceItems.push_back(make_shared<CommandLineInterfaceItem>(CommandLineInterfaceItem{ path }));
 		}
 
+		if (inputBuffer.GetLength() > 0) {
+			interfaceItems.push_back(make_shared<CommandLineInterfaceItem>(CommandLineInterfaceItem{ }));
+		}
+		
+
 		for (int index = 0; index < (int)allFiles.size(); ++index) {
 
 			if (interfaceItems.size() >= maxVisibleFileCount) {
