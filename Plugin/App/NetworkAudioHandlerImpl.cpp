@@ -101,7 +101,7 @@ namespace TSPlugin {
 			//}
 			udp_receiver_socket.close();
 
-		} catch (const asio::system_error& error) {
+		} catch (const asio::system_error&) {
 			// néger gyerekek potyognak, van ilyen
 		}
 		
