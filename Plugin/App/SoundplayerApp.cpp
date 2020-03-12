@@ -395,10 +395,9 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::UpdateOverlay() {
-#if 0
+
 		const shared_ptr<OverlayWindow>& window = OverlayWindow::GetInstance();
-		window->SetInfoData(GetPluginInfoData());
-#endif
+		window->SetInfoData(Utf8ToCString(GetPluginInfoData()));
 	}
 
 	void SoundplayerApp::UpdateObserverDialog() {
@@ -715,9 +714,11 @@ namespace TSPlugin {
 			const static std::map<CStringA, CString> userWelcomeSoundsMapping = {
 				{"Hodi", L"szarhazi"},
 				{"Ugyis", L"itt a ku"},
+				{"Kurátor", L"itt a ku"},
 				{"Battlechicken", L"itt vagyok"},
 				{"yoloczki", L"dorime"},
 				{"Antekirt", L"jaj egy szazmeteres"},
+				{"Tachibana", L"jakab"},
 			};
 
 			//(name, predicate);

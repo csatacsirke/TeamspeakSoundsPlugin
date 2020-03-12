@@ -22,7 +22,7 @@ namespace TSPlugin {
 	};
 
 	class OverlayWindow : public CDialogEx {
-		CStringA InfoData;
+		CString infoData;
 
 	public:
 		BufferedPaintComponent bufferedPaintComponent;
@@ -31,7 +31,7 @@ namespace TSPlugin {
 
 		static const shared_ptr<OverlayWindow>& GetInstance();
 
-		void SetInfoData(const CStringA& infoData);
+		void SetInfoData(const CString& newInfoData);
 
 
 

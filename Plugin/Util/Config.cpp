@@ -28,6 +28,8 @@ namespace TSPlugin {
 			{ BindCommand, L"bind" },
 			{ CanReceiveNetworkSoundData, L"0" },
 			{ ShouldDisplayOverlay, L"1" },
+			{ OverlayBackgroundAlpha, L"96" },
+			{ OverlayFontSize, L"18" },
 
 		};
 	}
@@ -116,6 +118,30 @@ namespace TSPlugin {
 			return nullopt;
 		}
 	}
+
+	//optional<double> Config::GetDouble(const CString& key) {
+	//	optional<CString> optValue = TryGet(key);
+	//	if (!optValue) {
+	//		return nullopt;
+	//	}
+	//	return Convert<double>(*optValue);
+	//}
+
+	//optional<float> Config::GetFloat(const CString& key) {
+	//	optional<CString> optValue = TryGet(key);
+	//	if (!optValue) {
+	//		return nullopt;
+	//	}
+	//	return (float)_wtof(*optValue);
+	//}
+
+	//optional<int> Config::GetInt(const CString& key) {
+	//	optional<CString> optValue = TryGet(key);
+	//	if (!optValue) {
+	//		return nullopt;
+	//	}
+	//	return _wtoi(*optValue);
+	//}
 
 	bool Config::GetBool(const CString& key) {
 		return _wtoi(Global::config.Get(key)) != 0;

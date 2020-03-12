@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "OverlayWindow.h"
 
+#include <Util/Config.h>
+
 #include <gdiplus.h>
 #pragma comment (lib,"Gdiplus.lib")
 
@@ -8,6 +10,8 @@
 namespace TSPlugin {
 
 	using namespace Gdiplus;
+
+	constexpr COLORREF TransparentKey = RGB(123, 53, 54);
 
 	GdiPlusComponent::GdiPlusComponent() {
 		// Initialize GDI+.
@@ -66,8 +70,10 @@ namespace TSPlugin {
 		const BOOL result = __super::OnInitDialog();
 
 
-
-		SetLayeredWindowAttributes(0, 125, LWA_COLORKEY); 
+		const BYTE overlayBackgroundAlpha = (BYTE)Global::config.Get<int>(ConfigKeys::OverlayBackgroundAlpha).value_or(96);
+		SetLayeredWindowAttributes(TransparentKey, overlayBackgroundAlpha, LWA_COLORKEY | LWA_ALPHA);
+		ShowWindow(SW_SHOWMAXIMIZED);
+		//SetLayeredWindowAttributes(TransparentKey, 125, LWA_COLORKEY);
 		//SetLayeredWindowAttributes(0xffffffff, 125, LWA_ALPHA); 
 
 		
@@ -90,15 +96,17 @@ namespace TSPlugin {
 
 	static inline void DrawTextToContext(Graphics& graphics, const CString& text) {
 
+		const REAL fontSize = Global::config.Get<REAL>(ConfigKeys::OverlayFontSize).value_or(18);
+
 		SolidBrush brush(Color(255, 255, 255, 255));
 		FontFamily fontFamily(L"Times New Roman");
-		Gdiplus::Font font(&fontFamily, 24, FontStyleRegular, UnitPixel);
+		Gdiplus::Font font(&fontFamily, fontSize, FontStyleRegular, UnitPixel);
 		PointF pointF(10.0f, 20.0f);
 
 		RectF boundingBox;
 		graphics.MeasureString(text, -1, &font, pointF, &boundingBox);
 
-		SolidBrush backgroundBrush(Color(128, 1, 0, 0));
+		SolidBrush backgroundBrush(Color(255, 0, 0, 0));
 		graphics.FillRectangle(&backgroundBrush, boundingBox);
 		graphics.DrawString(text, -1, &font, pointF, &brush);
 	}
@@ -106,7 +114,8 @@ namespace TSPlugin {
 	void OverlayWindow::PaintToBackbuffer(HDC dc) {
 		Graphics graphics(dc);
 
-		graphics.Clear(Color(0, 0, 0, 0));
+		//graphics.Clear(Color(0, 0, 0, 0));
+		//graphics.Clear(Color(TransparentKey));
 
 
 		CRect clientRect;
@@ -114,8 +123,8 @@ namespace TSPlugin {
 
 		Rect rect(0, 0, clientRect.Width(), clientRect.Height());
 		//PaintBorder(graphics, rect);
-
-		DrawTextToContext(graphics, L"hmmm");
+		
+		DrawTextToContext(graphics, infoData);
 
 	}
 
@@ -124,20 +133,25 @@ namespace TSPlugin {
 
 
 		if (CDC* dc = GetDC()) {
-			const int graphicsState = dc->SaveDC();
+			//const int graphicsState = dc->SaveDC();
 
 
 
 			CRect clientRect;
 			GetClientRect(clientRect);
 
-			BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP };
+
+			BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP | BPPF_ERASE };
 			HDC hdcMem;
 			HPAINTBUFFER hpb = BeginBufferedPaint(*dc, &clientRect, BPBF_TOPDOWNDIB, &params, &hdcMem);
 			//CDC memDc;
 			//memDc.Attach(hdcMem);
 
 			if (hpb) {
+				CBrush brush;
+				brush.CreateSolidBrush(TransparentKey);
+				FillRect(hdcMem, &clientRect, brush);
+
 				PaintToBackbuffer(hdcMem);
 				
 
@@ -153,8 +167,10 @@ namespace TSPlugin {
 			}
 			//memDc.Detach();
 
-			dc->RestoreDC(graphicsState);
+			//dc->RestoreDC(graphicsState);
+			
 			ReleaseDC(dc);
+			ValidateRect(clientRect);
 		}
 		
 
@@ -178,8 +194,9 @@ namespace TSPlugin {
 		return TRUE;*/
 	}
 
-	void OverlayWindow::SetInfoData(const CStringA& infoData) {
-		InfoData = infoData;
+	void OverlayWindow::SetInfoData(const CString& newInfoData) {
+		infoData = newInfoData;
+		Invalidate();
 	}
 
 

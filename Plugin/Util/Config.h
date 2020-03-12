@@ -2,12 +2,27 @@
 
 #include <afx.h>
 
+
 #include <optional>
+#include <sstream>
 
 
 namespace TSPlugin {
 
 	typedef map<CString, CString> ConfigDictionary;
+
+
+	template <typename T>
+	optional<T> Convert(const wstring& s) {
+		std::wstringstream ss(s);
+
+		T result;
+		if ((ss >> result).fail() || !(ss >> std::ws).eof()) {
+			return nullopt;
+		}
+
+		return result;
+	}
 
 	class Config {
 		ConfigDictionary entries;
@@ -28,10 +43,26 @@ namespace TSPlugin {
 		CString Get(CString key);
 		bool TryGet(CString key, _Out_ CString& value);
 		optional<CString> TryGet(CString key);
+
+		template<class T>
+		optional<T> Get(const CString& key) {
+			optional<CString> optValue = TryGet(key);
+			if (!optValue) {
+				return nullopt;
+			}
+			return Convert<T>(wstring(*optValue));
+		}
+
+		//optional<double> GetDouble(const CString& key);
+		//optional<float> GetFloat(const CString& key);
+		//optional<int> GetInt(const CString& key);
 		bool GetBool(const CString& key);
+
 
 		ConfigDictionary MakeCopyOfEntries() const;
 		void SetEntries(const ConfigDictionary& newEntries);
+
+
 
 	private:
 		void StoreLine(wstring line);
@@ -51,6 +82,8 @@ namespace TSPlugin {
 		static const CString ClearBindingAfterUse = L"ClearBindingAfterUse";
 		static const CString CanReceiveNetworkSoundData = L"CanReceiveNetworkSoundData";
 		static const CString ShouldDisplayOverlay = L"ShouldDisplayOverlay";
+		static const CString OverlayFontSize = L"OverlayFontSize";
+		static const CString OverlayBackgroundAlpha = L"OverlayBackgroundAlpha";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}
