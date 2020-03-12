@@ -3,23 +3,31 @@
 
 
 namespace TSPlugin {
-	//class OverlayWindow : public CDialogEx {
-	class OverlayWindow : public CWnd {
+
+	class BufferedPaintComponent {
+	public:
+		BufferedPaintComponent() {
+			BufferedPaintInit();
+		}
+		~BufferedPaintComponent() {
+			BufferedPaintUnInit();
+		}
+	};
+
+	class GdiPlusComponent {
+		ULONG_PTR gdiplusToken;
+	public:
+		GdiPlusComponent();
+		~GdiPlusComponent();
+	};
+
+	class OverlayWindow : public CDialogEx {
 		CStringA InfoData;
 
-	private:
-
-		
-
-		DECLARE_DYNAMIC(OverlayWindow)
-
 	public:
+		BufferedPaintComponent bufferedPaintComponent;
+		GdiPlusComponent gdiPlusComponent;
 
-		typedef CWnd ParentClass;
-		
-
-		//OverlayWindow(CWnd* pParent = nullptr);   // standard constructor
-		
 
 		static const shared_ptr<OverlayWindow>& GetInstance();
 
@@ -36,10 +44,10 @@ namespace TSPlugin {
 
 	protected:
 		void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
-		//BOOL OnInitDialog() override;
+		BOOL OnInitDialog() override;
 
 		BOOL PreCreateWindow(CREATESTRUCT& cs) override;
-
+		void PaintToBackbuffer(HDC dc);
 
 
 		afx_msg void OnPaint();
@@ -50,23 +58,6 @@ namespace TSPlugin {
 
 
 	};
-
-	//class OverlayWindow : public CDialogEx {
-	//	
-	//	CStringA InfoData;
-
-
-	//public:
-	//	static const shared_ptr<OverlayWindow>& GetInstance();
-
-	//public:
-
-	//	void SetInfoData(const CStringA& infoData);
-
-	//protected:
-	//	
-	//	//void OnDraw(CDC* pDC) override;
-	//};
 
 } // namespace TSPlugin 
 
