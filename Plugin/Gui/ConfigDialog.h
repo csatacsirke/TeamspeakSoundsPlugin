@@ -8,7 +8,10 @@ namespace TSPlugin {
 	// ConfigDialog dialog
 
 	class ConfigDialog : public CDialogEx {
-		
+	private:
+		CListCtrl configListControl;
+		ConfigDictionary m_configDictionary;
+		map<int, CString> listIndexToKeyMapping;
 
 	private:
 
@@ -17,6 +20,11 @@ namespace TSPlugin {
 	public:
 		ConfigDialog(const ConfigDictionary& configDictionary, CWnd* pParent = nullptr);   // standard constructor
 		virtual ~ConfigDialog();
+
+
+		const ConfigDictionary& GetEntries() const { return m_configDictionary; }
+
+
 
 		// Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -31,10 +39,9 @@ namespace TSPlugin {
 		afx_msg void OnEdit(NMHDR* pNotifyStruct, LRESULT* result);
 
 		DECLARE_MESSAGE_MAP()
-	public:
-		CListCtrl configListControl;
-		ConfigDictionary m_configDictionary;
-		map<int, CString> listIndexToKeyMapping;
+
+	private:
+	
 	};
 
 } // namespace TSPlugin

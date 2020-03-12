@@ -348,7 +348,7 @@ namespace TSPlugin {
 		ConfigDialog dialog(Global::config.MakeCopyOfEntries(), AfxGetMainWnd());
 		const INT_PTR dialogResult = dialog.DoModal();
 		if (dialogResult == IDOK) {
-			Global::config.SetEntries(dialog.m_configDictionary);
+			Global::config.SetEntries(dialog.GetEntries());
 			Global::config.Save();
 		}
 	}

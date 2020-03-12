@@ -72,6 +72,8 @@ namespace TSPlugin {
 		return result;
 	}
 
+	// ConfigDialog message handlers
+
 	void ConfigDialog::OnEdit(NMHDR* pNotifyStruct, LRESULT* result) {
 		NMLVDISPINFO* notification = (NMLVDISPINFO*)pNotifyStruct;
 
@@ -86,8 +88,6 @@ namespace TSPlugin {
 	}
 
 
-
-	// ConfigDialog message handlers
 
 } // namespace TSPlugin
 
