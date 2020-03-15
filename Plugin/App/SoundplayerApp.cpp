@@ -395,9 +395,14 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::UpdateOverlay() {
+		if (!overlayWindow) {
+			overlayWindow = make_shared<OverlayWindow>();
+			overlayWindow->Create(IDD_OVERLAY_WINDOW);
+			overlayWindow->ShowWindow(SW_SHOW);
+		}
+		
 
-		const shared_ptr<OverlayWindow>& window = OverlayWindow::GetInstance();
-		window->SetInfoData(Utf8ToCString(GetPluginInfoData()));
+		overlayWindow->SetInfoData(Utf8ToCString(GetPluginInfoData()));
 	}
 
 	void SoundplayerApp::UpdateObserverDialog() {

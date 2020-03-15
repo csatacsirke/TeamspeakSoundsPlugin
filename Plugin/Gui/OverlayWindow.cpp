@@ -23,23 +23,22 @@ namespace TSPlugin {
 	}
 
 
-	static shared_ptr<OverlayWindow> overlayWindowInstance = nullptr;
+	//static weak_ptr<OverlayWindow> overlayWindowInstanceWeakRef;
 
 
 
-	const shared_ptr<OverlayWindow>& OverlayWindow::GetInstance() {
-		if (!overlayWindowInstance) {
-			overlayWindowInstance = make_shared<OverlayWindow>();
-			
-			//const auto windowClass = AfxRegisterWndClass(0, 0, (HBRUSH)GetStockObject(NULL_BRUSH));
-			//overlayWindowInstance->CreateEx(WS_EX_TOPMOST, windowClass, L"OverlayWindow", WS_VISIBLE, CRect{0, 0, 400, 400}, nullptr, 0);
-			overlayWindowInstance->Create(IDD_OVERLAY_WINDOW);
-			//overlayWindowInstance->ShowWindow(SW_SHOWMAXIMIZED);
-			overlayWindowInstance->ShowWindow(SW_SHOW);
-		}
+	//const shared_ptr<OverlayWindow>& OverlayWindow::GetInstance() {
+	//	auto overlayWindowInstance = overlayWindowInstanceWeakRef.lock();
+	//	if (!overlayWindowInstance) {
+	//		overlayWindowInstance = make_shared<OverlayWindow>();
+	//		overlayWindowInstanceWeakRef = overlayWindowInstance;
+	//		
+	//		overlayWindowInstance->Create(IDD_OVERLAY_WINDOW);
+	//		overlayWindowInstance->ShowWindow(SW_SHOW);
+	//	}
 
-		return overlayWindowInstance;
-	}
+	//	return overlayWindowInstance;
+	//}
 
 	BEGIN_MESSAGE_MAP(OverlayWindow, CDialogEx)
 		ON_WM_PAINT()

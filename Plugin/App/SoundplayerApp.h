@@ -150,6 +150,8 @@ namespace TSPlugin {
 		InputHandler inputHandler = InputHandler(*this);
 		shared_ptr<NetworkAudioHandler> networkAudioHandler = NetworkAudioHandler::Create();
 
+		shared_ptr<class OverlayWindow> overlayWindow;
+
 		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
 		//shared_ptr<const FileList> unsafeFileList;
 		

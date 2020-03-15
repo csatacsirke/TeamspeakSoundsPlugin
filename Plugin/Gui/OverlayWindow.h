@@ -29,7 +29,7 @@ namespace TSPlugin {
 		GdiPlusComponent gdiPlusComponent;
 
 
-		static const shared_ptr<OverlayWindow>& GetInstance();
+		//static const shared_ptr<OverlayWindow>& GetInstance();
 
 		void SetInfoData(const CString& newInfoData);
 
