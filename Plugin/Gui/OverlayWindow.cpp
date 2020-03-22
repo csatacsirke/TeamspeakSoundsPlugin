@@ -123,7 +123,8 @@ namespace TSPlugin {
 		Rect rect(0, 0, clientRect.Width(), clientRect.Height());
 		//PaintBorder(graphics, rect);
 		
-		DrawTextToContext(graphics, infoData);
+		const shared_ptr<const CString> infoData_guard = infoData;
+		DrawTextToContext(graphics, *infoData_guard);
 
 	}
 
@@ -194,7 +195,7 @@ namespace TSPlugin {
 	}
 
 	void OverlayWindow::SetInfoData(const CString& newInfoData) {
-		infoData = newInfoData;
+		infoData = make_shared<CString>(newInfoData);
 		Invalidate();
 	}
 

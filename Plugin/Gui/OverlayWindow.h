@@ -22,7 +22,7 @@ namespace TSPlugin {
 	};
 
 	class OverlayWindow : public CDialogEx {
-		CString infoData;
+		shared_ptr<const CString> infoData;
 
 	public:
 		BufferedPaintComponent bufferedPaintComponent;
