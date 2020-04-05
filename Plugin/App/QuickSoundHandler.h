@@ -4,6 +4,8 @@
 #include <Util/Util.h>
 #include <Util/Config.h>
 
+#include <KeyboardHook/KeyboardHookUtils.h>
+
 
 
 #include <filesystem>
@@ -23,7 +25,7 @@ IteratorType end(const std::pair<IteratorType, IteratorType>& iterator) {
 namespace TSPlugin {
 
 	//namespace fs = std::experimental::filesystem;
-
+	using namespace KeyboardHook;
 
 
 	class QuickSoundsFileSystem {

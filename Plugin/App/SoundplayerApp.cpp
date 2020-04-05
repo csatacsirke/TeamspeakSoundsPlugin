@@ -13,8 +13,9 @@
 #include <Gui/ConfigDialog.h>
 #include <Gui/OverlayWindow.h>
 
-#include "Util\TSSoundPlayer.h"
-#include "Util\Util.h"
+#include <Util\TSSoundPlayer.h>
+#include <Util\Util.h>
+#include <Util\TsHelperFunctions.h>
 
 
 #include "afxdlgs.h"

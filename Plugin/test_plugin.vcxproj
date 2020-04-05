@@ -448,6 +448,7 @@
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />
+    <ClInclude Include="Util\TsHelperFunctions.h" />
     <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />
     <ClInclude Include="Gui\DlgScrollable.h" />

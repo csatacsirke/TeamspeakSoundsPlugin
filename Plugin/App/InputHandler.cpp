@@ -94,7 +94,7 @@ namespace TSPlugin {
 
 		if (keyData.hookData.vkCode == VK_UP) {
 			runLoop << [&] {
-				commandLineInterface.RotateSelection(-1);
+				commandLineInterface.ShiftSelection(-1);
 				delegate.OnInterfaceInvalidated();
 			};
 			return HookResult::ConsumeEvent;
@@ -102,7 +102,7 @@ namespace TSPlugin {
 
 		if (keyData.hookData.vkCode == VK_DOWN) {
 			runLoop << [&] {
-				commandLineInterface.RotateSelection(1);
+				commandLineInterface.ShiftSelection(1);
 				delegate.OnInterfaceInvalidated();
 			};
 			return HookResult::ConsumeEvent;

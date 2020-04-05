@@ -11,82 +11,54 @@
 #include <string.h>
 #include <stdlib.h>
 #include <fstream>
+#include <array>
 
 #pragma warning( disable: 4267 )
 
 
 namespace TSPlugin {
 
+
+
+
+	struct WaveFmtHeader {
+		unsigned short formatTag;
+		unsigned short channels;
+		unsigned int samplesPerSec;
+		unsigned int avgBytesPerSec;
+		unsigned short blockAlign;
+		unsigned short bitsPerSample;
+
+
+	public:
+		// (.cpp ben)
+		static optional<WaveFmtHeader> ReadFrom(std::istream& stream);
+		WAVEFORMATEX ToWaveFormatEx() const;
+	};
+
+	optional<WaveFmtHeader> WaveFmtHeader::ReadFrom(std::istream& stream) {
+		uint32_t chunkSize;
+		stream.read((char*)&chunkSize, sizeof chunkSize);
+		if (!stream) return nullopt;
+
+
+		WaveFmtHeader header;
+
+		static_assert(sizeof header == 16);
+
+		if (chunkSize != sizeof header) {
+			return nullopt;
+		}
+
+
+		stream.read((char*)&header, sizeof header);
+		if (!stream) return nullopt;
+
+		return header;
+	}
 	
 
-
-	bool WaveHeader::ReadFrom(std::istream& stream) {
-
-		stream.read(riffId, sizeof riffId);
-		stream.read((char*)&len, sizeof len);
-		stream.read(riffType, sizeof riffType);
-		stream.read(fmtId, sizeof fmtId);
-
-		// hogyan gányoljunk, bálintmarcival S01E01
-		// kratulálok... el is basztad mikor kivontál egymsából két int* ot 
-		// söt, még azt is hogy az utolsó utáni offsetet kell kivonni
-		// vagy legalább hozzáadni az uolsó méretét...
-		stream.read((char*)&fmtLen, sizeof fmtLen);
-		std::vector<char> data;
-		data.resize(fmtLen);
-		stream.read(data.data(), fmtLen);
-		// két címet vonunk ki egymásból
-		//size_t ourChunkLength = ((char*)&bitsPerSample - (char*)&formatTag);
-		size_t ourChunkLength = ((char*)dataId - (char*)&formatTag);
-
-		if (data.size() < ourChunkLength) {
-			Log::Warning(L"WaveHeader::ReadFrom: data.size() < ourChuckLength");
-			return false;
-		}
-		memcpy(&formatTag, data.data(), ourChunkLength);
-
-		stream.read(dataId, sizeof dataId);
-		stream.read((char*)&dataLen, sizeof dataLen);
-
-
-		char riff[4] = { 'R', 'I', 'F', 'F' };
-		char wave[4] = { 'W', 'A', 'V', 'E' };
-		char fmt[4] = { 'f', 'm', 't', ' ' };
-		char dat[4] = { 'd', 'a', 't', 'a' };
-
-
-		for (int i = 0; i < 4; i++) {
-			if ((riffId[i] != riff[i]) ||
-				(riffType[i] != wave[i]) ||
-				(fmtId[i] != fmt[i]) ||
-				(dataId[i] != dat[i])
-				) {
-				Log::Warning(L"WaveHeader::ReadFrom: different wav magic number");
-				return false;
-			}
-		}
-
-		//if(fmtLen != 16) return false;
-		if (formatTag != 1) {
-			Log::Warning(L"WaveHeader::ReadFrom: formatTag != 1");
-			return false;
-		}
-		if (channels < 1 || channels >2) {
-			Log::Warning(L"WaveHeader::ReadFrom: channels < 1 || channels >2");
-			return false;
-		}
-		//if(blockAlign != channels * sizeof(short)) {
-		if (blockAlign != channels * this->bitsPerSample / 8) {
-			Log::Warning(L"WaveHeader::ReadFrom: blockAlign != channels * this->bitsPerSample / 8");
-
-			return false;
-		}
-
-		return true;
-	}
-
-
-	WAVEFORMATEX WaveHeader::ToWaveFormatEx() {
+	WAVEFORMATEX WaveFmtHeader::ToWaveFormatEx() const {
 		WAVEFORMATEX format;
 
 		format.wFormatTag = WAVE_FORMAT_PCM;
@@ -118,39 +90,29 @@ namespace TSPlugin {
 		track->format = format;
 		track->data = std::move(data);
 
-		//track->NormalizeVolume();
-
 		return track;
 	}
 
-	optional<WaveHeader> WaveTrack::ReadHeader(std::istream& stream) {
+	typedef std::array<char, 4> ChunkId;
+	static const ChunkId fmt_id = {'f', 'm', 't', ' ' };
+	static const ChunkId data_id = {'d', 'a', 't', 'a' };
 
-		WaveHeader header;
-		if (!header.ReadFrom(stream)) {
+
+	inline optional<ChunkId> ReadChunkHeader(std::istream& stream) {
+		ChunkId chunkId;
+		stream.read((char*)&chunkId, sizeof chunkId);
+		if (!stream) {
 			return nullopt;
 		}
-
-		this->format = header.ToWaveFormatEx();
-		//numberOfSamples = header.dataLen / (header.channels * sizeof(short));
-		//dataLength = header.dataLen;
-
-		return header;
+		return chunkId;
 	}
 
 
-	bool WaveTrack::ReadData(const WaveHeader& header, std::istream& stream) {
-
-		Log::Debug(L"Data Length :" + ToString(header.dataLen));
-
-		data.resize(header.dataLen, 0);
-
-
-
-
-		stream.read((char*)data.data(), data.size());
-
+	static void PostProcessTrack(WaveTrack& track) {
 
 		//short* data = (short*)result->data.data();
+		vector<uint8_t>& data = track.data;
+		auto& format = track.format;
 
 		if (format.wBitsPerSample == 8) {
 			format.wBitsPerSample = 16;
@@ -163,12 +125,6 @@ namespace TSPlugin {
 			}
 			std::swap(buffer16Bit, data);
 		}
-
-		if (stream.fail()) {
-			Log::Warning(L"(warning) ReadData: in.fail()");
-		}
-
-
 
 		// Add smooth ending, so there will be no clicking sound because of the abrupt ending
 		const int fadeoutMs = 20;
@@ -218,10 +174,26 @@ namespace TSPlugin {
 
 		}
 
+	}
+
+	static std::shared_ptr<WaveTrack> ReadData(const WaveFmtHeader& header, std::istream& stream) {
+
+		std::shared_ptr<WaveTrack> track = make_shared<WaveTrack>();
+		track->format = header.ToWaveFormatEx();
+
+		uint32_t chunkSize;
+		stream.read((char*)&chunkSize, sizeof chunkSize);
+		if (!stream) return nullptr;
 
 
+		Log::Debug(L"Data Length :" + ToString(chunkSize));
 
-		return true;
+		track->data = vector<uint8_t>(chunkSize, 0);
+
+		stream.read((char*)track->data.data(), track->data.size());
+		if (!stream) return nullptr;
+
+		return track;
 	}
 
 
@@ -286,9 +258,6 @@ namespace TSPlugin {
 
 	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(std::istream& stream) {
 
-		std::shared_ptr<WaveTrack> result(new WaveTrack());
-
-
 		if (!stream) {
 			//Log::Error(L"LoadWaveFile: failed to open stream");
 			Log::Warning(L"LoadWaveFile: failed to open stream");
@@ -296,25 +265,46 @@ namespace TSPlugin {
 		}
 
 
-		auto header = result->ReadHeader(stream);
-		if (!header) {
-			return NULL;
+		// Riff chunk
+		char riffId[4];  // 'RIFF'
+		uint32_t len;
+		char riffType[4];  // 'WAVE'
+
+
+		stream.read(riffId, sizeof riffId);
+		stream.read((char*)&len, sizeof len);
+		stream.read(riffType, sizeof riffType);
+
+
+		optional<WaveFmtHeader> header;
+		std::shared_ptr<WaveTrack> track;
+
+		while (optional<ChunkId> chunkId = ReadChunkHeader(stream)) {
+			if (chunkId == fmt_id) {
+				header = WaveFmtHeader::ReadFrom(stream);
+				if (!header) return nullptr;
+			}
+
+			if (chunkId == data_id) {
+				if (!header) {
+					return nullptr;
+				}
+
+				track = ReadData(*header, stream);
+				if (!track) return nullptr;
+			}
 		}
 
-		if (!result->ReadData(*header, stream)) {
-			return NULL;
-		}
 
+
+		if (track) {
+			PostProcessTrack(*track);
+			track->NormalizeVolume();
+		}
 		
 
 
-		//result->FillMetadata();
-
-
-		result->NormalizeVolume();
-
-
-		return result;
+		return track;
 
 	}
 

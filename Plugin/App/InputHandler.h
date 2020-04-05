@@ -5,9 +5,11 @@
 #include <Util/RunLoop.h>
 
 #include <App/CommandLineInterface.h>
+#include <KeyboardHook/KeyboardHookUtils.h>
 
 
 namespace TSPlugin {
+	using namespace KeyboardHook;
 
 	class InputHandlerDelegate {
 
@@ -38,7 +40,7 @@ namespace TSPlugin {
 	private:
 
 		HookResult TryConsumeArrowKeyEvent(const KeyboardHook::KeyData& keyData);
-		void RotateSelection(int indexDelta);
+		void ShiftSelection(int indexDelta);
 		HookResult TryEnqueueFileFromCommand(CString str);
 
 		

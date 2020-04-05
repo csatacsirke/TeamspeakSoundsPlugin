@@ -125,7 +125,7 @@ namespace TSPlugin {
 
 
 
-	void CommandLineInterface::RotateSelection(int indexDelta) {
+	void CommandLineInterface::ShiftSelection(int indexDelta) {
 		unique_lock<mutex> lock(internal_mutex);
 		
 		if (interfaceItems.size() == 0) {

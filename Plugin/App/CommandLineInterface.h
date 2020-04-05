@@ -42,7 +42,7 @@ namespace TSPlugin {
 
 		optional<fs::path> TryGetSelectedFile();
 
-		void RotateSelection(int indexDelta);
+		void ShiftSelection(int indexDelta);
 		void PageUp();
 		void PageDown();
 
