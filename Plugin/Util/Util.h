@@ -303,6 +303,8 @@ namespace TSPlugin {
 		result.Replace(L'á', L'a');
 		result.Replace(L'é', L'e');
 		result.Replace(L'í', L'i');
+		result.Replace(L'ü', L'u');
+		result.Replace(L'ö', L'o');
 
 		return result;
 	}
