@@ -107,10 +107,8 @@ namespace TSPlugin {
 		return chunkId;
 	}
 
+	static void ResampleTo16Bit(WaveTrack& track) {
 
-	static void PostProcessTrack(WaveTrack& track) {
-
-		//short* data = (short*)result->data.data();
 		vector<uint8_t>& data = track.data;
 		auto& format = track.format;
 
@@ -125,6 +123,80 @@ namespace TSPlugin {
 			}
 			std::swap(buffer16Bit, data);
 		}
+
+		if (format.wBitsPerSample == 32) {
+			format.wBitsPerSample = 16;
+			std::vector<uint8_t> newBuffer(data.size() / 2, 0);
+			int16_t* buffer16Bit = (int16_t*)newBuffer.data();
+
+			for (int i = 0; i < newBuffer.size() / 2; ++i) {
+				const float value_f32 = *reinterpret_cast<float*>(data.data() + 4 * i);
+				buffer16Bit[i] = int16_t(double(value_f32) * int64_t(1 << 16));
+			}
+			std::swap(newBuffer, data);
+		}
+	}
+
+
+	static float CalculateMaxVolume(const class WaveTrack& waveTrack) {
+
+		const auto& format = waveTrack.format;
+
+		const int bytesPerSample = format.wBitsPerSample / 8;
+		const uint8_t* data = waveTrack.data.data();
+		const size_t dataSize = waveTrack.data.size();
+
+		float absMaxSample = 0;
+
+		if (bytesPerSample == 1) {
+			for (size_t offset = 0; offset < dataSize; offset += bytesPerSample) {
+				const int sample = *reinterpret_cast<const uint8_t*>(data + offset);
+				const float sampleAsFloat = float(sample) / float(1 << 8);
+				absMaxSample = std::max<float>(abs(sampleAsFloat), absMaxSample);
+			}
+		} else if (bytesPerSample == 2) {
+			for (size_t offset = 0; offset < dataSize; offset += bytesPerSample) {
+				const int sample = *reinterpret_cast<const short*>(data + offset);
+				const float sampleAsFloat = float(sample) / float(1 << 16);
+				absMaxSample = std::max<float>(abs(sampleAsFloat), absMaxSample);
+			}
+		} else {
+			ASSERT(0);
+			return 1.0f;
+		}
+
+		return absMaxSample;
+	}
+
+	static void NormalizeVolume(WaveTrack& track) {
+
+
+		const float maxVolume = CalculateMaxVolume(track);
+		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::Volume)));
+		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKeys::TargetNormalizedVolume)));
+
+		const bool normalizeVolume = Global::config.GetBool(ConfigKeys::NormalizeVolume);
+
+		const float multiplier = normalizeVolume ? targetNormalizedVolume / maxVolume * targetVolume : targetVolume;
+
+		short* dataStart = (short*)track.data.data();
+		short* dataEnd = (short*)(track.data.data() + track.data.size());
+		for (short* data = dataStart; data != dataEnd; ++data) {
+			*data = short(float(*data) * multiplier);
+		}
+
+	}
+
+
+	static void PostProcessTrack(WaveTrack& track) {
+
+		
+		
+		ResampleTo16Bit(track);
+
+		//short* data = (short*)result->data.data();
+		vector<uint8_t>& data = track.data;
+		auto& format = track.format;
 
 		// Add smooth ending, so there will be no clicking sound because of the abrupt ending
 		const int fadeoutMs = 20;
@@ -167,13 +239,10 @@ namespace TSPlugin {
 						currentSample = (short)(currentSample * (sampleCount - currentIndex) / sampleCount);
 					}
 				}
-
 			}
-
-
-
 		}
 
+		NormalizeVolume(track);
 	}
 
 	static std::shared_ptr<WaveTrack> ReadData(const WaveFmtHeader& header, std::istream& stream) {
@@ -197,64 +266,12 @@ namespace TSPlugin {
 	}
 
 
-	static float CalculateMaxVolume(const class WaveTrack& waveTrack) {
-
-		const auto& format = waveTrack.format;
-
-		const int bytesPerSample = format.wBitsPerSample / 8;
-		const uint8_t* data = waveTrack.data.data();
-		const size_t dataSize = waveTrack.data.size();
-
-		float absMaxSample = 0;
-
-		if (bytesPerSample == 1) {
-			for (size_t offset = 0; offset < dataSize; offset += bytesPerSample) {
-				const int sample = *reinterpret_cast<const uint8_t*>(data + offset);
-				const float sampleAsFloat = float(sample) / float(1 << 8);
-				absMaxSample = std::max<float>(abs(sampleAsFloat), absMaxSample);
-			}
-		} else if (bytesPerSample == 2) {
-			for (size_t offset = 0; offset < dataSize; offset += bytesPerSample) {
-				const int sample = *reinterpret_cast<const short*>(data + offset);
-				const float sampleAsFloat = float(sample) / float(1 << 16);
-				absMaxSample = std::max<float>(abs(sampleAsFloat), absMaxSample);
-			}
-		} else {
-			ASSERT(0);
-			return 1.0f;
-		}
-
-		return absMaxSample;
-	}
-
 
 	void WaveTrack::FillMetadata() {
 		metadata.maxVolume = CalculateMaxVolume(*this);
 	}
 
 
-	void WaveTrack::NormalizeVolume() {
-		const BOOL normalizeVolume = _wtoi(Global::config.Get(ConfigKeys::NormalizeVolume));
-
-		if (!normalizeVolume) {
-			return;
-		}
-
-		const float maxVolume = CalculateMaxVolume(*this);
-		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::Volume)));
-		
-		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKeys::TargetNormalizedVolume)));
-
-		const float multiplier = normalizeVolume ? targetNormalizedVolume / maxVolume * targetVolume : targetVolume;
-
-		short* dataStart = (short*)data.data();
-		short* dataEnd = (short*)(data.data() + data.size());
-		for (short* data = dataStart; data != dataEnd; ++data) {
-			*data = short(float(*data) * multiplier);
-		}
-
-	}
-	
 
 	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(std::istream& stream) {
 
@@ -299,9 +316,13 @@ namespace TSPlugin {
 
 		if (track) {
 			PostProcessTrack(*track);
-			track->NormalizeVolume();
 		}
 		
+
+		assert(track->format.wBitsPerSample == 16);
+		if (track->format.wBitsPerSample != 16) {
+			return nullptr;
+		}
 
 
 		return track;

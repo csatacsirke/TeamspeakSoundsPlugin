@@ -29,7 +29,6 @@ namespace TSPlugin {
 
 	private:
 		void FillMetadata();
-		void NormalizeVolume();
 	};
 
 
