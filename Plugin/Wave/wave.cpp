@@ -245,6 +245,18 @@ namespace TSPlugin {
 		NormalizeVolume(track);
 	}
 
+	static bool SkipChunk(std::istream& stream) {
+
+		uint32_t chunkSize;
+		stream.read((char*)&chunkSize, sizeof chunkSize);
+		if (!stream) return false;
+
+		stream.ignore(chunkSize);
+		if (!stream) return false;
+
+		return true;
+	}
+
 	static std::shared_ptr<WaveTrack> ReadData(const WaveFmtHeader& header, std::istream& stream) {
 
 		std::shared_ptr<WaveTrack> track = make_shared<WaveTrack>();
@@ -300,29 +312,31 @@ namespace TSPlugin {
 			if (chunkId == fmt_id) {
 				header = WaveFmtHeader::ReadFrom(stream);
 				if (!header) return nullptr;
-			}
-
-			if (chunkId == data_id) {
+			} else if (chunkId == data_id) {
 				if (!header) {
 					return nullptr;
 				}
 
 				track = ReadData(*header, stream);
 				if (!track) return nullptr;
+			} else {
+				if (!SkipChunk(stream)) {
+					return nullptr;
+				}
 			}
 		}
 
+
+		assert(!track || track->format.wBitsPerSample == 16);
+		if (track && track->format.wBitsPerSample != 16) {
+			return nullptr;
+		}
 
 
 		if (track) {
 			PostProcessTrack(*track);
 		}
 		
-
-		assert(track->format.wBitsPerSample == 16);
-		if (track->format.wBitsPerSample != 16) {
-			return nullptr;
-		}
 
 
 		return track;
