@@ -15,7 +15,7 @@ namespace TSPlugin {
 	class CommandLineInterface {
 		mutable mutex internal_mutex;
 
-		vector<fs::path> possibleFilesForCurrentInput;
+		//vector<fs::path> possibleFilesForCurrentInput;
 		vector<fs::path> allFiles;
 
 		vector<shared_ptr<CommandLineInterfaceItem>> interfaceItems;

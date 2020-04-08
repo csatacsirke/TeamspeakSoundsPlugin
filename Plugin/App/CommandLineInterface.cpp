@@ -52,8 +52,8 @@ namespace TSPlugin {
 	void CommandLineInterface::UpdateInterface() {
 
 		UpdateCachedFilesIfNecessary();
-		possibleFilesForCurrentInput = GetPossibleFiles(inputBuffer, allFiles);
-
+		const auto possibleFilesForCurrentInput = GetPossibleFiles(inputBuffer, allFiles);
+		
 
 		interfaceItems.clear();
 
@@ -67,6 +67,7 @@ namespace TSPlugin {
 		}
 
 		if (inputBuffer.GetLength() > 0) {
+			// empty line as separator
 			interfaceItems.push_back(make_shared<CommandLineInterfaceItem>(CommandLineInterfaceItem{ }));
 		}
 		
@@ -133,7 +134,22 @@ namespace TSPlugin {
 			return;
 		}
 
-		selectedInterfaceItemIndex = euclidean_reminder((int)selectedInterfaceItemIndex + indexDelta, (int)interfaceItems.size());
+		//selectedInterfaceItemIndex = euclidean_reminder((int)selectedInterfaceItemIndex + indexDelta, (int)interfaceItems.size());
+		//selectedInterfaceItemIndex = euclidean_reminder((int)selectedInterfaceItemIndex + indexDelta, (int)interfaceItems.size());
+
+		if (indexDelta > 0) {
+			if (selectedInterfaceItemIndex < interfaceItems.size() * 3 / 4) {
+				selectedInterfaceItemIndex = std::min<size_t>(selectedInterfaceItemIndex + indexDelta, interfaceItems.size() - 1);
+			} else {
+				fileListOffset += indexDelta;
+			}
+		} else {
+			if (selectedInterfaceItemIndex > interfaceItems.size() * 1 / 4) {
+				selectedInterfaceItemIndex = std::min<size_t>(selectedInterfaceItemIndex + indexDelta, interfaceItems.size() - 1);
+			} else {
+				fileListOffset += indexDelta;
+			}
+		}
 
 		UpdateInterface();
 	}
