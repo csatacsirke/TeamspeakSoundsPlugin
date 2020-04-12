@@ -327,16 +327,14 @@ namespace TSPlugin {
 		}
 
 
+		if (track) {
+			PostProcessTrack(*track);
+		}
+
 		assert(!track || track->format.wBitsPerSample == 16);
 		if (track && track->format.wBitsPerSample != 16) {
 			return nullptr;
 		}
-
-
-		if (track) {
-			PostProcessTrack(*track);
-		}
-		
 
 
 		return track;
