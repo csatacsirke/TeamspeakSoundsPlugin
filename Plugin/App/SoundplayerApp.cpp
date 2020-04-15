@@ -345,12 +345,16 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OpenConfigDialog() {
-		// mivel dll ben vagyunk fasztudja, hogy az AfxGetMainWnd() tényleg jót ad e vissza...
-		ConfigDialog dialog(Global::config.MakeCopyOfEntries(), AfxGetMainWnd());
-		const INT_PTR dialogResult = dialog.DoModal();
-		if (dialogResult == IDOK) {
-			Global::config.SetEntries(dialog.GetEntries());
-			Global::config.Save();
+		try {
+			// mivel dll ben vagyunk fasztudja, hogy az AfxGetMainWnd() tényleg jót ad e vissza...
+			ConfigDialog dialog(Global::config.MakeCopyOfEntries(), NULL);
+			const INT_PTR dialogResult = dialog.DoModal();
+			if (dialogResult == IDOK) {
+				Global::config.SetEntries(dialog.GetEntries());
+				Global::config.Save();
+			}
+		} catch (...) {
+			MessageBoxA(NULL, "Unexpected error", 0, 0);
 		}
 	}
 
