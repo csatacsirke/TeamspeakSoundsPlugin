@@ -57,6 +57,8 @@ namespace TSPlugin {
 			lvItem.mask = LVIF_TEXT;
 			lvItem.iItem = nItem;
 			lvItem.iSubItem = 0;
+			lvItem.pszText = L"";
+			lvItem.cchTextMax = 256;
 
 			
 			nItem = configListControl.InsertItem(&lvItem);
