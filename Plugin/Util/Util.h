@@ -27,7 +27,7 @@ namespace TSPlugin {
 	CString ErrorToString(DWORD error);
 
 	// ezt lehet igy cachelni
-	std::vector<fs::path> GetPossibleFiles(const CString& inputString, std::vector<fs::path>& files);
+	std::vector<fs::path> GetPossibleFiles(const CString& inputString, const std::vector<fs::path>& files);
 	// ez lassu
 	std::vector<fs::path> _GetPossibleFiles(const CString& inputString);
 

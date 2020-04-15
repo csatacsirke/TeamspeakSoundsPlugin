@@ -8,18 +8,7 @@ namespace TSPlugin {
 
 
 	CommandLineInterface::CommandLineInterface() {
-		UpdateCachedFilesIfNecessary();
-	}
-
-	void CommandLineInterface::UpdateCachedFilesIfNecessary() {
-		if (allFiles.size() != 0) {
-			return;
-		}
-
-		if (optional<CString> directoryOrNull = TryGetSoundsDirectory()) {
-			fs::path directory = directoryOrNull->GetString();
-			allFiles = ListFilesInDirectory(directory);
-		}
+		directoryHandler->UpdateCachedFilesIfNecessary();
 	}
 
 	void CommandLineInterface::AddInput(const KeyboardHook::KeyData& keyData) {
@@ -51,7 +40,9 @@ namespace TSPlugin {
 
 	void CommandLineInterface::UpdateInterface() {
 
-		UpdateCachedFilesIfNecessary();
+		// guard shared_ptr copy, so it doesnt get freed
+		const auto directoryData = directoryHandler->GetDirectoryData();
+		const auto& allFiles = directoryData->allFiles;
 		const auto possibleFilesForCurrentInput = GetPossibleFiles(inputBuffer, allFiles);
 		
 

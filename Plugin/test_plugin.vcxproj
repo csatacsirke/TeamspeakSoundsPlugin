@@ -407,6 +407,7 @@
     <ClCompile Include="App\QuickSoundHandler.cpp" />
     <ClCompile Include="App\NetworkAudioHandlerImpl.cpp" />
     <ClCompile Include="App\CommandLineInterface.cpp" />
+    <ClCompile Include="App\DirectoryHandler.cpp" />
     <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Gui\OverlayWindow.cpp" />
     <ClCompile Include="App\UpdateHandler.cpp" />
@@ -445,6 +446,7 @@
     <ClInclude Include="App\QuickSoundHandler.h" />
     <ClInclude Include="App\NetworkAudioHandler.h" />
     <ClInclude Include="App\CommandLineInterface.h" />
+    <ClInclude Include="App\DirectoryHandler.h" />
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />

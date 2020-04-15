@@ -279,7 +279,7 @@ namespace TSPlugin {
 		return GetPossibleFiles(inputString, files);
 	}
 
-	std::vector<fs::path> GetPossibleFiles(const CString& inputString, std::vector<fs::path>& files) {
+	std::vector<fs::path> GetPossibleFiles(const CString& inputString, const std::vector<fs::path>& files) {
 
 
 		std::vector<fs::path> results;
@@ -290,11 +290,7 @@ namespace TSPlugin {
 			for (const fs::path& file : files) {
 				const CString sanitizedFileName = MakeComparable(file.filename().c_str());
 
-				//if (EqualsIgnoreCaseAndWhitespace(file.Left(inputString.GetLength()), inputString)) {
 				if (sanitizedFileName.Find(sanitizedInputString) == 0) {
-					//if(file.Left(str.GetLength()).MakeLower() == str.MakeLower()) {
-						//return directory + file;
-					//fs::path result = directory / file;
 					results.push_back(file);
 				}
 			}
@@ -311,30 +307,7 @@ namespace TSPlugin {
 			}
 		}
 		
-		
-		// separator
-		//results.push_back(L"");
 
-		//vector<CString> filesByModificationDate = SortFilesByModificationDate(directory, files);
-		//for (const CString& fileName : filesByModificationDate) {
-		//	const CString result = directory + fileName;
-		//	results.push_back(result);
-		//}
-
-
-
-		/*
-
-		const int minimumFileCount = 20;
-		const int additionalFileCount = minimumFileCount - (int)results.size();
-		for (int i = 0; i < additionalFileCount; ++i) {
-			if (i < filesByModificationDate.size()) {
-				const CString result = directory + filesByModificationDate[i];
-				results.push_back(result);
-			}
-			
-		}
-*/
 
 		return results;
 	}

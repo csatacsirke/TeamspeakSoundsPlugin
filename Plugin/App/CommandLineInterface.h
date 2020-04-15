@@ -1,5 +1,7 @@
 #pragma once
 
+#include "DirectoryHandler.h"
+
 #include <KeyboardHook/KeyboardHookUtils.h>
 
 namespace TSPlugin {
@@ -16,7 +18,8 @@ namespace TSPlugin {
 		mutable mutex internal_mutex;
 
 		//vector<fs::path> possibleFilesForCurrentInput;
-		vector<fs::path> allFiles;
+		
+		shared_ptr<DirectoryHandler> directoryHandler = make_shared<DirectoryHandler>();
 
 		vector<shared_ptr<CommandLineInterfaceItem>> interfaceItems;
 
@@ -30,8 +33,6 @@ namespace TSPlugin {
 	public:
 
 		CommandLineInterface();
-
-		void UpdateCachedFilesIfNecessary();
 
 		void AddInput(const KeyboardHook::KeyData& keyData);
 		void Clear();
