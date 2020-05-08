@@ -23,17 +23,16 @@ namespace TSPlugin {
 			constexpr DWORD dwNotifyFilter = FILE_NOTIFY_CHANGE_FILE_NAME;
 			directoryChangeListenerHandle = FindFirstChangeNotification(directory.c_str(), bWatchSubtree, dwNotifyFilter);
 			monitorThread = thread([this] {
-				const DWORD waitResult = WaitForSingleObject(FindNextChangeNotification, INFINITE);
-				if (waitResult == WAIT_OBJECT_0) {
+				while (WaitForSingleObject(directoryChangeListenerHandle, INFINITE) == WAIT_OBJECT_0) {
 					delegate.OnDirectoryChanged();
 					FindNextChangeNotification(directoryChangeListenerHandle);
 				}
-				
 			});
 		}
 
 		~DirectoryListener() {
 			FindCloseChangeNotification(directoryChangeListenerHandle);
+			monitorThread.join();
 		}
 	};
 
@@ -41,7 +40,7 @@ namespace TSPlugin {
 	class DirectoryHandlerImpl : public DirectoryHandler, public DirectoryListenerDelegate {
 	protected:
 		shared_ptr<const DirectoryData> directoryData = nullptr;
-
+		shared_ptr<DirectoryListener> directoryListener;
 	public:
 		void UpdateCachedFilesIfNecessary() override;
 		shared_ptr<const DirectoryData> GetDirectoryData() override;
@@ -49,12 +48,29 @@ namespace TSPlugin {
 	protected:
 		void OnDirectoryChanged() override;
 
+	private:
 		void InitDirectoryListening(const fs::path& directory);
 	};
 
 
+
+
+	static shared_ptr<const DirectoryData> TryGetSoundDirectoryData() {
+
+		if (optional<CString> directoryOrNull = TryGetSoundsDirectory()) {
+			shared_ptr<DirectoryData> newDirectoryData = make_shared<DirectoryData>();
+			const fs::path directory = directoryOrNull->GetString();
+			newDirectoryData->allFiles = ListFilesInDirectory(directory);
+			newDirectoryData->base = directory;
+			return newDirectoryData;
+		}
+
+		return nullptr;
+	}
+
+
 	void DirectoryHandlerImpl::OnDirectoryChanged() {
-		directoryData = nullptr;
+		directoryData = TryGetSoundDirectoryData();
 	}
 
 	void DirectoryHandlerImpl::InitDirectoryListening(const fs::path& directory) {
@@ -65,23 +81,24 @@ namespace TSPlugin {
 		return make_shared<DirectoryHandlerImpl>();
 	}
 
+
 	void DirectoryHandlerImpl::UpdateCachedFilesIfNecessary() {
-		if (directoryData != nullptr) {
-			return;
+		if (directoryData == nullptr) {
+			directoryData = TryGetSoundDirectoryData();
 		}
+		
 
-
-		if (optional<CString> directoryOrNull = TryGetSoundsDirectory()) {
-			shared_ptr<DirectoryData> newDirectoryData = make_shared<DirectoryData>();
-			const fs::path directory = directoryOrNull->GetString();
-			newDirectoryData->allFiles = ListFilesInDirectory(directory);
-			newDirectoryData->base = directory;
-			directoryData = newDirectoryData;
+		if (directoryListener == nullptr) {
+			if (optional<CString> directoryOrNull = TryGetSoundsDirectory()) {
+				const fs::path directory = (const wchar_t*)*directoryOrNull;
+				directoryListener = make_shared<DirectoryListener>(*this, directory);
+			}
 		}
-
 	}
 
+	
 	shared_ptr<const DirectoryData> DirectoryHandlerImpl::GetDirectoryData() {
+		UpdateCachedFilesIfNecessary();
 		return directoryData;
 	}
 

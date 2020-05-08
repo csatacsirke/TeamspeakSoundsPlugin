@@ -19,7 +19,7 @@ namespace TSPlugin {
 
 		//vector<fs::path> possibleFilesForCurrentInput;
 		
-		shared_ptr<DirectoryHandler> directoryHandler = make_shared<DirectoryHandler>();
+		shared_ptr<DirectoryHandler> directoryHandler = DirectoryHandler::Create();
 
 		vector<shared_ptr<CommandLineInterfaceItem>> interfaceItems;
 

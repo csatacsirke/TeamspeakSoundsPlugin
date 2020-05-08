@@ -42,6 +42,10 @@ namespace TSPlugin {
 
 		// guard shared_ptr copy, so it doesnt get freed
 		const auto directoryData = directoryHandler->GetDirectoryData();
+		if (!directoryData) {
+			return;
+		}
+
 		const auto& allFiles = directoryData->allFiles;
 		const auto possibleFilesForCurrentInput = GetPossibleFiles(inputBuffer, allFiles);
 		
