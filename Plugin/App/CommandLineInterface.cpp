@@ -47,6 +47,7 @@ namespace TSPlugin {
 		
 
 		interfaceItems.clear();
+		shouldRotateList = true;
 
 		for (const fs::path& path : possibleFilesForCurrentInput) {
 
@@ -55,6 +56,8 @@ namespace TSPlugin {
 			}
 
 			interfaceItems.push_back(make_shared<CommandLineInterfaceItem>(CommandLineInterfaceItem{ path }));
+			// ha van possible file, akkor nem rotate
+			shouldRotateList = false;
 		}
 
 		if (inputBuffer.GetLength() > 0) {
@@ -128,19 +131,31 @@ namespace TSPlugin {
 		//selectedInterfaceItemIndex = euclidean_reminder((int)selectedInterfaceItemIndex + indexDelta, (int)interfaceItems.size());
 		//selectedInterfaceItemIndex = euclidean_reminder((int)selectedInterfaceItemIndex + indexDelta, (int)interfaceItems.size());
 
-		if (indexDelta > 0) {
-			if (selectedInterfaceItemIndex < interfaceItems.size() * 3 / 4) {
-				selectedInterfaceItemIndex = std::min<size_t>(selectedInterfaceItemIndex + indexDelta, interfaceItems.size() - 1);
-			} else {
-				fileListOffset += indexDelta;
-			}
+		const bool nearFileListEdge =
+			(indexDelta > 0 && selectedInterfaceItemIndex > interfaceItems.size() * 3 / 4) ||
+			(indexDelta < 0 && selectedInterfaceItemIndex < interfaceItems.size() * 1 / 4);
+
+
+
+		if (shouldRotateList && nearFileListEdge) {
+			fileListOffset += indexDelta;
 		} else {
-			if (selectedInterfaceItemIndex > interfaceItems.size() * 1 / 4) {
-				selectedInterfaceItemIndex = std::min<size_t>(selectedInterfaceItemIndex + indexDelta, interfaceItems.size() - 1);
-			} else {
-				fileListOffset += indexDelta;
-			}
+			selectedInterfaceItemIndex = std::clamp<int64_t>(selectedInterfaceItemIndex + indexDelta, 0, interfaceItems.size() - 1);
 		}
+
+		//if (indexDelta > 0) {
+		//	if (selectedInterfaceItemIndex < interfaceItems.size() * 3 / 4) {
+		//		selectedInterfaceItemIndex = std::min<size_t>(selectedInterfaceItemIndex + indexDelta, interfaceItems.size() - 1);
+		//	} else {
+		//		fileListOffset += indexDelta;
+		//	}
+		//} else {
+		//	if (selectedInterfaceItemIndex > interfaceItems.size() * 1 / 4) {
+		//		selectedInterfaceItemIndex = std::min<size_t>(selectedInterfaceItemIndex + indexDelta, interfaceItems.size() - 1);
+		//	} else {
+		//		fileListOffset += indexDelta;
+		//	}
+		//}
 
 		UpdateInterface();
 	}

@@ -23,7 +23,7 @@ namespace TSPlugin {
 
 		vector<shared_ptr<CommandLineInterfaceItem>> interfaceItems;
 
-		
+		bool shouldRotateList = true;
 		int fileListOffset = 0;
 		int maxVisibleFileCount = 30;
 		
