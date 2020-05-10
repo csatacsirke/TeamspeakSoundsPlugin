@@ -431,6 +431,7 @@
     <ClCompile Include="Wave\AudioBuffer.cpp" />
     <ClCompile Include="Wave\AudioClipSample.cpp" />
     <ClCompile Include="Wave\AudioDecoder.cpp" />
+    <ClCompile Include="Wave\AudioFilter.cpp" />
     <ClCompile Include="Wave\AudioPlayer.cpp" />
     <ClCompile Include="Wave\AudioProcessing.cpp" />
     <ClCompile Include="Wave\AudioProcessor.cpp" />
@@ -461,7 +462,10 @@
     <ClInclude Include="Gui\WindowUtil.h" />
     <ClInclude Include="Util\InputStream.h" />
     <ClInclude Include="Util\RunLoop.h" />
+    <ClInclude Include="Wave\AudioFilter.h" />
+    <ClInclude Include="Wave\AudioFilterTypes.h" />
     <ClInclude Include="Wave\AudioProcessing.h" />
+    <ClInclude Include="Wave\FilterBuffer.h" />
     <ClInclude Include="Wave\FourierUtils.h" />
     <ClInclude Include="Wave\PitchFilter.h" />
     <ClInclude Include="Web\Http.h" />

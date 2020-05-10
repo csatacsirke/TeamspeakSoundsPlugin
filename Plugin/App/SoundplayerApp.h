@@ -124,7 +124,8 @@ namespace TSPlugin {
 
 		optional<fs::path> lastFile;
 
-		AudioProcessor audioProcessor;
+		bool audioProcessorEnabled = true;
+		shared_ptr<AudioProcessor> audioProcessor = make_shared<AudioProcessor>();
 
 
 

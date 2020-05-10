@@ -17,17 +17,24 @@ namespace TSPlugin {
 		int channels
 	) {
 
-		if (!enabled) return false;
+		if (!enabled) {
+			return false;
+		}
+
+
+		if (Filters.size() == 0) {
+			return false;
+		}
 
 
 		for (auto& filter : Filters) {
 			filter->ProcessData(AudioData{ samples, sampleCount, channels });
 		}
 
-
-
 		return true;
 	}
 
-}
 
+
+
+}

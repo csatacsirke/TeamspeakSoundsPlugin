@@ -496,7 +496,7 @@ namespace TSPlugin {
 
 	void SoundplayerApp::AsyncOpenAudioProcessorDialog() {
 		std::thread dialogThread([&] {
-			AudioProcessorDialog dialog(audioProcessor);
+			AudioProcessorDialog dialog(*audioProcessor);
 			dialog.DoModal();
 		});
 		dialogThread.detach();
@@ -560,6 +560,13 @@ namespace TSPlugin {
 			}
 		}
 
+		if (audioProcessorEnabled) {
+			if (audioProcessor->Process(samples, sampleCount, channels)) {
+				didChangeData = true;
+			}
+		}
+		
+
 		if (didChangeData) {
 			// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
 			tsVoiceHandler.ForceEnableMicrophone();
@@ -568,7 +575,6 @@ namespace TSPlugin {
 			tsVoiceHandler.ResetMicrophone();
 			*edited &= ~1;
 		}
-
 
 	}
 
