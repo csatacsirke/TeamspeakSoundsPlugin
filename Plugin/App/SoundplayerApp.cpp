@@ -542,80 +542,33 @@ namespace TSPlugin {
 #endif
 
 
-
-
-
-
+	//If the sound data will be send, (*edited | 2) is true.
+	//If the sound data is changed, set bit 1 (*edited |= 1).
+	//If the sound should not be send, clear bit 2. (*edited &= ~2)
 	void SoundplayerApp::OnEditCapturedVoiceDataEvent(short* samples, int sampleCount, int channels, int* edited) {
 
 		assert(channels == 1);
 
-		//CachedAudioSample48k playbackSamples = audioBufferForCapture.TryGetSamples(sampleCount, channels);
-		//if (playbackSamples) {
-
-		//	// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
-		//	tsVoiceHandler.ForceEnableMicrophone();
-
-		//	if (!(*edited &= 2)) {
-		//		// ha nincs küldendö adat
-		//		memset(samples, 0, sizeof(short)*sampleCount*channels);
-		//	}
-
-		//	assert(sampleCount*channels == playbackSamples->size());
-		//	if (sampleCount*channels != playbackSamples->size()) {
-		//		Log::Warning(L"if(sampleCount != playbackSamples->size()) {");
-		//	}
-		//	SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
-		//	//*edited |= 2;
-		//	*edited |= 1;
-		//} else {
-		//	tsVoiceHandler.ResetMicrophone();
-		//	*edited &= ~1;
-		//}
-
-
-
 
 		bool didChangeData = false;
 
-		// ezt nemtom mi a fasz volt
-		//if (!(*edited &= 2)) {
-		//	// ha nincs küldendö adat
-		//	memset(samples, 0, sizeof(short)*sampleCount*channels);
-		//}
-
-		//unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
-
-		//for (auto& buffer : captureBuffers) {
-			auto& buffer = audioBufferForCapture;
-			CachedAudioSample48k playbackSamples = buffer->TryGetSamples(sampleCount, channels);
-			if (playbackSamples) {
-				if (sampleCount*channels == playbackSamples->size()) {
-					SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
-					didChangeData = true;
-				} else {
-					//WarnForBullshit();
-				}
+		CachedAudioSample48k playbackSamples = audioBufferForCapture->TryGetSamples(sampleCount, channels);
+		if (playbackSamples) {
+			if (sampleCount*channels == playbackSamples->size()) {
+				SgnProc::Mix(samples, playbackSamples->data(), sampleCount);
+				didChangeData = true;
 			}
-		//}
-
-		//captureBuffersLock.unlock();
+		}
 
 		if (didChangeData) {
 			// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
 			tsVoiceHandler.ForceEnableMicrophone();
-
 			*edited |= 1;
-			//*edited |= 2;
 		} else {
 			tsVoiceHandler.ResetMicrophone();
 			*edited &= ~1;
 		}
 
-
-		//If the sound data will be send, (*edited | 2) is true.
-		//If the sound data is changed, set bit 1 (*edited |= 1).
-		//If the sound should not be send, clear bit 2. (*edited &= ~2)
 
 	}
 
@@ -623,30 +576,7 @@ namespace TSPlugin {
 
 	void SoundplayerApp::OnEditMixedPlaybackVoiceDataEvent(short* samples, int sampleCount, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask) {
 
-		//CachedAudioSample48k playbackSamples = audioBufferForPlayback.TryGetSamples(sampleCount, channels);
-
-		//if (playbackSamples) {
-
-		//	if (!(*channelFillMask & 0x3)) {
-		//		*channelFillMask |= 3;
-		//		memset(samples, 0, sampleCount*channels * sizeof(short));
-		//	}
-		//	// ez is gecikulturált lett.... TODO
-
-
-		//	if (sampleCount*channels == playbackSamples->size()) {
-		//		SgnProc::Mix(samples, playbackSamples->data(), sampleCount*channels);
-		//	} else {
-		//		static int asdf = 0;
-		//		if (!asdf) {
-		//			asdf = 1;
-		//			Log::Error(L".......... anyád");
-		//		}
-		//	}
-
-		//}
-
-
+	
 
 		bool didAddAudio = false;
 
@@ -663,8 +593,6 @@ namespace TSPlugin {
 				if (sampleCount*channels == playbackSamples->size()) {
 					SgnProc::Mix(samples, playbackSamples->data(), sampleCount*channels);
 					didAddAudio = true;
-				} else {
-					//WarnForBullshit();
 				}
 			}
 		}
