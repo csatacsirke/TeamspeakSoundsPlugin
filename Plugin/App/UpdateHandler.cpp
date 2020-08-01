@@ -8,6 +8,7 @@
 #include <optional>
 #include <vector>
 #include <filesystem>
+#include <nlohmann/json.hpp>
 
 namespace TSPlugin {
 
@@ -36,19 +37,65 @@ namespace TSPlugin {
 	}
 
 
+	struct ChangeEntry {
+		std::string date;
+		std::vector<std::string> changes;
+	};
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ChangeEntry, date, changes)
+
+	static optional<vector<CString>> DownloadChanges(const CStringA& currentVersion, const CStringA& serverVersion) {
+
+		const optional<vector<uint8_t>> optChangesJson = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/changes.php");
+		if (!optChangesJson) {
+			return nullopt;
+		}
+
+		
+
+		try {
+			auto jsonArray = nlohmann::json::parse(*optChangesJson);
+
+			std::vector<ChangeEntry> changeEntries;
+			jsonArray.get_to(changeEntries);
+
+			vector<CString> result;
+
+			for (auto& changeEntry : changeEntries) {
+				if (changeEntry.date.compare(currentVersion.GetString()) < 0) {
+					continue;
+				}
+
+				if (changeEntry.date.compare(serverVersion.GetString()) > 0) {
+					// possible, if git already has a new feature, but its not marked as stable
+					continue;
+				}
+
+				for (auto& changeString : changeEntry.changes) {
+					result.push_back(Utf8ToCString(changeString.c_str()));
+				}
+
+			}
+
+			return result;
+		} catch (std::exception& e) {
+			const char* what = e.what();
+			std::ignore = what;
+			return nullopt;
+		}
+		
+	}
 
 
 	bool CheckForUpdates() {
-#ifdef _DEBUG
-		return false;
-#endif
+//#ifdef _DEBUG
+//		return false;
+//#endif
 
 		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/version");
 
 		if (!result) {
 			return false;
 		}
-
 
 
 		const CStringA versionOnServer = CStringA((const char*)result->data(), (int)result->size());
@@ -59,8 +106,22 @@ namespace TSPlugin {
 			return false;
 		}
 
+
+		auto optChanges = DownloadChanges(currentVersion, versionOnServer);
+		if (!optChanges) {
+			return false;
+		}
+
 		const CString title = L"Soundplayer plugin by Battlechicken - update available";
-		const CString message = L"Newer version exists. Would you like to download it? -- you might have to quit TS after downloading";
+		CString message = L"Newer version exists. Would you like to download it? -- you might have to quit TS after downloading";
+
+		if (optChanges->size() > 0) {
+			message += L"\nChanges since this version: \n";
+			for (auto& changeLine : *optChanges) {
+				message += FormatString(L"- %s\n", changeLine);
+			}
+		}
+
 		const int messageBoxResult = MessageBox(HWND(0), message, title, MB_YESNO);
 		if (messageBoxResult == IDYES) {
 			DownloadAndInstallNewVerison();

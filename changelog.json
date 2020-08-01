@@ -6,6 +6,12 @@
       "Fixed an issue, where some .wav files couldn't be played. (Example: beeyetch.wav)",
       "Fixed an issue, if Sounds directory was invalid, TS wouldn't start"
     ]
+  },
+  {
+    "date": "2020.08.02",
+    "changes": [
+      "Update now shows what's new"
+    ]
   }
 ]
 
