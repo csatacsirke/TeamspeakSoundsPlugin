@@ -15,6 +15,7 @@ namespace TSPlugin {
 		DirectoryListenerDelegate& delegate;
 		HANDLE directoryChangeListenerHandle = NULL;
 		thread monitorThread;
+		volatile bool run = true;
 	public:
 		DirectoryListener(DirectoryListenerDelegate& newDelegate, const fs::path& directory) 
 			: delegate(newDelegate)
@@ -24,6 +25,10 @@ namespace TSPlugin {
 			directoryChangeListenerHandle = FindFirstChangeNotification(directory.c_str(), bWatchSubtree, dwNotifyFilter);
 			monitorThread = thread([this] {
 				while (WaitForSingleObject(directoryChangeListenerHandle, INFINITE) == WAIT_OBJECT_0) {
+					if (!run) {
+						break;
+					}
+
 					delegate.OnDirectoryChanged();
 					FindNextChangeNotification(directoryChangeListenerHandle);
 				}
@@ -31,6 +36,7 @@ namespace TSPlugin {
 		}
 
 		~DirectoryListener() {
+			run = false;
 			FindCloseChangeNotification(directoryChangeListenerHandle);
 			monitorThread.join();
 		}
