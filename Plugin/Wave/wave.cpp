@@ -46,17 +46,21 @@ namespace TSPlugin {
 
 		static_assert(sizeof header == 16);
 
-		if (chunkSize != sizeof header) {
+		if (chunkSize < sizeof header) {
 			return nullopt;
 		}
 
-
-		stream.read((char*)&header, sizeof header);
+		vector<uint8_t> buffer(chunkSize);
+		stream.read((char*)buffer.data(), buffer.size());
 		if (!stream) return nullopt;
+
+
+		memcpy(&header, buffer.data(), sizeof header);
+
 
 		return header;
 	}
-	
+
 
 	WAVEFORMATEX WaveFmtHeader::ToWaveFormatEx() const {
 		WAVEFORMATEX format;
