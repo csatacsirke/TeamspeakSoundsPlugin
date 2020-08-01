@@ -209,6 +209,9 @@
     <ClInclude Include="Wave\FilterBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Wave\PitchShiftFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -320,6 +323,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Wave\AudioFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Wave\PitchShiftFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

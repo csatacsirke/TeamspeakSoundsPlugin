@@ -16,31 +16,32 @@ namespace TSPlugin {
 
 	const size_t echoSampleCount = 48000;
 
-	class EchoFilter : public FilterBase {
-	public:
+
+	//class EchoFilter : public FilterBase {
+	//public:
 
 
-		EchoFilter() : FilterBase(samplesPerSec) {
+	//	EchoFilter() : FilterBase(samplesPerSec) {
 
-		}
+	//	}
 
-		short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) override {
-			return inputChannel[sampleIndex] + inputChannel[sampleIndex - echoSampleCount / 2] / 2 + inputChannel[sampleIndex - (echoSampleCount - 1)] / 3;
-			//return (inputChannel[sampleIndex] - inputChannel[sampleIndex - 2])/2;
-		}
+	//	short ProcessSampleForIndex(int sampleIndex, InputChannel& inputChannel) override {
+	//		return inputChannel[sampleIndex] + inputChannel[sampleIndex - echoSampleCount / 2] / 2 + inputChannel[sampleIndex - (echoSampleCount - 1)] / 3;
+	//		//return (inputChannel[sampleIndex] - inputChannel[sampleIndex - 2])/2;
+	//	}
 
-	};
-
-
-	class PitchFilter : public IAudioFilter {
-	public:
+	//};
 
 
-		void ProcessData(OutputAudioData& dataToProcess) override {
-			//SplitChannels(dataToProcess);
-		}
+	//class PitchFilter : public IAudioFilter {
+	//public:
 
-	};
+
+	//	void ProcessData(OutputAudioData& dataToProcess) override {
+	//		//SplitChannels(dataToProcess);
+	//	}
+
+	//};
 
 
 

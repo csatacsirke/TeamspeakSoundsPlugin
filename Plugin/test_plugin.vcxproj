@@ -437,6 +437,7 @@
     <ClCompile Include="Wave\AudioProcessor.cpp" />
     <ClCompile Include="Wave\AudioRecorder.cpp" />
     <ClCompile Include="Wave\OnlineMicophone.cpp" />
+    <ClCompile Include="Wave\PitchShiftFilter.cpp" />
     <ClCompile Include="Wave\wave.cpp" />
     <ClCompile Include="Web\FileSync.cpp" />
   </ItemGroup>
@@ -468,6 +469,7 @@
     <ClInclude Include="Wave\FilterBuffer.h" />
     <ClInclude Include="Wave\FourierUtils.h" />
     <ClInclude Include="Wave\PitchFilter.h" />
+    <ClInclude Include="Wave\PitchShiftFilter.h" />
     <ClInclude Include="Web\Http.h" />
     <ClInclude Include="Gui\InputObserverDialog.h" />
     <ClInclude Include="KeyboardHook\KeyboardHookUtils.h" />
