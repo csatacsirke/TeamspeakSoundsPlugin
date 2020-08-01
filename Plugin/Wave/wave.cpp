@@ -313,7 +313,7 @@ namespace TSPlugin {
 
 		const bool normalizeVolume = Global::config.GetBool(ConfigKeys::NormalizeVolume);
 
-		const float maxVolume = normalizeVolume ? CalculateMaxVolume(track) : 1.0;
+		const float maxVolume = normalizeVolume ? CalculateMaxVolume(track) : 1.0f;
 		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::Volume)));
 		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKeys::TargetNormalizedVolume)));
 
