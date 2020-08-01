@@ -42,7 +42,10 @@ namespace TSPlugin {
 
 			fs::path path = basePath / "QuickSounds";
 
-			CreateDirectory(path.c_str(), NULL);
+			const BOOL didCreateDirectory = CreateDirectoryW(path.c_str(), NULL);
+			if (!didCreateDirectory) {
+				return;
+			}
 
 			for (const auto& p : fs::recursive_directory_iterator(path)) {
 				AddShortcutForPath(p.path());
