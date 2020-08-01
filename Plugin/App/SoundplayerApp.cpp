@@ -661,6 +661,7 @@ namespace TSPlugin {
 				{"Kurátor", L"itt a ku"},
 				{"Battlechicken", L"itt vagyok"},
 				{"yoloczki", L"dorime"},
+				{"Bogecz", L"bogi"},
 				{"Antekirt", L"jaj egy szazmeteres"},
 				{"Tachibana", L"jakab"},
 			};
