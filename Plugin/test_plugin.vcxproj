@@ -408,6 +408,7 @@
     <ClCompile Include="App\NetworkAudioHandlerImpl.cpp" />
     <ClCompile Include="App\CommandLineInterface.cpp" />
     <ClCompile Include="App\DirectoryHandler.cpp" />
+    <ClCompile Include="App\Version.cpp" />
     <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Gui\OverlayWindow.cpp" />
     <ClCompile Include="App\UpdateHandler.cpp" />
@@ -449,6 +450,7 @@
     <ClInclude Include="App\NetworkAudioHandler.h" />
     <ClInclude Include="App\CommandLineInterface.h" />
     <ClInclude Include="App\DirectoryHandler.h" />
+    <ClInclude Include="App\Version.h" />
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />
@@ -504,7 +506,7 @@
     <ResourceCompile Include="test_plugin.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\changelog.txt" />
+    <Text Include="..\changelog.json" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

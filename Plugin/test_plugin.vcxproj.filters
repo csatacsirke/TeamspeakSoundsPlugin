@@ -212,6 +212,9 @@
     <ClInclude Include="Wave\PitchShiftFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\Version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -328,14 +331,17 @@
     <ClCompile Include="Wave\PitchShiftFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="App\Version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="test_plugin.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\changelog.txt" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <Text Include="..\changelog.json" />
   </ItemGroup>
 </Project>

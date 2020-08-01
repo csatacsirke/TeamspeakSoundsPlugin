@@ -25,6 +25,8 @@ using namespace std;
 #include "pluginsdk/include/ts3_functions.h"
 #include "plugin.h"
 
+#include "Version.h"
+
 #include "Wave\wave.h"
 
 #include <App\SoundplayerApp.h>
@@ -42,8 +44,6 @@ using namespace std;
 #else
 #define SLEEP(x) usleep(x*1000)
 #endif
-
-const char* version = "20.08.01";
 
 
 //#define AUDIO_PROCESS_SECONDS 10
