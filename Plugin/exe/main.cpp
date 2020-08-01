@@ -21,6 +21,7 @@
 #include <Wave/AudioProcessor.h>
 #include <Wave/PitchFilter.h>
 
+#include <Util/Config.h>
 
 #include <conio.h>
 #include <stdio.h>
@@ -82,25 +83,56 @@ namespace TSPlugin {
 
 	//}
 
-	static void OverlayTest() {
-		auto overlayWindow = OverlayWindow::GetInstance();
-		
-		MSG msg;
-		BOOL bRet;
-		while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0) {
-			if (bRet == -1) {
-				// handle the error and possibly exit
-			} else {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
+	//static void OverlayTest() {
+	//	auto overlayWindow = OverlayWindow::GetInstance();
+	//	
+	//	MSG msg;
+	//	BOOL bRet;
+	//	while ((bRet = GetMessage(&msg, NULL, 0, 0)) != 0) {
+	//		if (bRet == -1) {
+	//			// handle the error and possibly exit
+	//		} else {
+	//			TranslateMessage(&msg);
+	//			DispatchMessage(&msg);
+	//		}
+	//	}
+	//}
+	
+
+
+
+	void NormalizeTest() {
+
+		// Mivel ez nem egy generált mfc alkalmazás nincs minden
+		// alapból inicializálva, és assert-et dob a dialog konstruktor
+		// ha ez nincs itt
+		AFX_MANAGE_STATE(AfxGetStaticModuleState());
+		CFileDialog openDialog(TRUE);
+
+
+		if (openDialog.DoModal() != IDOK) {
+			return;
 		}
+		CString fileName = openDialog.GetPathName();
+
+		auto entries = Global::config.MakeCopyOfEntries();
+		entries[ConfigKeys::NormalizeVolume] = "0";
+		Global::config.SetEntries(entries);
+
+
+		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+
+
+		float volume1 = CalculateMaxVolume_Perceptive(*track);
+		float volume2 = CalculateMaxVolume_Absolute(*track);
+
 	}
+
 
 	class CMyApp : public CWinApp {
 		BOOL InitInstance() override {
 			
-
+			NormalizeTest();
 			//processingtest();
 			//wmain();
 
@@ -108,7 +140,7 @@ namespace TSPlugin {
 			//MessageBoxA(0, "lofasz", 0, 0);
 			//CString fileName = L"d:/Documents/AudioEdited/A pofadat befogod.wav";
 
-			OverlayTest();
+			//OverlayTest();
 
 			return TRUE;
 		}
