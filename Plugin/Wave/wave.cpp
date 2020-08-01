@@ -311,12 +311,12 @@ namespace TSPlugin {
 
 	static void NormalizeVolume(WaveTrack& track) {
 
+		const bool normalizeVolume = Global::config.GetBool(ConfigKeys::NormalizeVolume);
 
-		const float maxVolume = CalculateMaxVolume(track);
+		const float maxVolume = normalizeVolume ? CalculateMaxVolume(track) : 1.0;
 		const float targetVolume = float(_wtof(Global::config.Get(ConfigKeys::Volume)));
 		const float targetNormalizedVolume = float(_wtof(Global::config.Get(ConfigKeys::TargetNormalizedVolume)));
 
-		const bool normalizeVolume = Global::config.GetBool(ConfigKeys::NormalizeVolume);
 
 		const float multiplier = normalizeVolume ? targetNormalizedVolume / maxVolume * targetVolume : targetVolume;
 
