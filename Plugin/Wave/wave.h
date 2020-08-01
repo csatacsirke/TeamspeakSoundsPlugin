@@ -32,6 +32,9 @@ namespace TSPlugin {
 	};
 
 
+	// helper functions
+	float CalculateMaxVolume_Perceptive(const class WaveTrack& waveTrack);
+	float CalculateMaxVolume_Absolute(const class WaveTrack& waveTrack);
 
 }
 

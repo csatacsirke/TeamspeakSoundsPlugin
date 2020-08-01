@@ -3,6 +3,9 @@
 
 
 #include "wave.h"
+
+#include "FourierUtils.h"
+
 #include <Util/Config.h>
 #include <Util/Log.h>
 #include <Util/Util.h>
@@ -98,8 +101,8 @@ namespace TSPlugin {
 	}
 
 	typedef std::array<char, 4> ChunkId;
-	static const ChunkId fmt_id = {'f', 'm', 't', ' ' };
-	static const ChunkId data_id = {'d', 'a', 't', 'a' };
+	static const ChunkId fmt_id = { 'f', 'm', 't', ' ' };
+	static const ChunkId data_id = { 'd', 'a', 't', 'a' };
 
 
 	inline optional<ChunkId> ReadChunkHeader(std::istream& stream) {
@@ -142,7 +145,7 @@ namespace TSPlugin {
 	}
 
 
-	static float CalculateMaxVolume(const class WaveTrack& waveTrack) {
+	float CalculateMaxVolume_Absolute(const class WaveTrack& waveTrack) {
 
 		const auto& format = waveTrack.format;
 
@@ -172,6 +175,140 @@ namespace TSPlugin {
 		return absMaxSample;
 	}
 
+
+	// decibel -> [0-1]
+	static double SensitivityToVolume(double loudness) {
+		// az 50 ex has -- kb kell valahogy belöni, nem kell egzaknak lennie, csak nagyjából stimmeljen a skála
+		const double volume = pow(10, (loudness - 70.0) / 10.0);
+		return volume;
+	}
+
+
+	static double CalculateFrequencySensitivity(double frequency) {
+
+		// https://en.wikipedia.org/wiki/Equal-loudness_contour
+		static map<double, double> equalLoudnessContour = {
+			{20, 90},
+			{40, 70},
+			{100, 50},
+			{300, 40},
+			{1000, 40},
+			{3000, 35},
+			{10000, 50},
+			{15000, 90},
+		};
+
+
+		double x1, x2, y1, y2;
+
+		auto upper_neighbour = equalLoudnessContour.lower_bound(frequency);
+
+		if (upper_neighbour == equalLoudnessContour.end()) {
+			x1 = x2 = equalLoudnessContour.rbegin()->first;
+			y1 = y2 = equalLoudnessContour.rbegin()->second;
+		} else if(upper_neighbour == equalLoudnessContour.begin()) {
+			x1 = x2 = equalLoudnessContour.begin()->first;
+			y1 = y2 = equalLoudnessContour.begin()->second;
+		} else {
+			auto lower_neighbour = std::prev(upper_neighbour);
+
+			x1 = lower_neighbour->first;
+			y1 = lower_neighbour->second;
+
+			x2 = upper_neighbour->first;
+			y2 = upper_neighbour->second;
+
+		}
+
+
+		double t;
+		if ((x2 - x1) < 1e-5) {
+			t = 0.5;
+		} else {
+			t = (x2 - frequency) / (x2 - x1);
+		}
+		const double y = t * y1 + (1 - t) * y2;
+
+		// ingerküszöb -> szenzitivitás -- egymás ellentétjei
+		return 90.0 - y;
+	}
+
+	// https://en.wikipedia.org/wiki/Loudness
+	float CalculateMaxVolume_Perceptive(const class WaveTrack& waveTrack) {
+
+		const auto& format = waveTrack.format;
+
+
+		const int bytesPerSample = format.wBitsPerSample / 8;
+
+		if (bytesPerSample != 2) {
+			assert(0);
+			return 1.0f;
+		}
+
+		const short* data = (const short*)waveTrack.data.data();
+		const size_t sampleCount = waveTrack.data.size() / sizeof(short) / waveTrack.format.nChannels;
+		const size_t stride = /*sizeof(short) * */waveTrack.format.nChannels;
+
+
+
+
+		constexpr size_t fftWindowSize = 1024;
+
+		Fourier::CArray fftBuffer = Fourier::CArray(fftWindowSize);
+
+		auto FillBuffer = [&fftBuffer, stride, fftWindowSize](const short* data) {
+			for (size_t sampleIndex = 0; sampleIndex < fftWindowSize; ++sampleIndex) {
+				const short* samplePtr = data + stride * sampleIndex;
+				fftBuffer[sampleIndex] = (double)*samplePtr / double(0xffff);
+			}
+		};
+
+		auto FindPerceptualLoudness = [&fftBuffer, &waveTrack, fftWindowSize]() -> float {
+			double windowLoudness = 0;
+			for (size_t fftIndex = 0; fftIndex < fftWindowSize; ++fftIndex) {
+				const double frequency = double(fftIndex) * double(waveTrack.format.nSamplesPerSec) / double(fftWindowSize);
+				const double sensitivity = CalculateFrequencySensitivity(frequency);
+				const double volume = SensitivityToVolume(sensitivity);
+				windowLoudness = std::max<double>(windowLoudness, volume * abs(fftBuffer[fftIndex]));
+			}
+			return (float)windowLoudness;
+		};
+
+
+		double maxLoudness = 0.0f;
+
+		// túl nagy az ablak, túl rövid a hang
+		// van hozzá légzsák, de inkább elbaszam valamit, ha ilyen van
+		if (sampleCount < fftWindowSize * stride) {
+			assert(0);
+			float absMaxVolume = 0.0f;
+			absMaxVolume = 1.0;
+		}
+
+
+		for (const short* windowStart = data; windowStart + fftWindowSize * stride < data + sampleCount * stride; windowStart += fftWindowSize * stride) {
+			for (size_t channelIndex = 0; channelIndex < waveTrack.format.nChannels; ++channelIndex) {
+				FillBuffer(windowStart + channelIndex);
+				Fourier::fft(fftBuffer);
+				const double loudness = FindPerceptualLoudness();
+				maxLoudness = std::max<double>(loudness, maxLoudness);
+			}
+		}
+
+		//const double absMaxVolume = LoudnessToVolume(maxLoudness);
+
+		return (float)maxLoudness;
+	}
+
+	static float CalculateMaxVolume(const class WaveTrack& waveTrack) {
+		if (Global::config.GetBool(ConfigKeys::PerceptiveVolumeNormalization)) {
+			return CalculateMaxVolume_Perceptive(waveTrack);
+		} else {
+			return CalculateMaxVolume_Absolute(waveTrack);
+		}
+	}
+
 	static void NormalizeVolume(WaveTrack& track) {
 
 
@@ -194,8 +331,8 @@ namespace TSPlugin {
 
 	static void PostProcessTrack(WaveTrack& track) {
 
-		
-		
+
+
 		ResampleTo16Bit(track);
 
 		//short* data = (short*)result->data.data();

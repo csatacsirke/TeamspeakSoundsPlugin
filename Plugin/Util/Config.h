@@ -56,6 +56,7 @@ namespace TSPlugin {
 		//optional<double> GetDouble(const CString& key);
 		//optional<float> GetFloat(const CString& key);
 		//optional<int> GetInt(const CString& key);
+
 		bool GetBool(const CString& key);
 
 
@@ -74,6 +75,7 @@ namespace TSPlugin {
 	namespace ConfigKeys {
 		static const CString SoundFolder = L"SoundFolder";
 		static const CString NormalizeVolume = L"NormalizeVolume";
+		static const CString PerceptiveVolumeNormalization = L"PerceptiveVolumeNormalization";
 		static const CString Volume = L"Volume";
 		static const CString TargetNormalizedVolume = L"TargetNormalizedVolume";
 		static const CString QueueCommand = L"QueueCommand";

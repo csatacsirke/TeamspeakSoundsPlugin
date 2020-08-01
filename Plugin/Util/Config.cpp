@@ -21,6 +21,7 @@ namespace TSPlugin {
 		entries = {
 			{ Volume, L"1.0" },
 			{ NormalizeVolume, L"1" },
+			{ PerceptiveVolumeNormalization, L"1" },
 			{ TargetNormalizedVolume, L"0.2" },
 			{ QueueCommand, L"q " },
 			{ CommandStarterCharacter, L"/" },
