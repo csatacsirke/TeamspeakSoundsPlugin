@@ -62,7 +62,7 @@ namespace TSPlugin {
 			vector<CString> result;
 
 			for (auto& changeEntry : changeEntries) {
-				if (changeEntry.date.compare(currentVersion.GetString()) < 0) {
+				if (changeEntry.date.compare(currentVersion.GetString()) <= 0) {
 					continue;
 				}
 
