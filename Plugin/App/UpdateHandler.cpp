@@ -16,7 +16,11 @@ namespace TSPlugin {
 
 	static void DownloadAndInstallNewVerison() {
 
-		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/downloads/SoundplayerPlugin_x64.ts3_plugin");
+		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"_beta" : L"";
+		const CString endpoint = FormatString(L"battlechicken/ts/downloads/SoundplayerPlugin_x64%s.ts3_plugin", updateChannel);
+
+
+		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", endpoint);
 		if (!result) {
 			return;
 		}
@@ -88,7 +92,7 @@ namespace TSPlugin {
 
 	static optional<CStringA> DownloadVersionOnServer() {
 
-		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"stable" : L"beta";
+		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"beta" : L"stable";
 		const CString endpoint = FormatString(L"battlechicken/ts/version?channel=%s", updateChannel);
 
 		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", endpoint);
