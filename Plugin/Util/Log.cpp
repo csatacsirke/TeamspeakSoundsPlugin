@@ -12,5 +12,5 @@ namespace Log {
 
 
 
-std::wofstream Log::logFile("soundplayer_log.txt");
+//std::wofstream Log::logFile("soundplayer_log.txt");
 
