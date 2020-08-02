@@ -2,6 +2,7 @@
 #include "UpdateHandler.h"
 
 #include <App/plugin.h>
+#include <Util/Config.h>
 #include <Web/Http.h>
 
 
@@ -85,20 +86,35 @@ namespace TSPlugin {
 		
 	}
 
+	static optional<CStringA> DownloadVersionOnServer() {
+
+		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"stable" : L"beta";
+		const CString endpoint = FormatString(L"battlechicken/ts/version?channel=%s", updateChannel);
+
+		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", endpoint);
+
+		if (!result) {
+			return nullopt;
+		}
+
+
+		const CStringA versionOnServer = CStringA((const char*)result->data(), (int)result->size());
+
+		return versionOnServer;
+	}
 
 	bool CheckForUpdates() {
 //#ifdef _DEBUG
 //		return false;
 //#endif
 
-		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/version");
-
-		if (!result) {
+		const optional<CStringA> optVersionOnServer = DownloadVersionOnServer();
+		if (!optVersionOnServer) {
 			return false;
 		}
 
+		const CStringA versionOnServer = *optVersionOnServer;
 
-		const CStringA versionOnServer = CStringA((const char*)result->data(), (int)result->size());
 		const CStringA currentVersion = ts3plugin_version();
 
 		if (currentVersion.Compare(versionOnServer) >= 0) {

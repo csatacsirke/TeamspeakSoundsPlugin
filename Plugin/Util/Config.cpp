@@ -31,7 +31,7 @@ namespace TSPlugin {
 			{ ShouldDisplayOverlay, L"1" },
 			{ OverlayBackgroundAlpha, L"96" },
 			{ OverlayFontSize, L"18" },
-
+			{ BetaVersion, L"0" },
 		};
 	}
 

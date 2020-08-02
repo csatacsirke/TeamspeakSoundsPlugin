@@ -12,6 +12,12 @@
     "changes": [
       "Update now shows what's new"
     ]
+  },
+  {
+    "date": "2020.08.02.2",
+    "changes": [
+      "Can select \"beta\" version as update channel\" - See settings"
+    ]
   }
 ]
 

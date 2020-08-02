@@ -86,6 +86,7 @@ namespace TSPlugin {
 		static const CString ShouldDisplayOverlay = L"ShouldDisplayOverlay";
 		static const CString OverlayFontSize = L"OverlayFontSize";
 		static const CString OverlayBackgroundAlpha = L"OverlayBackgroundAlpha";
+		static const CString BetaVersion = L"BetaVersion";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}
