@@ -160,7 +160,6 @@ int ts3plugin_init() {
 	//	return -2;
 	//}
 
-	std::thread(CheckForUpdates).detach();
 
 #if 0
 	ShellExecuteA(NULL, "open", "https://www.youtube.com/watch?v=oHg5SJYRHA0", NULL, NULL, SW_SHOWNORMAL);
@@ -218,6 +217,9 @@ int ts3plugin_init() {
 
 	theApp.reset(new SoundplayerApp());
 	theApp->Init();
+
+	std::thread(CheckForUpdates).detach();
+
 
 	return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
