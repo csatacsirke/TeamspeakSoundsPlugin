@@ -18,6 +18,12 @@
     "changes": [
       "Can select \"beta\" version as update channel\" - See settings"
     ]
+  },
+  {
+    "date": "2020.08.09",
+    "changes": [
+      "Perceptual audio normalization off by default, until it's unstable"
+    ]
   }
 ]
 
