@@ -24,6 +24,12 @@
     "changes": [
       "Perceptual audio normalization off by default, until it's unstable"
     ]
+  },
+  {
+    "date": "2020.09.26",
+    "changes": [
+      "Push to talk support"
+    ]
   }
 ]
 

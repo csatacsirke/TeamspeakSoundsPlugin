@@ -508,7 +508,8 @@ namespace TSPlugin {
 
 	private:
 		bool soundPlaying = false;
-		CStringA defaultVadState;
+		int pushToTalkActivated = 0;
+		//CStringA defaultVadState;
 	public:
 		void ForceEnableMicrophone() {
 			//logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
@@ -518,8 +519,11 @@ namespace TSPlugin {
 
 			if (!soundPlaying) {
 				soundPlaying = true;
-				defaultVadState = Ts::GetPreProcessorConfigValue(Ts::VoiceActivation);
+				//defaultVadState = Ts::GetPreProcessorConfigValue(Ts::VoiceActivation);
 				Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, Ts::False);
+				//setClientSelfVariableAsInt.
+				pushToTalkActivated = Ts::GetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED);
+				Ts::SetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED, INPUT_ACTIVE);
 			}
 
 
@@ -529,7 +533,8 @@ namespace TSPlugin {
 		void ResetMicrophone() {
 			if (soundPlaying) {
 				soundPlaying = false;
-				Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, defaultVadState);
+				Ts::SetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED, pushToTalkActivated);
+				//Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, defaultVadState);
 				// ez kel
 				//ts3Functions.flushClientSelfUpdates(Global::connection, NULL);
 			}
@@ -570,7 +575,7 @@ namespace TSPlugin {
 		if (didChangeData) {
 			// hát ezt lehet hogy nem ide kéne rakni :D dehát lófasz
 			tsVoiceHandler.ForceEnableMicrophone();
-			*edited |= 1;
+			*edited |= (0x1 | 0x2);
 		} else {
 			tsVoiceHandler.ResetMicrophone();
 			*edited &= ~1;
