@@ -47,6 +47,7 @@ namespace TSPlugin {
 		BOOL OnInitDialog() override;
 
 		BOOL PreCreateWindow(CREATESTRUCT& cs) override;
+		void PreSubclassWindow() override;
 		void PaintToBackbuffer(HDC dc);
 
 

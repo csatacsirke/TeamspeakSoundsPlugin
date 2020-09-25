@@ -28,7 +28,8 @@
   {
     "date": "2020.09.26",
     "changes": [
-      "Push to talk support"
+      "Push to talk support",
+      "Overlay window doesn't appear on the taskbar"
     ]
   }
 ]

@@ -49,16 +49,23 @@ namespace TSPlugin {
 
 	BOOL OverlayWindow::PreCreateWindow(CREATESTRUCT& cs) {
 		cs.style &= ~(WS_SYSMENU | WS_CAPTION);
+		
 		//cs.dwExStyle |= WS_EX_LAYERED;
 
 		//cs.dwExStyle &= ~(WS_EX_TOPMOST);
 
 		const BOOL result = __super::PreCreateWindow(cs);
-
+		
 		//cs.style &= ~(WS_SYSMENU | WS_CAPTION);
 		//cs.dwExStyle |= WS_EX_LAYERED;
 
 		return result;
+	}
+
+	void OverlayWindow::PreSubclassWindow() {
+		__super::PreSubclassWindow();
+		ModifyStyle(WS_SYSMENU | WS_CAPTION, 0);
+		ModifyStyleEx(0, WS_EX_TOOLWINDOW);
 	}
 
 	void OverlayWindow::DoDataExchange(CDataExchange* pDX) {
