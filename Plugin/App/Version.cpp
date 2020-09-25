@@ -2,4 +2,4 @@
 
 #include "Version.h"
 
-const char* version = "2020.08.09";
+const char* version = "2020.09.26";
