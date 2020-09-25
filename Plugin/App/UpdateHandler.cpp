@@ -52,6 +52,7 @@ namespace TSPlugin {
 
 		const optional<vector<uint8_t>> optChangesJson = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/changes.php");
 		if (!optChangesJson) {
+			ASSERT(0);
 			return nullopt;
 		}
 
