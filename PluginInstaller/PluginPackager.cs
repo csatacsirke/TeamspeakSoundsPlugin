@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 
 namespace PluginInstaller {
-    static class Program {
+    static class PluginPackager {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -20,15 +20,16 @@ namespace PluginInstaller {
 
             //Application.Run(new Form1());
 
-            if (args.Length < 1) {
+            if (args.Length < 2) {
 
                 Console.WriteLine("Nem adtál meg source filet te hülye! %0 :  sourceFile");
                 return;
             }
 
             string sourceFile = args[0];
+            string changelogPath = args[1];
             try {
-                CreateTsPluginInstallerFile(sourceFile);
+                CreateTsPluginInstallerFile(sourceFile, changelogPath);
             } catch (Exception e) {
                 Console.WriteLine("Fatal error");
                 Console.WriteLine(e.ToString());
@@ -83,7 +84,7 @@ Description = ""Just another soundboard""
         }
 
 
-        static void CreateTsPluginInstallerFile(string sourceFilePath) {
+        static void CreateTsPluginInstallerFile(string sourceFilePath, string changelogPath) {
 
             string directory = Path.GetDirectoryName(sourceFilePath);
             string sourceFileName = Path.GetFileName(sourceFilePath);
@@ -96,32 +97,19 @@ Description = ""Just another soundboard""
 
             var version = RunCommand("TsVersionFinder.exe", sourceFilePath);
 
-            //string outputFilePath = sourceFilePath + ".ts3_plugin";
-
+            
             if (File.Exists(outputFilePath)) {
                 File.Delete(outputFilePath);
             }
 
-            //FileStream outputStream = new FileStream(outputFileName, FileMode.CreateNew);
-
             ZipArchive zip = ZipFile.Open(outputFilePath, ZipArchiveMode.Create);
-            //ZipArchive zip = new ZipArchive(outputStream);
-            //ZipArchive zip = ZipFile.
+
             zip.CreateEntryFromFile(sourceFilePath, "plugins/" + sourceFileName);
+            zip.CreateEntryFromFile(changelogPath, "changelog.json");
 
             CreatePackageIni(zip, version);
 
-            //zip.CreateEntryFromFile("package.ini", "package.ini");
 
-
-            //ZipArchiveEntry package_ini = zip.CreateEntry("package.ini")
-            //Stream package_ini_stream = package_ini.Open();
-            //StreamWriter package_ini_streamWriter = new StreamWriter(package_ini_stream);
-            //package_ini_streamWriter.WriteLine("Teszt 1");
-            //package_ini_streamWriter.Flush();
-
-
-            //outputStream.Flush();
             Console.WriteLine("Output: " + outputFilePath);
             zip.Dispose();
 

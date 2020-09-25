@@ -8,7 +8,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SoundplayerPlugin", "Plugin
 		{C286915A-7669-4708-AC86-9DBB02CC2727} = {C286915A-7669-4708-AC86-9DBB02CC2727}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginInstaller", "PluginInstaller\PluginInstaller.csproj", "{C286915A-7669-4708-AC86-9DBB02CC2727}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PluginPackager", "PluginInstaller\PluginPackager.csproj", "{C286915A-7669-4708-AC86-9DBB02CC2727}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D39F0CD2-4746-4446-8979-78F7E8E5E26B} = {D39F0CD2-4746-4446-8979-78F7E8E5E26B}
 	EndProjectSection

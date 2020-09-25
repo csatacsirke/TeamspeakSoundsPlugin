@@ -394,7 +394,7 @@
       <UACUIAccess>false</UACUIAccess>
     </Link>
     <PostBuildEvent>
-      <Command>$(SolutionDir)\Build\PluginInstaller\PluginInstaller.exe "$(TargetPath)"</Command>
+      <Command>$(SolutionDir)Build\PluginInstaller\PluginInstaller.exe "$(TargetPath)" "$(SolutionDir)changelog.json"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>
