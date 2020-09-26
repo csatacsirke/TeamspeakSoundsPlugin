@@ -29,7 +29,8 @@
     "date": "2020.09.26",
     "changes": [
       "Push to talk support",
-      "Overlay window doesn't appear on the taskbar"
+      "Overlay window doesn't appear on the taskbar",
+      "Overlay not half-transparent anymore, but text has outline"
     ]
   }
 ]
