@@ -28,12 +28,7 @@ namespace TSPlugin {
 		BufferedPaintComponent bufferedPaintComponent;
 		GdiPlusComponent gdiPlusComponent;
 
-
-		//static const shared_ptr<OverlayWindow>& GetInstance();
-
 		void SetInfoData(const CString& newInfoData);
-
-
 
 	public:
 
@@ -46,7 +41,7 @@ namespace TSPlugin {
 		void DoDataExchange(CDataExchange* pDX) override;    // DDX/DDV support
 		BOOL OnInitDialog() override;
 
-		BOOL PreCreateWindow(CREATESTRUCT& cs) override;
+		//BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 		void PreSubclassWindow() override;
 		void PaintToBackbuffer(HDC dc);
 
