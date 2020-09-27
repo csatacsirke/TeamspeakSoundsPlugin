@@ -61,6 +61,11 @@ namespace TSPlugin {
 			return value;
 		}
 
+		static inline void FlushClientSelfUpdates() {
+			UINT error = ts3Functions.flushClientSelfUpdates(Global::connection, nullptr);
+			(void)error;
+			//CheckAndLogError(error);
+		}
 
 		static const char* VoiceActivation = "vad";
 		static const char* True = "true";

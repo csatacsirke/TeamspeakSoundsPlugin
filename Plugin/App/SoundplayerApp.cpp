@@ -509,21 +509,20 @@ namespace TSPlugin {
 	private:
 		bool soundPlaying = false;
 		int pushToTalkActivated = 0;
-		//CStringA defaultVadState;
+		CStringA defaultVadState;
 	public:
 		void ForceEnableMicrophone() {
-			//logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
-			//	(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
+			
 			assert(Global::connection);
-
 
 			if (!soundPlaying) {
 				soundPlaying = true;
-				//defaultVadState = Ts::GetPreProcessorConfigValue(Ts::VoiceActivation);
+				defaultVadState = Ts::GetPreProcessorConfigValue(Ts::VoiceActivation);
 				Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, Ts::False);
-				//setClientSelfVariableAsInt.
+				
 				pushToTalkActivated = Ts::GetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED);
 				Ts::SetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED, INPUT_ACTIVE);
+				Ts::FlushClientSelfUpdates();
 			}
 
 
@@ -533,15 +532,13 @@ namespace TSPlugin {
 		void ResetMicrophone() {
 			if (soundPlaying) {
 				soundPlaying = false;
+
+				Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, defaultVadState);
 				Ts::SetClientSelfVariableAsInt(CLIENT_INPUT_DEACTIVATED, pushToTalkActivated);
-				//Ts::SetPreProcessorConfigValue(Ts::VoiceActivation, defaultVadState);
-				// ez kel
-				//ts3Functions.flushClientSelfUpdates(Global::connection, NULL);
+				Ts::FlushClientSelfUpdates();
 			}
 		}
-		//void SetState(CStringA key, CStringA value) {
-		//	ts3Functions.setPreProcessorConfigValue(Global::connection, key, value);
-		//}
+		
 	} tsVoiceHandler;
 
 #endif

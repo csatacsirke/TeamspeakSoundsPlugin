@@ -32,6 +32,12 @@
       "Overlay window doesn't appear on the taskbar",
       "Overlay not half-transparent anymore, but text has outline"
     ]
+  },
+  {
+    "date": "2020.09.27",
+    "changes": [
+      "Fix for push-to-talk support, that broke voice activation detection in the previous version." 
+    ]
   }
 ]
 
