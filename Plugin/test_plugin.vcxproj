@@ -506,7 +506,9 @@
     <ResourceCompile Include="test_plugin.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\changelog.json" />
+    <Text Include="..\changelog.json">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
