@@ -32,7 +32,7 @@ namespace Log {
 	static inline void Write(const wchar_t* msg) {
 		//Write(msg, Log::logFile);
 		Write(msg, std::wcout);
-		TRACE(msg);
+		TRACE("%S", msg);
 	}
 
 	static void Write(const wchar_t* msg, Log::Level level) {
