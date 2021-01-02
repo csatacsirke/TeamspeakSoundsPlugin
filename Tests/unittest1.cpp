@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CppUnitTest.h"
 
+
+#include <Plugin/stdafx.h>
 #include <Plugin/Util/Util.h>
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
