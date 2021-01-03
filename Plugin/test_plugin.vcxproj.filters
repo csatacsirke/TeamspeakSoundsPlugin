@@ -215,6 +215,9 @@
     <ClInclude Include="App\Version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Wave\MediaFoundationReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -334,7 +337,7 @@
     <ClCompile Include="App\Version.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Mp3\Mp3Loader.cpp">
+    <ClCompile Include="Wave\MediaFoundationReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

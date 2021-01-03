@@ -1,13 +1,24 @@
 #include "stdafx.h"
 
-#include <mfreadwrite.h>
-#include <mfapi.h>
+#include "MediaFoundationReader.h"
 
-#include <Wave/wave.h>
+#include <mfidl.h>
+#include <mfapi.h>
+#include <mfreadwrite.h>
+
+
 
 namespace TSPlugin {
 
-	namespace Mp3 {
+	namespace MediaFoundation {
+		class IWavDataSink {
+
+		public:
+			virtual void OnInit(const WAVEFORMATEX& format) = 0;
+			// return: should continue
+			virtual bool OnData(const uint8_t* data, size_t size) = 0;
+			virtual void OnFinished() = 0;
+		};
 
 
 		//-------------------------------------------------------------------
@@ -73,12 +84,12 @@ namespace TSPlugin {
 		}
 
 
-		static HRESULT ReadAllDataFromSource(IMFSourceReader* pReader) {
+		static HRESULT ReadDataFromSourceToSink(IMFSourceReader* pReader, IWavDataSink* dataSink) {
 			HRESULT hr = S_OK;
 			DWORD cbAudioData = 0;
 			DWORD cbBuffer = 0;
 			BYTE* pAudioData = NULL;
-
+			
 			CComPtr<IMFSample> pSample = NULL;
 			CComPtr<IMFMediaBuffer> pBuffer = NULL;
 
@@ -93,7 +104,7 @@ namespace TSPlugin {
 					NULL,
 					&dwFlags,
 					NULL,
-					&pSample
+					&pSample.p
 				);
 
 				if (FAILED(hr)) {
@@ -116,7 +127,7 @@ namespace TSPlugin {
 
 				// Get a pointer to the audio data in the sample.
 
-				hr = pSample->ConvertToContiguousBuffer(&pBuffer);
+				hr = pSample->ConvertToContiguousBuffer(&pBuffer.p);
 
 				if (FAILED(hr)) {
 					break;
@@ -131,7 +142,7 @@ namespace TSPlugin {
 
 
 				// Write this data to the output file.
-				hr = WriteToFile(hFile, pAudioData, cbBuffer);
+				hr = dataSink->OnData(pAudioData, cbBuffer);
 
 				if (FAILED(hr)) {
 					break;
@@ -154,10 +165,12 @@ namespace TSPlugin {
 				pBuffer->Unlock();
 			}
 
+			dataSink->OnFinished();
+
 			return hr;
 		}
 
-		HRESULT LoadMp3(LPCWSTR wszSourceFile) {
+		HRESULT ReadAudioFile(LPCWSTR wszSourceFile, IWavDataSink* dataSink) {
 
 			HRESULT hr = S_OK;
 
@@ -189,8 +202,6 @@ namespace TSPlugin {
 			}
 
 
-
-			
 			CComHeapPtr<WAVEFORMATEX> pWav;
 			if (SUCCEEDED(hr)) {
 				UINT32 cbFormat = 0;
@@ -201,14 +212,47 @@ namespace TSPlugin {
 				);
 			}
 
-			auto track = make_shared<WaveTrack>();
-			track->format = *pWav;
 
+			if (SUCCEEDED(hr)) {
+				dataSink->OnInit(*pWav);
+
+				hr = ReadDataFromSourceToSink(pReader, dataSink);
+			}
+
+			// call it regardless of error
+			dataSink->OnFinished();
+			
 			return hr;
 		}
 
-		std::shared_ptr<WaveTrack> LoadMp3File(const fs::path& path) {
+		std::shared_ptr<WaveTrack> LoadAudioFile(const fs::path& path) {
+			
+			struct WaveTrackSink : public IWavDataSink {
+				shared_ptr<WaveTrack> track = make_shared<WaveTrack>();
 
+				void OnInit(const WAVEFORMATEX& format) override {
+					track->format = format;
+				}
+
+				bool OnData(const uint8_t* data, size_t size) override {
+					track->data.insert(track->data.end(), data, data + size);
+
+					return true;
+				}
+
+				void OnFinished() override {
+					// nothing
+				}
+
+			} dataSink;
+
+			HRESULT hr = S_OK;
+
+			if (SUCCEEDED(hr)) {
+				hr = ReadAudioFile(path.c_str(), &dataSink);
+			}
+
+			return SUCCEEDED(hr) ? dataSink.track : nullptr;
 		}
 	}
 

@@ -412,7 +412,7 @@
     <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Gui\OverlayWindow.cpp" />
     <ClCompile Include="App\UpdateHandler.cpp" />
-    <ClCompile Include="Mp3\Mp3Loader.cpp" />
+    <ClCompile Include="Wave\MediaFoundationReader.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="exe\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
@@ -471,6 +471,7 @@
     <ClInclude Include="Wave\AudioProcessing.h" />
     <ClInclude Include="Wave\FilterBuffer.h" />
     <ClInclude Include="Wave\FourierUtils.h" />
+    <ClInclude Include="Wave\MediaFoundationReader.h" />
     <ClInclude Include="Wave\PitchFilter.h" />
     <ClInclude Include="Wave\PitchShiftFilter.h" />
     <ClInclude Include="Web\Http.h" />

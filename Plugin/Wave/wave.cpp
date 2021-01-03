@@ -3,6 +3,7 @@
 
 
 #include "wave.h"
+#include "MediaFoundationReader.h"
 
 #include "FourierUtils.h"
 
@@ -426,7 +427,7 @@ namespace TSPlugin {
 
 
 
-	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(std::istream& stream) {
+	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFileFromStream(std::istream& stream) {
 
 		if (!stream) {
 			//Log::Error(L"LoadWaveFile: failed to open stream");
@@ -468,6 +469,19 @@ namespace TSPlugin {
 		}
 
 
+
+		return track;
+
+	}
+
+	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const fs::path& path) {
+
+
+		//std::ifstream stream(fileName, std::ifstream::binary);
+		//auto track = LoadWaveFileFromStream(stream);
+
+		auto track = MediaFoundation::LoadAudioFile(path);
+
 		if (track) {
 			PostProcessTrack(*track);
 		}
@@ -477,16 +491,7 @@ namespace TSPlugin {
 			return nullptr;
 		}
 
-
 		return track;
-
-	}
-
-	std::shared_ptr<WaveTrack> WaveTrack::LoadWaveFile(const wchar_t* fileName) {
-
-		std::ifstream stream(fileName, std::ifstream::binary);
-
-		return LoadWaveFile(stream);
 	}
 
 
