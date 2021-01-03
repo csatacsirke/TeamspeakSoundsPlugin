@@ -1,6 +1,6 @@
 <?php 
 
-$filename = "downloads/SoundplayerPlugin_x64_beta.ts3_plugin";
+$filename = "releases/beta/SoundplayerPlugin_x64.ts3_plugin";
 
 $zip = new ZipArchive;
 $res = $zip->open($filename);

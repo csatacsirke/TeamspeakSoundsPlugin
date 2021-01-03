@@ -1,6 +1,21 @@
 <?php
 
-$filename = "../downloads/SoundplayerPlugin_x64.ts3_plugin";
+//$filename = $_GET["filename"];
+$channel = $_GET["channel"];
+
+
+if(!isset($channel)) {
+    $channel = "stable";
+}
+
+if($channel === "beta") {
+    $filename = "../releases/beta/SoundplayerPlugin_x64.ts3_plugin";
+} else if ($channel === "old_stable") {
+    $filename = "../releases/old/SoundplayerPlugin_x64.ts3_plugin";
+} else {
+    $filename = "../releases/stable/SoundplayerPlugin_x64.ts3_plugin";
+}
+
 
 // $zip = ZipArchive::open( $filename );
 
@@ -16,7 +31,7 @@ if ($res === TRUE) {
     }
     $zip->close();
 } else {
-    http_response_code(418);
+    http_response_code(404);
     echo 'failed, code:' . $res;
 }
 
