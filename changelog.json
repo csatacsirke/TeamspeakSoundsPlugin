@@ -36,7 +36,13 @@
   {
     "date": "2020.09.27",
     "changes": [
-      "Fix for push-to-talk support, that broke voice activation detection in the previous version." 
+      "Fix for push-to-talk support, that broke voice activation detection in the previous version."
+    ]
+  },
+  {
+    "date": "2021.01.03",
+    "changes": [
+      "Mp3 support. (Or anything that Windows can read by default.)"
     ]
   }
 ]
