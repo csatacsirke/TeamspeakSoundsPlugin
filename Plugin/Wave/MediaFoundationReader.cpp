@@ -142,7 +142,11 @@ namespace TSPlugin {
 
 
 				// Write this data to the output file.
-				hr = dataSink->OnData(pAudioData, cbBuffer);
+				const bool shouldContinue = dataSink->OnData(pAudioData, cbBuffer);
+
+				if (!shouldContinue) {
+					break;
+				}
 
 				if (FAILED(hr)) {
 					break;
