@@ -1,0 +1,51 @@
+<h3>Plugin behelyezése a tsbe: </h3>
+
+-Töltsd le a plugint
+-Nyisd meg a mappát, ahova letöltötted.
+-Nyisd meg azt a mappát, ahova a ts-t telepítetted.
+-Másold be a plugint a ts Plugin nevu mappájába
+-Indítsd el a tst
+-Menj rá a Setting->Plugins fülre, és Reload all (alul).
+-Pipáld be a Soundplayer plugint és Okézd le
+
+<h3>Plugin beállítása:</h3>
+1) Parancsra lejátszás:
+-Szedd össze az összes hangod egy mappába (csak .wav)
+-Indítsd el a ts-t
+-Menj rá Settings->Plugins.
+-Katt kétszer a Soundplayer névre, vagy egyszer és a Setting gombra, ekkor megjelenik a plugin beállítása
+-A Default sound foldernél menj az editre és válaszd ki a mappát, amibe összegyujtötted a hangokat
+-Lejátszani úgy tudod a hangokat hogy nem a ts chatbe, hanem bármilyen másik chatbe beírod perjel után a hang nevének elso pár betujét, és enter
+  pl: A hang neve: Adjneki; chatbe azt írod be, hogy /Adj
+  
+<h3>2) Hotkey használata:</h3>
+-Indítsd el a ts-t
+-Menj rá Settings->Plugins.
+-Katt kétszer a Soundplayer névre, vagy egyszer és a Setting gombra, ekkor megjelenik a plugin beállítása
+-Kattints a hatodik fülre, a Play sound #1 nevezetűre, ekkor felugrik egy ablak
+-Nyomd meg azt a gombot, amivel aktiválni szeretnéd a hangot a későbbiekben.
+-(Van olyan, hogy elsőre nem jegyzi meg a program, ekkor ismételd meg a Play sound #1-re kattintást és a billentyű megnyomását.
+-Ezután a Play sound #1hez tartozó Browse-re kattints, és válaszd ki a hangot, amit használni szeretnél
+-Járj el ugyanígy a Play sound #2,3,4,5,6,7,8-al , de a 0-t ne használd, mert loopol, és sosem áll le.
+-Okézd le a beállítást
+
+<h3>3)Random hang lejátszása:</h3>
+
+-Indítsd el a ts-t
+-Menj rá Settings->Plugins.
+-Katt kétszer a Soundplayer névre, vagy egyszer és a Setting gombra, ekkor megjelenik a plugin beállítása
+-Válaszd ki a Play random fület és nyomd meg a gombot amire szeretnéd hogy random hangot játszon be
+-(Van olyan, hogy elsőre nem jegyzi meg a program, ekkor ismételd meg a Play sound #1-re kattintást és a billentyű megnyomását.)
+-Okézd le a beállítást
+
+<h3>4) Újrajátszás és leállítás:</h3>
+-Járj ugyanúgy el, mint a 3)-as pontban csak a stopot a Stop fülön, az ismétlést a Replay fülön állíts be.
+
+<h3>Lejátszás fájl kiválasztásból:</h3>
+-Indítsd el a ts-t
+-Menj a Plugins fülre a menüsorban
+-Kattints a Play sound from file-ra
+-Keresd ki a számot amit le akarsz játszani
+-És okézd le
+
+<i>Használati utasítás by <b>Bogeczki</b></i>
