@@ -38,13 +38,13 @@ namespace TSPlugin {
 		lvColumn.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lvColumn.fmt = LVCFMT_LEFT;
 		lvColumn.cx = 250;
-		lvColumn.pszText = L"Value";
+		lvColumn.pszText = const_cast<wchar_t*>(L"Value");
 		configListControl.InsertColumn(0, &lvColumn);
 
 		lvColumn.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH;
 		lvColumn.fmt = LVCFMT_LEFT;
 		lvColumn.cx = 200;
-		lvColumn.pszText = L"Key";
+		lvColumn.pszText = const_cast<wchar_t*>(L"Key");
 		
 		configListControl.InsertColumn(1, &lvColumn);
 
@@ -57,7 +57,7 @@ namespace TSPlugin {
 			lvItem.mask = LVIF_TEXT;
 			lvItem.iItem = nItem;
 			lvItem.iSubItem = 0;
-			lvItem.pszText = L"";
+			lvItem.pszText = const_cast<wchar_t*>(L"");
 			lvItem.cchTextMax = 256;
 
 			

@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 namespace KeyboardHook {
 	//static const TCHAR* defaultPipeName = TEXT("\\\\.\\pipe\\soundplayer_pipe");
 

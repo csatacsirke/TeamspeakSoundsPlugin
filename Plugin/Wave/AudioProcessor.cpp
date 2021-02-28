@@ -28,7 +28,8 @@ namespace TSPlugin {
 
 
 		for (auto& filter : Filters) {
-			filter->ProcessData(AudioData{ samples, sampleCount, channels });
+			AudioData data{ samples, sampleCount, channels };
+			filter->ProcessData(data);
 		}
 
 		return true;

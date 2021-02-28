@@ -109,7 +109,7 @@ namespace TSPlugin {
 		QuickSoundHandler(QuickSoundHandlerDelegate& delegate) : delegate(delegate) {}
 		//HookResult TryConsumeEvent(const KeyboardHook::KeyData& keyData);
 
-		HookResult QuickSoundHandler::TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
+		HookResult TryConsumeEvent(const KeyboardHook::KeyData& keyData) {
 			CString key = keyData.unicodeLiteral;
 
 			if (key.GetLength() == 0) {

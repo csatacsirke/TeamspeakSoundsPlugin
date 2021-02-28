@@ -24,6 +24,15 @@
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
 
+#ifndef _AFX_NO_OLE_SUPPORT
+#include <afxdtctl.h>           // MFC support for Internet Explorer 4 Common Controls
+#endif
+#ifndef _AFX_NO_AFXCMN_SUPPORT
+#include <afxcmn.h>             // MFC support for Windows Common Controls
+#endif // _AFX_NO_AFXCMN_SUPPORT
+
+#include <afxcontrolbars.h>     // MFC support for ribbons and control bars
+
 //
 
 
@@ -38,9 +47,7 @@
 #include <unordered_set>
 #include <set>
 #include <stack>
-
 #include <concurrent_queue.h>
-
 #include <stdio.h>
 #include <iostream>
 #include <stdlib.h>
@@ -48,7 +55,6 @@
 #include <string.h>
 #include <time.h>
 #include <assert.h>
-
 #include <mutex>
 #include <condition_variable>
 #include <thread>
@@ -57,7 +63,9 @@
 #include <future>
 #include <optional>
 #include <filesystem>
-//using namespace std;
+#include <iostream>
+#include <fstream>
+
 
 
 #include <pluginsdk\include\ts3_functions.h>
@@ -73,24 +81,6 @@
 
 #define USE_WINDOWS_MEDIA_PACK_FEATURES TRUE
 
-
-
-#include <iostream>
-#include <fstream>
-
-
-#ifndef _AFX_NO_OLE_SUPPORT
-#include <afxdtctl.h>           // MFC support for Internet Explorer 4 Common Controls
-#endif
-#ifndef _AFX_NO_AFXCMN_SUPPORT
-#include <afxcmn.h>             // MFC support for Windows Common Controls
-#endif // _AFX_NO_AFXCMN_SUPPORT
-
-#include <afxcontrolbars.h>     // MFC support for ribbons and control bars
-
-
-#include <afxcontrolbars.h>
-#include <afxcontrolbars.h>
 
 
 

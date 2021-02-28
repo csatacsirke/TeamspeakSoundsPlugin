@@ -35,12 +35,12 @@ namespace TSPlugin {
 		};
 	}
 
-	void Config::LoadFromFile(CString fileName) {
+	void Config::LoadFromFile(const fs::path& path) {
 		std::unique_lock lock(mutex);
 
-		this->fileName = fileName;
+		_path = path;
 
-		std::wifstream in(fileName);
+		std::wifstream in(path);
 
 		ASSERT((bool)in);
 
@@ -52,11 +52,11 @@ namespace TSPlugin {
 		}
 	}
 
-	void Config::SaveToFile(CString fileName) {
+	void Config::SaveToFile(const fs::path& path) {
 		std::unique_lock lock(mutex);
 
 
-		std::wofstream out(fileName);
+		std::wofstream out(path);
 		assert((bool)out);
 
 		for (auto& elem : entries) {
@@ -161,12 +161,7 @@ namespace TSPlugin {
 	}
 
 	void Config::Save() {
-		SaveToFile(this->fileName);
-		//if(_taccess(this->fileName, 0)) {
-		//	
-		//} else {
-		//	assert(0);
-		//}
+		SaveToFile(_path);
 	}
 
 

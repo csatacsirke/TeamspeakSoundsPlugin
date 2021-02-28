@@ -248,14 +248,14 @@ namespace TSPlugin {
 			std::unique_lock<std::mutex> lock(mutex);
 
 			if (trackQueue.empty()) {
-				return nullptr;
+				return {};
 			}
 
 			const WaveTrackPtr& track = trackQueue.front();
 
 			if (track.EndOfTrack()) {
 				trackQueue.pop();
-				return nullptr;
+				return {};
 				// nem törödünk azzal, hogy megnézzük van e másik, majd a kövi körben
 				// ( most nincs kedvem elbaszni az idöt)
 			}
@@ -278,7 +278,7 @@ namespace TSPlugin {
 
 		CachedAudioSample48k TryGetSamples(const int sampleCountForOneChannel, const int outputChannels) {
 			WaveTrackPtr trackPtr = FetchTrack();
-			if (!trackPtr) return false;
+			if (!trackPtr) return nullptr;
 
 			const WaveTrack& track = trackPtr;
 

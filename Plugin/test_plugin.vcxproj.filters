@@ -218,6 +218,9 @@
     <ClInclude Include="Wave\MediaFoundationReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Twitch\TwitchChat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -338,6 +341,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Wave\MediaFoundationReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Twitch\TwitchChat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

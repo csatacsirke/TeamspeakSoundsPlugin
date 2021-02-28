@@ -114,6 +114,8 @@ namespace TSPlugin {
 		void SendMessageToChannelChat(CString message);
 		void OpenDeveloperConsole();
 		void UpdateOverlay();
+		void SaveConfig();
+		void LoadConfig();
 
 	private:
 		MenuHandler menuHandler;

@@ -100,9 +100,9 @@ namespace TSPlugin {
 				return nullopt;
 			}
 
-			Finally closeSession = [&] {
+			Finally closeSession([&] {
 				WinHttpCloseHandle(hSession);
-			};
+			});
 
 			HINTERNET hConnect = WinHttpConnect(hSession, serverUrl, INTERNET_DEFAULT_PORT, 0);
 			if (!hConnect) {
@@ -110,14 +110,14 @@ namespace TSPlugin {
 				return nullopt;
 			}
 
-			Finally closeConnection = [&] {
+			Finally closeConnection([&] {
 				WinHttpCloseHandle(hConnect);
-			};
+			});
 
 			HINTERNET hRequest = WinHttpOpenRequest(hConnect, GET, serverObject, NULL, NULL, NULL, 0);
-			Finally closeRequest = [&] {
+			Finally closeRequest([&] {
 				WinHttpCloseHandle(hRequest);
-			};
+			});
 
 			const BOOL bSendRequestResult = WinHttpSendRequest(
 				hRequest,

@@ -26,15 +26,15 @@ namespace TSPlugin {
 
 	class Config {
 		ConfigDictionary entries;
-		CString fileName;
+		fs::path _path;
 		mutable std::mutex mutex;
 	public:
 		const CString defaultFileName = _T("soundplayer.cfg");
 	public:
 		Config();
 
-		void LoadFromFile(CString fileName);
-		void SaveToFile(CString fileName);
+		void LoadFromFile(const fs::path& path);
+		void SaveToFile(const fs::path& path);
 		void Save();
 
 		//static Config CreateDefault();

@@ -273,10 +273,11 @@
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;WIN32;_DEBUG;_WINDOWS;_USRDLL;TEST_PLUGIN_EXPORTS;WINDOWS;WIN32_LEAN_AND_MEAN;NOFMOD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -302,7 +303,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -328,7 +329,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -384,7 +385,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>..\include;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>MinSpace</Optimization>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -412,6 +413,7 @@
     <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Gui\OverlayWindow.cpp" />
     <ClCompile Include="App\UpdateHandler.cpp" />
+    <ClCompile Include="Twitch\TwitchChat.cpp" />
     <ClCompile Include="Wave\MediaFoundationReader.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="exe\main.cpp" />
@@ -426,7 +428,9 @@
     <ClCompile Include="KeyboardHook\PipeHandler.cpp" />
     <ClCompile Include="App\MenuHandler.cpp" />
     <ClCompile Include="App\plugin.cpp" />
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="App\HotkeyHandler.cpp" />
     <ClCompile Include="Util\Log.cpp" />
     <ClCompile Include="Util\Util.cpp" />
@@ -455,6 +459,7 @@
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />
+    <ClInclude Include="Twitch\TwitchChat.h" />
     <ClInclude Include="Util\TsHelperFunctions.h" />
     <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />

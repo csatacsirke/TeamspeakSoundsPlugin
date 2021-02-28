@@ -90,19 +90,7 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 
 /* Unique name identifying this plugin */
 const char* ts3plugin_name() {
-#ifdef _WIN32
-	/* TeamSpeak expects UTF-8 encoded characters. Following demonstrates a possibility how to convert UTF-16 wchar_t into UTF-8. */
-	static char* result = NULL;  /* Static variable so it's allocated only once */
-	if(!result) {
-		const wchar_t* name = L"Soundplayer";
-		if(wcharToUtf8(name, &result) == -1) {  /* Convert name into UTF-8 encoded result */
-			result = "Soundplayer";  /* Conversion failed, fallback here */
-		}
-	}
-	return result;
-#else
 	return "Soundplayer";
-#endif
 }
 
 /* Plugin version */
@@ -209,11 +197,6 @@ int ts3plugin_init() {
 	//	return 1;
 	//}
 
-	CPath path = CString(Global::configPath);
-	path.Append(Global::config.defaultFileName);
-	Global::config.LoadFromFile(path);
-
-	
 
 	theApp.reset(new SoundplayerApp());
 	theApp->Init();
@@ -249,6 +232,7 @@ void ts3plugin_shutdown() {
 		free(pluginID);
 		pluginID = NULL;
 	}
+
 }
 
 /****************************** Optional functions ********************************/
@@ -366,7 +350,7 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 		case CMD_JOIN:  /* /test join <channelID> [optionalCannelPassword] */
 			if(param1) {
 				uint64 channelID = (uint64)atoi(param1);
-				char* password = param2 ? param2 : "";
+				const char* password = param2 ? param2 : "";
 				char returnCode[RETURNCODE_BUFSIZE];
 				anyID myID;
 				/* Get own clientID */

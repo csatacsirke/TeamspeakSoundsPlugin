@@ -48,7 +48,7 @@ public:
 	Buffer DecodeMillisecs(int millis);
 
 private:
-	Buffer AudioDecoder::GetNextChunk(DWORD cbMaxAudioData);
+	Buffer GetNextChunk(DWORD cbMaxAudioData);
 	WAVEFORMATEX CreateHeader();
 };
 

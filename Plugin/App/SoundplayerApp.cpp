@@ -66,6 +66,8 @@ namespace TSPlugin {
 
 	void SoundplayerApp::Init() {
 
+		LoadConfig();
+
 #if USE_KEYBOARD_HOOK
 		InitKeyboardHook();
 #endif
@@ -108,7 +110,7 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::Shutdown() {
-		Global::config.Save();
+		SaveConfig();
 		if (networkAudioHandler) {
 			networkAudioHandler->Stop();
 		}
@@ -351,7 +353,7 @@ namespace TSPlugin {
 			const INT_PTR dialogResult = dialog.DoModal();
 			if (dialogResult == IDOK) {
 				Global::config.SetEntries(dialog.GetEntries());
-				Global::config.Save();
+				SaveConfig();
 			}
 		} catch (...) {
 			MessageBoxA(NULL, "Unexpected error", 0, 0);
@@ -409,6 +411,17 @@ namespace TSPlugin {
 
 		overlayWindow->SetInfoData(Utf8ToCString(GetPluginInfoData()));
 	}
+
+	void SoundplayerApp::SaveConfig() {
+		const fs::path path = fs::path(Global::configPath) / Global::config.defaultFileName.GetString();
+		Global::config.SaveToFile(path);
+	}
+
+	void SoundplayerApp::LoadConfig() {
+		const fs::path path = fs::path(Global::configPath) / Global::config.defaultFileName.GetString();
+		Global::config.LoadFromFile(path);
+	}
+
 
 	void SoundplayerApp::UpdateObserverDialog() {
 		RefreshTsInterface();
@@ -636,7 +649,7 @@ namespace TSPlugin {
 
 		if (clientID == myID) {
 			cout << "Moved to channel id " << newChannelID << endl;
-			cout << moveMessage << endl;
+			wcout << moveMessage.GetString() << endl;
 
 		}
 
