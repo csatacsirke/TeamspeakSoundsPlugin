@@ -135,7 +135,7 @@ namespace TSPlugin::TwitchChat {
     void TwitchChatReader::Authenticate(const std::string_view channel, const std::string_view password) {
 
         std::string message_auth;
-        message_auth += "PASS oauth:";
+        message_auth += "PASS ";
         message_auth += password;
         Write(message_auth);
         
