@@ -44,6 +44,12 @@
     "changes": [
       "Mp3 support. (Or anything that Windows can read by default.)"
     ]
+  },
+  {
+    "date": "2021.02.28",
+    "changes": [
+      "Twitch integration"
+    ]
   }
 ]
 
