@@ -17,6 +17,8 @@
 #include <Util\Util.h>
 #include <Util\TsHelperFunctions.h>
 
+#include <Twitch/TwitchChat.h>
+
 
 #include "afxdlgs.h"
 #include <Mmsystem.h>
@@ -24,8 +26,8 @@
 #include <filesystem>
 
 
-
-#define USE_KEYBOARD_HOOK TRUE
+#define DEBUG_MODE FALSE
+#define USE_KEYBOARD_HOOK !defined(DEBUG_EXE) && !DEBUG_MODE
 
 /*
 TODO LIST
@@ -57,12 +59,6 @@ namespace TSPlugin {
 
 	using namespace Global;
 
-	void SoundplayerApp::InitKeyboardHook() {
-
-		localHookInstaller.Attach();
-
-	}
-
 
 	void SoundplayerApp::Init() {
 
@@ -73,17 +69,15 @@ namespace TSPlugin {
 #endif
 
 
-#if defined(_DEBUG ) && FALSE
+#if DEBUG_MODE
 		OpenDeveloperConsole();
 #endif
 
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
 
+		InitTwitchChat();
 
-		//std::thread([this] {
-		//	CheckForUpdates();
-		//}).detach();
 
 
 		if (Global::config.GetBool(ConfigKeys::CanReceiveNetworkSoundData)) {
@@ -114,6 +108,46 @@ namespace TSPlugin {
 		if (networkAudioHandler) {
 			networkAudioHandler->Stop();
 		}
+
+		if (twitchChatReader) {
+			twitchChatReader->Stop();
+		}
+	}
+
+
+	void SoundplayerApp::InitKeyboardHook() {
+		localHookInstaller.Attach();
+	}
+
+	void SoundplayerApp::InitTwitchChat() {
+
+		// warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. 
+		// // https://en.cppreference.com/w/cpp/utility/program/getenv
+		// This function is thread-safe (calling it from multiple threads does not introduce a data race) as long as 
+		// no other function modifies the host environment. In particular, the POSIX functions setenv(), unsetenv(), 
+		// and putenv() would introduce a data race if called without synchronization. 
+		//#pragma warning(disable: 4996)
+		//if (const char* auth_token = std::getenv("TWITCH_TOKEN")) {
+		//	twitchChatReader = TwitchChat::CreateTwitchChatReader();
+		//	twitchChatReader->Start(*this, "#bogeczki", auth_token);
+		//}
+
+		//TwitchToken
+		auto twitchToken = ConvertUnicodeToUTF8(Global::config.Get(ConfigKeys::TwitchToken));
+		if (twitchToken.GetLength() == 0) {
+			return;
+		}
+
+		auto channel = Global::config.Get(ConfigKeys::TwitchChannel);
+		if (channel.GetLength() == 0) {
+			return;
+		}
+
+		const CStringA ircChannel = CStringA("#") + ConvertUnicodeToUTF8(channel);
+
+		twitchChatReader = TwitchChat::CreateTwitchChatReader();
+		twitchChatReader->Start(*this, ircChannel.GetString(), twitchToken.GetString());
+
 	}
 
 
@@ -776,6 +810,41 @@ namespace TSPlugin {
 	void SoundplayerApp::OnQuickSoundMatch(const fs::path& path) {
 		AsyncPlayFile(path);
 	}
+
+	void SoundplayerApp::OnTwitchMessage(const std::string_view channel, const std::string_view sender, const std::string_view message) {
+		(void)channel;
+
+		//vector<string> authorizeUsers;
+		istringstream authorizedUsersList = istringstream(ConvertUnicodeToUTF8(Global::config.Get(ConfigKeys::AuthorizedUsers)).GetString());
+		string name;
+		bool authorized = false;
+
+		while (std::getline(authorizedUsersList, name, ',')) {
+			if (name == sender) {
+				authorized = true;
+				break;
+			}
+		}
+
+		if (!authorized) {
+			return;
+		}
+
+		std::regex re(R"""(!sound (\w+))""");
+		std::match_results<const char*> captures;
+		if (!std::regex_search(message.data(), captures, re)) {
+			return;
+		}
+		const std::string sound = captures[1];
+
+		const CString sound_W = Utf8ToCString(sound.c_str());
+		if (auto fileName = TryGetLikelyFileName(sound_W)) {
+			AsyncPlayFile(*fileName);
+		}
+
+
+	}
+
 
 	//optional<CString> SoundplayerApp::TryGetSelectedFile() {
 	//	shared_ptr<const FileList> fileList = unsafeFileList;

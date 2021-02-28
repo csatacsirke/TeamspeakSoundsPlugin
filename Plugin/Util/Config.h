@@ -87,6 +87,10 @@ namespace TSPlugin {
 		static const CString OverlayFontSize = L"OverlayFontSize";
 		static const CString OverlayBackgroundAlpha = L"OverlayBackgroundAlpha";
 		static const CString BetaVersion = L"BetaVersion";
+
+		static const CString TwitchToken = L"TwitchToken";
+		static const CString TwitchChannel = L"TwitchChannel";
+		static const CString AuthorizedUsers = L"AuthorizedUsers";
 		
 		//static const CString PresetPathTemplate = L"PresetPath%d";
 	}

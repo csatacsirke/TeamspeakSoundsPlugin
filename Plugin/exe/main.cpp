@@ -6,6 +6,7 @@
 //#import <Winhttp.lib>
 
 //#include "http.h"
+#include <App/SoundplayerApp.h>
 
 #include <Web/SoundBroadcaster.h>
 
@@ -120,7 +121,7 @@ namespace TSPlugin {
 		Global::config.SetEntries(entries);
 
 
-		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName);
+		std::shared_ptr<WaveTrack> track = WaveTrack::LoadWaveFile(fileName.GetString());
 
 
 		float volume1 = CalculateMaxVolume_Perceptive(*track);
@@ -132,15 +133,20 @@ namespace TSPlugin {
 	class CMyApp : public CWinApp {
 		BOOL InitInstance() override {
 			
-			NormalizeTest();
-			//processingtest();
-			//wmain();
+			CreateConsole();
 
-			//return TRUE;
-			//MessageBoxA(0, "lofasz", 0, 0);
-			//CString fileName = L"d:/Documents/AudioEdited/A pofadat befogod.wav";
+			auto app = make_shared<SoundplayerApp>();
+			app->Init();
 
-			//OverlayTest();
+
+			std::string line;
+			while (std::getline(std::cin, line)) {
+				if (line == "exit") {
+					break;
+				}
+			}
+
+			app->Shutdown();
 
 			return TRUE;
 		}

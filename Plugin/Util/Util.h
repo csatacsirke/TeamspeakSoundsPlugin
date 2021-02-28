@@ -319,9 +319,11 @@ namespace TSPlugin {
 		AllocConsole();
 		FILE* pCout;
 		freopen_s(&pCout, "CONOUT$", "w", stdout);
+
+		FILE* pCin;
+		freopen_s(&pCin, "CONIN$", "r", stdin);
 		std::cout.clear();
 		std::wcout.clear();
-
 	}
 
 	//void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");

@@ -32,6 +32,10 @@ namespace TSPlugin {
 			{ OverlayBackgroundAlpha, L"96" },
 			{ OverlayFontSize, L"18" },
 			{ BetaVersion, L"0" },
+
+			{ TwitchToken, L"" },
+			{ TwitchChannel, L"bogeczki" },
+			{ AuthorizedUsers, L"battlechicken,bogeczki,atrax,ugyismegkurlak" },
 		};
 	}
 
@@ -41,8 +45,6 @@ namespace TSPlugin {
 		_path = path;
 
 		std::wifstream in(path);
-
-		ASSERT((bool)in);
 
 		while (in) {
 			std::wstring line;

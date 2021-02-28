@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "TwitchChat.h"
-
 //
 // Copyright (c) 2016-2019 Vinnie Falco (vinnie dot falco at gmail dot com)
 //
@@ -12,214 +11,204 @@
 
 //------------------------------------------------------------------------------
 //
-// Example: WebSocket client, asynchronous
+// Example: WebSocket client, synchronous
 //
 //------------------------------------------------------------------------------
 
+
 #include <boost/beast/core.hpp>
 #include <boost/beast/websocket.hpp>
-#include <boost/asio/strand.hpp>
+#include <boost/asio/connect.hpp>
+#include <boost/asio/ip/tcp.hpp>
 #include <cstdlib>
-#include <functional>
 #include <iostream>
-#include <memory>
 #include <string>
-
-namespace Twitch {
-
-	namespace beast = boost::beast;         // from <boost/beast.hpp>
-	namespace http = beast::http;           // from <boost/beast/http.hpp>
-	namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
-	namespace net = boost::asio;            // from <boost/asio.hpp>
-	using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
-
-	//------------------------------------------------------------------------------
-
-	// Report a failure
-	void		fail(beast::error_code ec, char const* what) {
-		std::cerr << what << ": " << ec.message() << "\n";
-	}
-
-	// Sends a WebSocket message and prints the response
-	class session : public std::enable_shared_from_this<session> {
-		tcp::resolver resolver_;
-		websocket::stream<beast::tcp_stream> ws_;
-		beast::flat_buffer buffer_;
-		std::string host_;
-
-	public:
-		// Resolver and socket require an io_context
-		explicit session(net::io_context& ioc)
-			: resolver_(net::make_strand(ioc))
-			, ws_(net::make_strand(ioc)) {
-		}
-
-		// Start the asynchronous operation
-		void run(
-			char const* host,
-			char const* port
-		) {
-			// Save these for later
-			host_ = host;
-
-			// Look up the domain name
-			resolver_.async_resolve(
-				host,
-				port,
-				beast::bind_front_handler(
-					&session::on_resolve,
-					shared_from_this()));
-		}
-
-		void on_resolve(
-			beast::error_code ec,
-			tcp::resolver::results_type results) {
-			if (ec)
-				return fail(ec, "resolve");
-
-			// Set the timeout for the operation
-			beast::get_lowest_layer(ws_).expires_after(std::chrono::seconds(30));
-
-			// Make the connection on the IP address we get from a lookup
-			beast::get_lowest_layer(ws_).async_connect(
-				results,
-				beast::bind_front_handler(
-					&session::on_connect,
-					shared_from_this()));
-		}
-
-		void on_connect(beast::error_code ec, tcp::resolver::results_type::endpoint_type ep) {
-			if (ec)
-				return fail(ec, "connect");
-
-			// Turn off the timeout on the tcp_stream, because
-			// the websocket stream has its own timeout system.
-			beast::get_lowest_layer(ws_).expires_never();
-
-			// Set suggested timeout settings for the websocket
-			ws_.set_option(
-				websocket::stream_base::timeout::suggested(
-					beast::role_type::client));
-
-			// Set a decorator to change the User-Agent of the handshake
-			ws_.set_option(websocket::stream_base::decorator(
-				[](websocket::request_type& req) {
-				req.set(http::field::user_agent,
-					std::string(BOOST_BEAST_VERSION_STRING) +
-					" websocket-client-async");
-			}));
-
-			// Update the host_ string. This will provide the value of the
-			// Host HTTP header during the WebSocket handshake.
-			// See https://tools.ietf.org/html/rfc7230#section-5.4
-			host_ += ':' + std::to_string(ep.port());
-
-			// Perform the websocket handshake
-			ws_.async_handshake(host_, "/",
-				beast::bind_front_handler(
-					&session::on_handshake,
-					shared_from_this()));
-		}
-
-		void on_handshake(beast::error_code ec) {
-			if (ec)
-				return fail(ec, "handshake");
+#include <regex>
 
 
-			std::string text = ";";
-			// Send the message
-			ws_.async_write(
-				net::buffer(text),
-				beast::bind_front_handler(
-					&session::on_write,
-					shared_from_this()));
-		}
+namespace TSPlugin::TwitchChat {
 
-		void on_write(
-			beast::error_code ec,
-			std::size_t bytes_transferred) {
-			boost::ignore_unused(bytes_transferred);
+    // quick way to get token:
+    // https://twitchapps.com/tmi/
 
-			if (ec)
-				return fail(ec, "write");
+    namespace beast = boost::beast;         // from <boost/beast.hpp>
+    namespace http = beast::http;           // from <boost/beast/http.hpp>
+    namespace websocket = beast::websocket; // from <boost/beast/websocket.hpp>
+    namespace net = boost::asio;            // from <boost/asio.hpp>
+    using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
-			// Read a message into our buffer
-			ws_.async_read(
-				buffer_,
-				beast::bind_front_handler(
-					&session::on_read,
-					shared_from_this()));
-		}
+    struct TwitchChatReader : public ITwitchChatReader {
+        void Start(IHandler& handler, const std::string_view channel, const std::string_view password) override;
+        void Stop() override;
 
-		void on_read(
-			beast::error_code ec,
-			std::size_t bytes_transferred) {
-			boost::ignore_unused(bytes_transferred);
+    private:
+        bool Run(IHandler& handler, const std::string_view channel, const std::string_view password);
+        void HandleRead(IHandler& handler, const std::string_view message);
+        void Authenticate(const std::string_view channel, const std::string_view password);
+        void Write(const std::string_view message);
+    private:
 
-			if (ec)
-				return fail(ec, "read");
+        // The io_context is required for all I/O
+        net::io_context ioc;
 
-		}
+        // These objects perform our I/O
+        tcp::resolver resolver{ ioc };
 
-		void on_close(beast::error_code ec) {
-			if (ec)
-				return fail(ec, "close");
+        // the websocket
+        std::shared_ptr<websocket::stream<tcp::socket>> ws = make_shared<websocket::stream<tcp::socket>>(ioc);
 
-			// If we get here then the connection is closed gracefully
+        std::thread backgroundThread;
 
-			// The make_printable() function helps print a ConstBufferSequence
-			std::cout << beast::make_printable(buffer_.data()) << std::endl;
-		}
-	public:
+        std::mutex _mutex;
+    };
 
-		void CloseConnection() {
+    std::shared_ptr<ITwitchChatReader> CreateTwitchChatReader() {
+        return std::make_shared<TwitchChatReader>();
+    }
 
-			// Close the WebSocket connection
-			ws_.async_close(websocket::close_code::normal,
-				beast::bind_front_handler(
-					&session::on_close,
-					shared_from_this()));
-		}
+    void TwitchChatReader::Start(IHandler& handler, const std::string_view channel, const std::string_view password) {
+        std::lock_guard guard(_mutex);
 
-	};
+        // need to copy, can't be sure if string_view is persistent
+        backgroundThread = std::thread([this, &handler, channel=std::string(channel), password=std::string(password)] {
+            Run(handler, channel, password);
+        });
+    }
 
-	//------------------------------------------------------------------------------
+    void TwitchChatReader::Stop() {
+        std::lock_guard guard(_mutex);
 
-	void Run() {
-		net::io_context ioc;
+        
+        if (ws->is_open()) {
+            //ws->close(websocket::close_code::normal);
+            ws->next_layer().close();
+        }
 
-		// Launch the asynchronous operation
-		std::make_shared<session>(ioc)->run("irc-ws.chat.twitch.tv", "80");
+        if(backgroundThread.joinable()) {
+            backgroundThread.join();
+        }
+        
+    }
 
-		// Run the I/O service. The call will return when
-		// the socket is closed.
-		ioc.run();
-	}
+    void TwitchChatReader::HandleRead(IHandler& handler, const std::string_view message) {
+        if (message.starts_with("PING")) {
+            ws->write(net::buffer("PONG :tmi.twitch.tv"));
+        }
 
-	//int teszt(int argc, char** argv) {
-	//	// Check command line arguments.
-	//	if (argc != 4) {
-	//		std::cerr <<
-	//			"Usage: websocket-client-async <host> <port> <text>\n" <<
-	//			"Example:\n" <<
-	//			"    websocket-client-async echo.websocket.org 80 \"Hello, world!\"\n";
-	//		return EXIT_FAILURE;
-	//	}
-	//	auto const host = argv[1];
-	//	auto const port = argv[2];
-	//	auto const text = argv[3];
+        /*
+        battlechicken!battlechicken@battlechicken.tmi.twitch.tv PRIVMSG #bogeczki :dont even mind me, i'm a bot
+        [D]>
+        [D]:bogeczki!bogeczki@bogeczki.tmi.twitch.tv PRIVMSG #bogeczki :valami
+        [D]>
+        [D]:bapetta!bapetta@bapetta.tmi.twitch.tv PRIVMSG #bogeczki :valami
+        [D]>
+        [D]:bogeczki!bogeczki@bogeczki.tmi.twitch.tv PRIVMSG #bogeczki :xD
+        [D]>
+        [D]:bogeczki!bogeczki@bogeczki.tmi.twitch.tv PRIVMSG #bogeczki :hello there
 
-	//	// The io_context is required for all I/O
-	//	net::io_context ioc;
+        */
 
-	//	// Launch the asynchronous operation
-	//	std::make_shared<session>(ioc)->run(host, port, text);
+        std::cout << ">" << message << endl;
 
-	//	// Run the I/O service. The call will return when
-	//	// the socket is closed.
-	//	ioc.run();
+        //Log::Debug(CString(L">") + Utf8ToCString(str.data()));
 
-	//	return EXIT_SUCCESS;
-	//}
+        std::regex re(R"""(.*!(\w+)@.*PRIVMSG #(\w+) :(.*))""");
+        std::match_results<const char*> captures;
+
+        if (std::regex_search(message.data(), captures, re)) {
+        //if (std::regex_match(message.data(), captures, re)) {
+
+            const std::string speaker = captures[1];
+            const std::string channel = captures[2];
+            const std::string message = captures[3];
+
+            handler.OnTwitchMessage(channel, speaker, message);
+        }
+
+
+    }
+
+    void TwitchChatReader::Write(const std::string_view message) {
+        ws->write(net::buffer(message));
+    }
+
+    void TwitchChatReader::Authenticate(const std::string_view channel, const std::string_view password) {
+
+        std::string message_auth;
+        message_auth += "PASS oauth:";
+        message_auth += password;
+        Write(message_auth);
+        
+
+
+        std::string message_nick;
+        message_nick += "NICK ";
+        message_nick += "battlechicken-chat-bot-cpp";
+        Write(message_nick);
+
+
+        std::string message_join;
+        message_join += "JOIN ";
+        message_join += channel;
+        Write(message_join);
+        
+    }
+
+    bool TwitchChatReader::Run(IHandler& handler, const std::string_view channel, const std::string_view password) {
+        try {
+
+            std::string host = "irc-ws.chat.twitch.tv";
+            auto const port = "80";
+
+            // Look up the domain name
+            auto const results = resolver.resolve(host, port);
+
+            // Make the connection on the IP address we get from a lookup
+            auto ep = net::connect(ws->next_layer(), results);
+
+            // Update the host_ string. This will provide the value of the
+            // Host HTTP header during the WebSocket handshake.
+            // See https://tools.ietf.org/html/rfc7230#section-5.4
+            host += ':' + std::to_string(ep.port());
+
+            // Set a decorator to change the User-Agent of the handshake
+            ws->set_option(websocket::stream_base::decorator(
+                [](websocket::request_type& req) {
+                req.set(http::field::user_agent,
+                    std::string(BOOST_BEAST_VERSION_STRING) +
+                    " websocket-client-coro");
+            }));
+
+            // Perform the websocket handshake
+            ws->handshake(host, "/");
+
+
+            Authenticate(channel, password);
+
+            // Send the message
+            //ws->write(net::buffer(std::string(text)));
+
+            // This buffer will hold the incoming message
+            while (ws->is_open()) {
+                // Read a message into our buffer
+                beast::flat_buffer buffer;
+                ws->read(buffer);
+                HandleRead(handler, std::string_view((const char*)buffer.data().data(), buffer.data().size()));
+            }
+
+            // Close the WebSocket connection
+            ws->close(websocket::close_code::normal);
+
+
+            // If we get here then the connection is closed gracefully
+
+        } catch (std::exception const& e) {
+            std::cout << "Error: " << e.what() << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
 
 }

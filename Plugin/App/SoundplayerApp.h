@@ -15,7 +15,7 @@
 #include <Wave\AudioPlayer.h>
 #include <Wave\AudioBuffer.h>
 #include <Gui\InputObserverDialog.h>
-
+#include <Twitch/TwitchChat.h>
 
 #include "HotkeyHandler.h"
 #include "MenuHandler.h"
@@ -30,7 +30,7 @@
 
 namespace TSPlugin {
 
-	class SoundplayerApp : public LocalKeyboardHookInstallerDelegate, InputHandlerDelegate, QuickSoundHandlerDelegate {
+	class SoundplayerApp : public LocalKeyboardHookInstallerDelegate, InputHandlerDelegate, QuickSoundHandlerDelegate, TwitchChat::IHandler {
 
 	public:
 
@@ -38,8 +38,6 @@ namespace TSPlugin {
 		// we can't create threads from dllmain
 		// and thus from constructor... :(
 		void Init();
-		void InitKeyboardHook();
-
 		void Shutdown();
 
 		//void CheckForUpdates();
@@ -105,10 +103,16 @@ namespace TSPlugin {
 		void InputHandlerDelegate::OnFileEnqueued(const fs::path& file) override;
 
 		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const fs::path& path) override;
+
+		void TwitchChat::IHandler::OnTwitchMessage(const std::string_view channel, const std::string_view sender, const std::string_view message) override;
 		
 	private:
 
 		//optional<CString> SoundplayerApp::TryGetSelectedFile();
+
+
+		void InitKeyboardHook();
+		void InitTwitchChat();
 
 		void SendFileNameToChat(CString fileName);
 		void SendMessageToChannelChat(CString message);
@@ -154,6 +158,8 @@ namespace TSPlugin {
 		shared_ptr<NetworkAudioHandler> networkAudioHandler = NetworkAudioHandler::Create();
 
 		shared_ptr<class OverlayWindow> overlayWindow;
+
+		shared_ptr<TwitchChat::ITwitchChatReader> twitchChatReader;
 
 		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
 		//shared_ptr<const FileList> unsafeFileList;
