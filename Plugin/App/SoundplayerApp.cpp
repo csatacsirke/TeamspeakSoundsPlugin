@@ -119,7 +119,7 @@ namespace TSPlugin {
 		localHookInstaller.Attach();
 	}
 
-	void SoundplayerApp::InitTwitchChat() {
+	void SoundplayerApp::InitTwitchChat() try {
 
 		// warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. 
 		// // https://en.cppreference.com/w/cpp/utility/program/getenv
@@ -147,6 +147,8 @@ namespace TSPlugin {
 
 		twitchChatReader = TwitchChat::CreateTwitchChatReader();
 		twitchChatReader->Start(*this, ircChannel.GetString(), twitchToken.GetString());
+
+	} catch (...) {
 
 	}
 
@@ -431,8 +433,7 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OpenDeveloperConsole() {
-		CreateConsole();
-		QuickSoundsFileSystem fs;
+		OpenConsole();
 	}
 
 	void SoundplayerApp::UpdateOverlay() {
@@ -468,29 +469,6 @@ namespace TSPlugin {
 	}
 
 	CStringA SoundplayerApp::GetPluginInfoData() {
-
-		//const shared_ptr<const FileList> fileList = unsafeFileList;
-
-		//if (!fileList) {
-		//	return "<No matching files>";
-		//}
-
-		//const auto& possibleFiles = fileList->possibleFiles;
-		//const size_t selectedFileIndex = fileList->selectedFileIndex;
-
-		//CStringA info = "Teszt: \n";
-
-		////for (CString& file : possibleFiles) {
-		//for (int index = 0; index < possibleFiles.size(); ++index) {
-		//	const CString& filePath = possibleFiles[index];
-		//	const int startIndex = filePath.ReverseFind(L'\\');
-		//	const CString fileName = (startIndex > -1) ? filePath.Mid(startIndex + 1) : filePath;
-		//	const CStringA fileUtf = ConvertUnicodeToUTF8(fileName);
-		//	if (index == selectedFileIndex) {
-		//		info += "*";
-		//	}
-		//	info += fileUtf + "\n";
-		//}
 
 		return inputHandler.CreateTextInterface();
 	}

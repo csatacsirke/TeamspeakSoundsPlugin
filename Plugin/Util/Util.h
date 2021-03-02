@@ -314,26 +314,10 @@ namespace TSPlugin {
 	}
 
 
-
-	static inline void CreateConsole() {
-		AllocConsole();
-		FILE* pCout;
-		freopen_s(&pCout, "CONOUT$", "w", stdout);
-
-		FILE* pCin;
-		freopen_s(&pCin, "CONIN$", "r", stdin);
-		std::cout.clear();
-		std::wcout.clear();
-	}
-
-	//void ListFilesInDirectory(_Out_ std::vector<CString>& files, CString path, CString filter = L"");
 	std::vector<fs::path> ListFilesInDirectory(const fs::path& path, const CString& filter = L"");
-	std::vector<fs::path> SortFilesByModificationDate(const std::vector<fs::path>& files);
 
 	CString FileNameFromPath(CString path);
-	//fs::path PickRandomFile(const fs::path& directoryPath);
-
-
+	void OpenConsole();
 
 
 } // namespace TSPlugin

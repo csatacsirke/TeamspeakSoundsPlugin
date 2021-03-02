@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "TwitchChat.h"
+#include <Util/Log.h>
+#include <Util/Util.h>
 //
 // Copyright (c) 2016-2019 Vinnie Falco (vinnie dot falco at gmail dot com)
 //
@@ -108,7 +110,8 @@ namespace TSPlugin::TwitchChat {
 
         */
 
-        std::cout << ">" << message << endl;
+        Log::Debug(CString(L">") + Utf8ToCString(message.data()));
+        //std::cout << ">" << message << endl;
 
         //Log::Debug(CString(L">") + Utf8ToCString(str.data()));
 
@@ -143,7 +146,9 @@ namespace TSPlugin::TwitchChat {
 
         std::string message_nick;
         message_nick += "NICK ";
-        message_nick += "battlechicken-chat-bot-cpp";
+        message_nick += "battlechickenchatbot";
+        message_nick += std::to_string(time(0));
+        
         Write(message_nick);
 
 
@@ -203,7 +208,8 @@ namespace TSPlugin::TwitchChat {
             // If we get here then the connection is closed gracefully
 
         } catch (std::exception const& e) {
-            std::cout << "Error: " << e.what() << std::endl;
+            //std::cout << "Error: " << e.what() << std::endl;
+            Log::Warning(CString("Websocket error: ") + CString(e.what()));
             return false;
         }
 

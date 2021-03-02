@@ -133,7 +133,7 @@ namespace TSPlugin {
 	class CMyApp : public CWinApp {
 		BOOL InitInstance() override {
 			
-			CreateConsole();
+			OpenConsole();
 
 			auto app = make_shared<SoundplayerApp>();
 			app->Init();

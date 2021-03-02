@@ -2,6 +2,7 @@
 
 #include "Util\Util.h"
 #include "Util\Config.h"
+#include "Util\Log.h"
 #include "Gui\SoundFolderSelector.h"
 
 
@@ -322,5 +323,21 @@ namespace TSPlugin {
 		return nullopt;
 	}
 
+
+
+
+	void OpenConsole() {
+		AllocConsole();
+		FILE* pCout;
+		freopen_s(&pCout, "CONOUT$", "w", stdout);
+
+		FILE* pCin;
+		freopen_s(&pCin, "CONIN$", "r", stdin);
+		std::cout.clear();
+		std::wcout.clear();
+
+		std::wstring log_history = Log::PopLogHistory();
+		std::wcout << log_history << endl;
+	}
 
 }
