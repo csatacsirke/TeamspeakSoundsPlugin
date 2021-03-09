@@ -197,6 +197,8 @@ int ts3plugin_init() {
 	//	return 1;
 	//}
 
+	const fs::path path = fs::path(Global::configPath) / Global::config.defaultFileName.GetString();
+	Global::config.LoadFromFile(path);
 
 	theApp.reset(new SoundplayerApp());
 	theApp->Init();

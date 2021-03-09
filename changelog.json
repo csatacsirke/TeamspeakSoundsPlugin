@@ -50,6 +50,12 @@
     "changes": [
       "Twitch integration"
     ]
+  },
+  {
+    "date": "2021.03.04",
+    "changes": [
+      "Fixed custom Command Started Character"
+    ]
   }
 ]
 

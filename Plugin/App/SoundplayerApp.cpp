@@ -62,7 +62,7 @@ namespace TSPlugin {
 
 	void SoundplayerApp::Init() {
 
-		LoadConfig();
+		//LoadConfig();
 
 #if USE_KEYBOARD_HOOK
 		InitKeyboardHook();
@@ -789,7 +789,7 @@ namespace TSPlugin {
 		AsyncPlayFile(path);
 	}
 
-	void SoundplayerApp::OnTwitchMessage(const std::string_view channel, const std::string_view sender, const std::string_view message) {
+	void SoundplayerApp::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) {
 		(void)channel;
 
 		//vector<string> authorizeUsers;
@@ -805,12 +805,13 @@ namespace TSPlugin {
 		}
 
 		if (!authorized) {
+			Log::Debug(L"Unauthorized user: " + Utf8ToCString(CStringA(sender.c_str())));
 			return;
 		}
 
-		std::regex re(R"""(!sound (\w+))""");
+		std::regex re(R"""(!sound (.+))""");
 		std::match_results<const char*> captures;
-		if (!std::regex_search(message.data(), captures, re)) {
+		if (!std::regex_search(message.c_str(), captures, re)) {
 			return;
 		}
 		const std::string sound = captures[1];
