@@ -665,8 +665,10 @@ namespace TSPlugin {
 
 		}
 
-		char name[256];
-		ts3Functions.getClientDisplayName(Global::connection, clientID, name, sizeof(name));
+		char name_utf8[256];
+		ts3Functions.getClientDisplayName(Global::connection, clientID, name_utf8, sizeof(name_utf8));
+
+		const CString name = Utf8ToCString(name_utf8);
 
 		uint64 clientChannelId;
 		ts3Functions.getChannelOfClient(Global::connection, clientID, &clientChannelId);
@@ -675,27 +677,27 @@ namespace TSPlugin {
 		ts3Functions.getChannelOfClient(Global::connection, myID, &ownChannelId);
 
 		if (ownChannelId == clientChannelId) {
-			Log::Debug(CString(name));
+			Log::Debug(name);
 		} else {
-			Log::Debug(CString("masik channel: ") + CString(name));
+			Log::Debug(CString("masik channel: ") + name);
 		}
 
 		if (ownChannelId == clientChannelId) {
 
-			const static std::map<CStringA, CString> userWelcomeSoundsMapping = {
-				{"Hodi", L"szarhazi"},
-				{"Ugyis", L"itt a ku"},
-				{"Kurátor", L"itt a ku"},
-				{"Battlechicken", L"itt vagyok"},
-				{"yoloczki", L"dorime"},
-				{"Bogecz", L"bogi"},
-				{"Antekirt", L"jaj egy szazmeteres"},
-				{"Tachibana", L"jakab"},
+			const static std::map<CString, CString> userWelcomeSoundsMapping = {
+				{L"Hodi", L"szarhazi"},
+				{L"Ugyis", L"itt a ku"},
+				{L"Kurátor", L"itt a ku"},
+				{L"Battlechicken", L"itt vagyok"},
+				{L"yoloczki", L"dorime"},
+				{L"Bogecz", L"bogi"},
+				{L"Antekirt", L"jaj egy szazmeteres"},
+				{L"Tachibana", L"jakab"},
 			};
 
 			//(name, predicate);
-			auto predicate = [&](const pair<CStringA, CString>& pair) -> bool {
-				return CStringA(name).Find(pair.first) >= 0;
+			auto predicate = [&name](const pair<CString, CString>& pair) -> bool {
+				return name.Find(pair.first) >= 0;
 			};
 
 			const auto it = find_if(userWelcomeSoundsMapping.begin(), userWelcomeSoundsMapping.end(), predicate);
