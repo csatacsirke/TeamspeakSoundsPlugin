@@ -71,6 +71,9 @@ namespace TSPlugin {
 		
 		enum class StopResult { DidStop, WasNotPlaying };
 		StopResult StopPlayback();
+		shared_ptr<WaveTrackPlaybackState> PausePlayback();
+		void ResumePlayback(shared_ptr<WaveTrackPlaybackState> track);
+		HookResult PauseOrResumePlayback();
 
 		
 		void AsyncEnqueueFile();
@@ -161,6 +164,7 @@ namespace TSPlugin {
 
 		shared_ptr<TwitchChat::ITwitchChatReader> twitchChatReader;
 
+		shared_ptr<WaveTrackPlaybackState> pausedTrack;
 		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
 		//shared_ptr<const FileList> unsafeFileList;
 		

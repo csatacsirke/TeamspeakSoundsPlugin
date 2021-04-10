@@ -54,7 +54,13 @@
   {
     "date": "2021.03.04",
     "changes": [
-      "Fixed custom Command Started Character"
+      "Fixed custom Command Starter Character"
+    ]
+  },
+  {
+    "date": "2021.03.17",
+    "changes": [
+      "Pause/Resume support"
     ]
   }
 ]

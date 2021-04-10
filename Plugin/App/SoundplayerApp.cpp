@@ -295,7 +295,7 @@ namespace TSPlugin {
 
 		unique_lock<std::mutex> captureBuffersLock(captureBuffersMutex);
 		for (const auto& captureBuffer : captureBuffers) {
-			captureBuffer->AddSamples(track);
+			captureBuffer->AddTrackToQueue(make_shared<WaveTrackPlaybackState>(track));
 		}
 		captureBuffersLock.unlock();
 
@@ -305,9 +305,11 @@ namespace TSPlugin {
 		//for (const auto& playbackBuffer : playbackBuffers) {
 		//	audioBufferForPlayback->AddSamples(track);
 		//}
-		audioBufferForPlayback->AddSamples(track);
+		audioBufferForPlayback->AddTrackToQueue(make_shared<WaveTrackPlaybackState>(track));
 		//playbackBuffersLock.unlock();
-		
+
+		// ha uj hangot hátszunk be, felejtsük el az elözöt
+		pausedTrack = nullptr;
 
 
 	}
@@ -324,6 +326,35 @@ namespace TSPlugin {
 		return stopResult;
 	}
 
+	shared_ptr<WaveTrackPlaybackState> SoundplayerApp::PausePlayback() {
+		
+		shared_ptr<WaveTrackPlaybackState> track = audioBufferForCapture->TryPopTrack();
+		audioBufferForPlayback->TryPopTrack();
+
+		return track;
+	}
+
+	void SoundplayerApp::ResumePlayback(shared_ptr<WaveTrackPlaybackState> track) {
+		audioBufferForCapture->AddTrackToQueue(track);
+		audioBufferForPlayback->AddTrackToQueue(track);
+	}
+
+
+	HookResult SoundplayerApp::PauseOrResumePlayback() {
+
+		const shared_ptr<WaveTrackPlaybackState> track = PausePlayback();
+		if (track) {
+			pausedTrack = track;
+			return ConsumeEvent;
+		}
+
+		const shared_ptr<WaveTrackPlaybackState> pausedTrack_guard = pausedTrack;
+		if (pausedTrack_guard) {
+			ResumePlayback(pausedTrack_guard);
+		}
+
+		return PassEvent;
+	}
 
 	void SoundplayerApp::AsyncPlayFile(const fs::path& file) {
 		std::thread([this, file] {
@@ -735,6 +766,13 @@ namespace TSPlugin {
 		if (keyData.hookData.vkCode == VK_ESCAPE) {
 			const StopResult result = StopPlayback();
 			if (result == StopResult::DidStop) {
+				return ConsumeEvent;
+			}
+		}
+
+		if (keyData.hookData.vkCode == VK_MEDIA_PLAY_PAUSE) {
+			const HookResult evantResult = PauseOrResumePlayback();
+			if (evantResult == HookResult::ConsumeEvent) {
 				return ConsumeEvent;
 			}
 		}

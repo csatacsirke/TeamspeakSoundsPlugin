@@ -130,211 +130,70 @@ namespace TSPlugin {
 
 	};
 
-	namespace Global {
-		//extern AudioBufferCache audioBufferCache;
-		//extern AudioBufferCache audioBufferCacheForCapture;
-		//extern AudioBufferCache audioBufferCacheForPlayback;
-
-	}
-
-
 
 	struct DataSegment {
-		uint8_t* start;
+		const uint8_t* start;
 		size_t size;
 	};
 
 
-	struct WaveTrackPtr {
+	struct WaveTrackPlaybackState {
 
-		WaveTrackPtr(std::shared_ptr<WaveTrack> track = NULL) : track(track) {
+		explicit WaveTrackPlaybackState(std::shared_ptr<WaveTrack> track) : track(track) {
 			NULL;
 		}
 
-		operator const WaveTrack&() const {
-			return *track;
-		}
-
-		operator bool() const {
-			return track.operator bool();
-		}
+		WaveTrackPlaybackState(const WaveTrackPlaybackState& other) = delete;
 
 		bool EndOfTrack() const {
-			return (*currentOffset >= track->data.size());
+			return (currentOffset >= track->data.size());
 		}
 
 		DataSegment GetNextDataSegment(size_t requestedSize) {
-			uint8_t* ptr = track->data.data() + *currentOffset;
+			const uint8_t* ptr = track->data.data() + currentOffset;
 			
-			const size_t remainingDataSize = track->data.size() > *currentOffset ? track->data.size() - *currentOffset : 0;
+			const size_t remainingDataSize = track->data.size() > currentOffset ? track->data.size() - currentOffset : 0;
 
 			const size_t segmentSize = std::min<size_t>(requestedSize, remainingDataSize);
 
-			*currentOffset += requestedSize;
+			currentOffset += requestedSize;
 
 			return { ptr, segmentSize };
 		}
 
-		//WaveTrackPtr& operator=(const WaveTrackPtr& other) = delete;
-		std::shared_ptr<WaveTrack> GetTrack() const {
+		std::shared_ptr<const WaveTrack> GetTrack() const {
 			return track;
 		}
+
 	private:
-		std::shared_ptr<WaveTrack> track;
-		std::shared_ptr<size_t> currentOffset = std::make_shared<size_t>(0);
-		//size_t currentOffset = 0;
+		const std::shared_ptr<const WaveTrack> track;
+		size_t currentOffset = 0;
 
 	};
 
 
 	class AudioBuffer {
 	public:
-		//int outputChannels = 1;
+
+		void AddTrackToQueue(std::shared_ptr<WaveTrackPlaybackState> track);
+
+		CachedAudioSample48k TryGetSamples(const int sampleCountForOneChannel, const int outputChannels);
+
+		void Clear();
+		bool IsEmpty() const;
+
+		shared_ptr<WaveTrackPlaybackState> TryPopTrack();
+
 	private:
-		//const int frameLengthMillisecs = 20;
+		shared_ptr<WaveTrackPlaybackState> FetchTrack();
+
+
+	private:
 		const int outputFrequency = 48000;
 
 		std::mutex mutex;
-		//std::queue<std::shared_ptr<std::vector<short>>> buffers;
-		//std::queue<CachedAudioSample48k> buffers;
-		std::queue<WaveTrackPtr> trackQueue;
+		std::queue<shared_ptr<WaveTrackPlaybackState>> trackQueue;
 		AudioBufferCache cache;
-
-	public:
-
-		//AudioBuffer(int channels = 1) {
-		//	this->outputChannels = channels;
-		//}
-
-
-		// 20 ms adatot vár
-		//void AddSamples20ms(short* samples, size_t sampleCount, int channels) {
-		//	
-		//	//ASSERT(channels == 1);
-		//	int newSampleCount = outputFrequency*outputChannels*frameLengthMillisecs / 1000;
-		//	CachedAudioSample48k data = Global::audioBufferCache.GetNewBuffer(newSampleCount);
-		//	if (newSampleCount != sampleCount) {
-
-		//		SgnProc::Resample(samples, sampleCount, channels, data->data(), data->size(), outputChannels);
-		//		
-		//	} else {
-		//		memcpy(data->data(), samples, sampleCount * sizeof(short));
-
-		//	}
-
-		//	std::unique_lock<std::mutex> lock;
-		//	buffers.push(data);
-		//}
-
-		// ms adatot ad vissza 48khz sample freq.en
-		//bool TryGetSamples20ms(_Out_ CachedAudioSample48k& sample) {
-		//	std::unique_lock<std::mutex> lock;
-
-
-		//	if (buffers.size() > 0) {
-		//		sample = buffers.front();
-		//		buffers.pop();
-		//		return true;
-		//	}
-		//	return false;
-		//}
-
-		void AddSamples(std::shared_ptr<WaveTrack> track) {
-			std::unique_lock<std::mutex> lock(mutex);
-			trackQueue.push(track);
-		}
-
-		WaveTrackPtr FetchTrack() {
-			std::unique_lock<std::mutex> lock(mutex);
-
-			if (trackQueue.empty()) {
-				return {};
-			}
-
-			const WaveTrackPtr& track = trackQueue.front();
-
-			if (track.EndOfTrack()) {
-				trackQueue.pop();
-				return {};
-				// nem törödünk azzal, hogy megnézzük van e másik, majd a kövi körben
-				// ( most nincs kedvem elbaszni az idöt)
-			}
-
-			return track;
-		}
-
-		shared_ptr<WaveTrack> TryPopTrack() {
-			std::unique_lock<std::mutex> lock(mutex);
-
-			if (trackQueue.empty()) {
-				return nullptr;
-			}
-
-			shared_ptr<WaveTrack> track = trackQueue.front().GetTrack();
-			trackQueue.pop();
-
-			return track;
-		}
-
-		CachedAudioSample48k TryGetSamples(const int sampleCountForOneChannel, const int outputChannels) {
-			WaveTrackPtr trackPtr = FetchTrack();
-			if (!trackPtr) return nullptr;
-
-			const WaveTrack& track = trackPtr;
-
-
-			const WAVEFORMATEX& format = track.format;
-
-			const int frameLengthMillisecs = sampleCountForOneChannel * 1000 / outputFrequency;
-
-			const int64_t inputSampleCount = format.nSamplesPerSec * format.nChannels * frameLengthMillisecs / 1000;
-			const int64_t outputSampleCount = sampleCountForOneChannel * outputChannels;
-
-
-			//const uint8_t* start = track.data.data();
-			//const uint8_t* const end = start + track.data.size();
-
-			const DataSegment dataSegment = trackPtr.GetNextDataSegment(inputSampleCount * sizeof(short));
-
-			if (dataSegment.size == inputSampleCount * format.nChannels) {
-
-				CachedAudioSample48k data = cache.GetNewBuffer(outputSampleCount);
-				memset(data->data(), 0, GetDataSizeInBytes(*data));
-
-				if (outputSampleCount != inputSampleCount) {
-					SgnProc::Resample((const short*)dataSegment.start, inputSampleCount, format.nChannels, data->data(), data->size(), outputChannels);
-				} else {
-					memcpy(data->data(), dataSegment.start, GetDataSizeInBytes(*data));
-				}
-				return data;
-
-			} else if (dataSegment.size > 0) {
-				// overflow, ami nem egész 20ms adat
-				CachedAudioSample48k data = cache.GetNewBuffer(outputSampleCount);
-				memset(data->data(), 0, GetDataSizeInBytes(*data));
-
-				const size_t inputOverflowSampleCount = dataSegment.size / sizeof(short);
-				const size_t outputOverflowSampleCount = inputOverflowSampleCount * outputSampleCount / inputSampleCount;
-				SgnProc::Resample((const short*)dataSegment.start, inputOverflowSampleCount, format.nChannels, data->data(), outputOverflowSampleCount, outputChannels);
-
-
-				return data;
-
-			}
-
-			return nullptr;
-		}
-
-		void Clear() {
-			std::unique_lock<std::mutex> lock(mutex);
-
-			trackQueue = std::queue<WaveTrackPtr>();
-		}
-
-
-		bool IsEmpty() const {
-			return trackQueue.empty();
-		}
 
 	};
 

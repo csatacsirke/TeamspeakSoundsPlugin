@@ -280,9 +280,10 @@ namespace TSPlugin {
 			Log::Debug(FormatString(L"Successfully connected to remote address: %S", address.to_string().c_str()));
 
 			while (run) {
-				auto track = outboundAudioBuffer->TryPopTrack();
+				auto trackState = outboundAudioBuffer->TryPopTrack();
+				auto track = trackState ? trackState->GetTrack() : nullptr;
 				if (track) {
-
+					
 
 					Log::Debug(FormatString(L"Sending TCP data with size: %ld", track->data.size()));
 
@@ -359,7 +360,9 @@ namespace TSPlugin {
 
 
 				auto track = WaveTrack::MakeFromData(format, std::move(data));
-				inboundAudioBuffer->AddSamples(track);
+				auto trackState = make_shared<WaveTrackPlaybackState>(track);
+
+				inboundAudioBuffer->AddTrackToQueue(trackState);
 
 				//shared_ptr<WaveTrack> track = make_shared<WaveTrack>();
 				//track->data = std::move(data);
