@@ -5,7 +5,7 @@
 #include "Gui/AudioProcessorDialog.h"
 #include "afxdialogex.h"
 
-#include <Wave/AudioProcessor.h>
+#include <Audio/AudioProcessor.h>
 
 
 // AudioProcessorDialog dialog

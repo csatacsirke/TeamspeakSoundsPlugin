@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <Wave\SignalProcessing.h>
-#include <Wave\Wave.h>
+#include <Audio/SignalProcessing.h>
+#include <Audio/Wave.h>
 
 #include <Util/Util.h>
 

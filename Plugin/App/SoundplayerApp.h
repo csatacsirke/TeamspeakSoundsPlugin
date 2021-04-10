@@ -10,10 +10,10 @@
 //#include "KeyboardHook\PipeHandler.h"
 
 #include <Util\Config.h>
-#include <Wave\OnlineMicrophone.h>
-#include <Wave\AudioProcessor.h>
-#include <Wave\AudioPlayer.h>
-#include <Wave\AudioBuffer.h>
+#include <Audio/OnlineMicrophone.h>
+#include <Audio/AudioProcessor.h>
+#include <Audio/AudioPlayer.h>
+#include <Audio/AudioBuffer.h>
 #include <Gui\InputObserverDialog.h>
 #include <Twitch/TwitchChat.h>
 

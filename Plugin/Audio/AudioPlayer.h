@@ -5,7 +5,7 @@
 #include <Mmsystem.h>
 
 
-#include <Wave/SignalProcessing.h>
+#include <Audio/SignalProcessing.h>
 #include <Util/Util.h>
 
 

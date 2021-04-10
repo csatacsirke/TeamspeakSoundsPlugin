@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Wave\AudioBuffer.h>
+#include <Audio/AudioBuffer.h>
 
 
 #include <Strsafe.h>

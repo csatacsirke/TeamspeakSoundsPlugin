@@ -7,10 +7,10 @@ namespace TSPlugin {
 	class BufferedPaintComponent {
 	public:
 		BufferedPaintComponent() {
-			BufferedPaintInit();
+			::BufferedPaintInit();
 		}
 		~BufferedPaintComponent() {
-			BufferedPaintUnInit();
+			::BufferedPaintUnInit();
 		}
 	};
 

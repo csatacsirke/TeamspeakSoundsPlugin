@@ -15,12 +15,12 @@
 #include <Gui/OverlayWindow.h>
 
 
-#include <Wave\MP3Player.h>
-#include <Wave\SignalProcessing.h>
-#include <Wave/Steganography.h>
-#include <Wave/wave.h>
-#include <Wave/AudioProcessor.h>
-#include <Wave/PitchFilter.h>
+#include <Audio/MP3Player.h>
+#include <Audio/SignalProcessing.h>
+#include <Audio/Steganography.h>
+#include <Audio/wave.h>
+#include <Audio/AudioProcessor.h>
+#include <Audio/PitchFilter.h>
 
 #include <Util/Config.h>
 

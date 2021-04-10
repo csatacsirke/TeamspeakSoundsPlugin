@@ -47,9 +47,6 @@
     <ClInclude Include="targetver.h">
       <Filter>StdAfx</Filter>
     </ClInclude>
-    <ClInclude Include="Wave\wave.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
     <ClInclude Include="App\SoundplayerApp.h">
       <Filter>App</Filter>
     </ClInclude>
@@ -58,12 +55,6 @@
     </ClInclude>
     <ClInclude Include="Util\Util.h">
       <Filter>Util</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\AudioDecoder.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\AudioClipSample.h">
-      <Filter>Wave</Filter>
     </ClInclude>
     <ClInclude Include="Gui\SettingsDialog.h">
       <Filter>Gui</Filter>
@@ -89,29 +80,11 @@
     <ClInclude Include="Util\TSSoundPlayer.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="Wave\AudioProcessor.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
     <ClInclude Include="Gui\AudioProcessorDialog.h">
       <Filter>Gui</Filter>
     </ClInclude>
     <ClInclude Include="Web\FileSync.h">
       <Filter>Web</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\MP3Player.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\SignalProcessing.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\AudioRecorder.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\AudioPlayer.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\OnlineMicrophone.h">
-      <Filter>Wave</Filter>
     </ClInclude>
     <ClInclude Include="Util\RingBuffer.h">
       <Filter>Util</Filter>
@@ -122,14 +95,8 @@
     <ClInclude Include="Util\Log.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="Wave\AudioBuffer.h">
-      <Filter>Wave</Filter>
-    </ClInclude>
     <ClInclude Include="Gui\NetworkDialog.h">
       <Filter>Gui</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\Steganography.h">
-      <Filter>Wave</Filter>
     </ClInclude>
     <ClInclude Include="KeyboardHook\KeyboardHookUtils.h">
       <Filter>Header Files</Filter>
@@ -147,15 +114,6 @@
       <Filter>Util</Filter>
     </ClInclude>
     <ClInclude Include="App\plugin.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\AudioProcessing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\FourierUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\PitchFilter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="App\QuickSoundHandler.h">
@@ -200,46 +158,79 @@
     <ClInclude Include="App\DirectoryHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Wave\AudioFilter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\AudioFilterTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\FilterBuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\PitchShiftFilter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="App\Version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Wave\MediaFoundationReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Twitch\TwitchChat.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioBuffer.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioClipSample.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioDecoder.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioFilterTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioPlayer.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioProcessor.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioRecorder.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\FilterBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\FourierUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\MediaFoundationReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\MP3Player.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\OnlineMicrophone.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\PitchFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\PitchShiftFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\SignalProcessing.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Steganography.h">
+      <Filter>Wave</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\wave.h">
+      <Filter>Wave</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>StdAfx</Filter>
     </ClCompile>
-    <ClCompile Include="Wave\wave.cpp">
-      <Filter>Wave</Filter>
-    </ClCompile>
     <ClCompile Include="App\SoundplayerApp.cpp">
       <Filter>App</Filter>
     </ClCompile>
     <ClCompile Include="Util\Util.cpp">
       <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\AudioDecoder.cpp">
-      <Filter>Wave</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\AudioClipSample.cpp">
-      <Filter>Wave</Filter>
     </ClCompile>
     <ClCompile Include="Gui\SettingsDialog.cpp">
       <Filter>Gui</Filter>
@@ -259,29 +250,14 @@
     <ClCompile Include="KeyboardHook\PipeHandler.cpp">
       <Filter>KeyboardHook</Filter>
     </ClCompile>
-    <ClCompile Include="Wave\AudioProcessor.cpp">
-      <Filter>Wave</Filter>
-    </ClCompile>
     <ClCompile Include="Gui\AudioProcessorDialog.cpp">
       <Filter>Gui</Filter>
     </ClCompile>
     <ClCompile Include="Web\FileSync.cpp">
       <Filter>Web</Filter>
     </ClCompile>
-    <ClCompile Include="Wave\AudioRecorder.cpp">
-      <Filter>Wave</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\AudioPlayer.cpp">
-      <Filter>Wave</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\OnlineMicophone.cpp">
-      <Filter>Wave</Filter>
-    </ClCompile>
     <ClCompile Include="Util\Log.cpp">
       <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\AudioBuffer.cpp">
-      <Filter>Wave</Filter>
     </ClCompile>
     <ClCompile Include="Gui\NetworkDialog.cpp">
       <Filter>Gui</Filter>
@@ -297,9 +273,6 @@
     </ClCompile>
     <ClCompile Include="exe\main.cpp">
       <Filter>Exe</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\AudioProcessing.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="App\QuickSoundHandler.cpp">
       <Filter>Source Files</Filter>
@@ -331,20 +304,47 @@
     <ClCompile Include="App\DirectoryHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Wave\AudioFilter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\PitchShiftFilter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="App\Version.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Wave\MediaFoundationReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Twitch\TwitchChat.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioBuffer.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioClipSample.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioDecoder.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioPlayer.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioProcessor.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioRecorder.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\MediaFoundationReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\OnlineMicophone.cpp">
+      <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\PitchShiftFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\wave.cpp">
+      <Filter>Wave</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

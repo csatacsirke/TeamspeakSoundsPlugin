@@ -4,9 +4,9 @@
 
 #include <App/UpdateHandler.h>
 
-#include "Wave\wave.h"
-#include "Wave\AudioDecoder.h"
-#include "Wave\Steganography.h"
+#include <Audio/wave.h>
+#include <Audio/AudioDecoder.h>
+//#include <Audio/Steganography.h>
 
 #include "Gui\SettingsDialog.h"
 #include <Gui/AudioProcessorDialog.h>
@@ -499,9 +499,15 @@ namespace TSPlugin {
 		this->GetPluginInfoData_lastType = type;
 	}
 
+	// create a text UI that is displayed both in the TS info panel,
+	// and in the overlay window (if visible)
 	CStringA SoundplayerApp::GetPluginInfoData() {
+		CStringA texrUI;
 
-		return inputHandler.CreateTextInterface();
+		//audioBufferForPlayback->currentTrack
+		texrUI += inputHandler.CreateTextInterface();
+
+		return texrUI;
 	}
 
 
