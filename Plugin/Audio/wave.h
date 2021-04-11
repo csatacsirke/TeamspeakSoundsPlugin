@@ -18,6 +18,8 @@ namespace TSPlugin {
 
 		struct Metadata {
 			float maxVolume = 1.0f;
+			std::optional<CString> fileName;
+			std::optional<CString> comment;
 		} metadata;
 	public:
 		static std::shared_ptr<WaveTrack> MakeFromData(const WAVEFORMATEX& format, std::vector<uint8_t>&& data);

@@ -256,7 +256,16 @@ namespace TSPlugin {
 				hr = ReadAudioFile(path.c_str(), &dataSink);
 			}
 
-			return SUCCEEDED(hr) ? dataSink.track : nullptr;
+			shared_ptr<WaveTrack> track;
+			if (SUCCEEDED(hr)) {
+				track = SUCCEEDED(hr) ? dataSink.track : nullptr;
+			}
+
+			if (track) {
+				track->metadata.fileName = CString(path.filename().c_str());
+			}
+
+			return track;
 		}
 	}
 

@@ -30,7 +30,7 @@
 
 namespace TSPlugin {
 
-	class SoundplayerApp : public LocalKeyboardHookInstallerDelegate, InputHandlerDelegate, QuickSoundHandlerDelegate, TwitchChat::IHandler {
+	class SoundplayerApp : public LocalKeyboardHookInstallerDelegate, InputHandlerDelegate, QuickSoundHandlerDelegate, TwitchChat::ITwitchMessageHandler {
 
 	public:
 
@@ -66,8 +66,13 @@ namespace TSPlugin {
 		void AsyncOpenAudioProcessorDialog();
 
 		void AsyncOpenAndPlayFile();
-		void AsyncPlayFile(const fs::path& fileName);
-		void PlayFile(const fs::path& fileName);
+
+		struct PlayFileOptions {
+			optional<CString> comment;
+		};
+
+		void AsyncPlayFile(const fs::path& fileName, const PlayFileOptions& options = {});
+		void PlayFile(const fs::path& fileName, const PlayFileOptions& options = {});
 		
 		enum class StopResult { DidStop, WasNotPlaying };
 		StopResult StopPlayback();
@@ -86,14 +91,16 @@ namespace TSPlugin {
 		void PlayAlarmSound();
 		void OpenObserverDialog();
 
+		void InvalidateOverlay();
 
 		volatile PluginItemType GetPluginInfoData_lastType = PluginItemType::PLUGIN_SERVER;
 		volatile uint64 GetPluginInfoData_lastId = 0;
 		void StoreGetPluginInfoData(uint64 id, PluginItemType type);
-		CStringA GetPluginInfoData();
+		CString CreateTextUI();
 		void RefreshTsInterface();
 		// for workaround
 		void OnServerUpdatedEvent();
+
 
 	protected:
 		HookResult LocalKeyboardHookInstallerDelegate::OnKeyboardHookEvent(const KeyboardHook::KeyData& keyData) override;
@@ -107,7 +114,7 @@ namespace TSPlugin {
 
 		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const fs::path& path) override;
 
-		void TwitchChat::IHandler::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) override;
+		void TwitchChat::ITwitchMessageHandler::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) override;
 		
 	private:
 

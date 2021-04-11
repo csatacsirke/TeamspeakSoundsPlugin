@@ -27,7 +27,7 @@ using namespace std;
 
 #include "Version.h"
 
-#include "Wave\wave.h"
+#include <Audio\wave.h>
 
 #include <App\SoundplayerApp.h>
 #include <App\UpdateHandler.h>
@@ -575,9 +575,9 @@ void ts3plugin_infoData(uint64 serverConnectionHandlerID, uint64 id, enum Plugin
 	theApp->StoreGetPluginInfoData(id, type);
 
 #if 1
-	CStringA infoData = theApp->GetPluginInfoData();
+	const CStringA infoData = ConvertUnicodeToUTF8(theApp->CreateTextUI());
 
-	const size_t allocatedSize = (infoData.GetLength() + 1);
+	const int allocatedSize = infoData.GetLength() + 1;
 	//const size_t allocatedSize = 10000;
 
 

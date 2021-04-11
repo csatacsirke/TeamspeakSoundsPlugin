@@ -38,7 +38,7 @@ namespace TSPlugin {
 		void Clear();
 
 
-		CStringA CreateTextInterface();
+		CString CreateTextInterface();
 		CString CopyBuffer() const;
 
 		optional<fs::path> TryGetSelectedFile();

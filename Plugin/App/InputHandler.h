@@ -34,7 +34,7 @@ namespace TSPlugin {
 
 		
 
-		CStringA CreateTextInterface();
+		CString CreateTextInterface();
 		optional<fs::path> TryGetSelectedFile();
 
 	private:

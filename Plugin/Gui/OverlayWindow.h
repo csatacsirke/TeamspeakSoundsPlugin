@@ -22,13 +22,13 @@ namespace TSPlugin {
 	};
 
 	class OverlayWindow : public CDialogEx {
-		shared_ptr<const CString> infoData;
+		shared_ptr<const CString> interfaceText = make_shared<CString>();
 
 	public:
 		BufferedPaintComponent bufferedPaintComponent;
 		GdiPlusComponent gdiPlusComponent;
 
-		void SetInfoData(const CString& newInfoData);
+		void SetInterfaceText(const CString& newInfoData);
 
 	public:
 
@@ -43,7 +43,7 @@ namespace TSPlugin {
 
 		//BOOL PreCreateWindow(CREATESTRUCT& cs) override;
 		void PreSubclassWindow() override;
-		void PaintToBackbuffer(HDC dc);
+		void PaintTextToBackbuffer(HDC dc, const CString& text);
 
 
 		afx_msg void OnPaint();

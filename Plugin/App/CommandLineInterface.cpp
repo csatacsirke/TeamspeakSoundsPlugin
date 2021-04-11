@@ -86,24 +86,24 @@ namespace TSPlugin {
 
 
 
-	CStringA CommandLineInterface::CreateTextInterface() {
+	CString CommandLineInterface::CreateTextInterface() {
 		unique_lock<mutex> lock(internal_mutex);
 
-		CStringA info = "Sounds: \n";
+		CString textInterface = L"Sounds: \n";
 
 		for (int index = 0; index < interfaceItems.size(); ++index) {
 			const fs::path& filePath = interfaceItems[index]->filePath;
 			
-			const CStringA fileUtf = ConvertUnicodeToUTF8(filePath.filename().c_str());
+			const CString fileUtf = filePath.filename().c_str();
 
 			if (index == selectedInterfaceItemIndex) {
-				info += "*";
+				textInterface += L"*";
 			}
 
-			info += fileUtf + "\n";
+			textInterface += fileUtf + L"\n";
 		}
 
-		return info;
+		return textInterface;
 	}
 	CString CommandLineInterface::CopyBuffer() const {
 		unique_lock<mutex> lock(internal_mutex);

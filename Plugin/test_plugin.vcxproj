@@ -456,6 +456,7 @@
     <ClInclude Include="App\CommandLineInterface.h" />
     <ClInclude Include="App\DirectoryHandler.h" />
     <ClInclude Include="App\Version.h" />
+    <ClInclude Include="Audio\WaveTrackPlaybackState.h" />
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />

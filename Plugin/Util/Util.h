@@ -83,7 +83,7 @@ namespace TSPlugin {
 	}
 
 	template<typename ... Args>
-	CString FormatString(const CString& format, Args ... args) {
+	CString FormatString(const wchar_t* format, Args ... args) {
 		CString result;
 		result.Format(format, args...); 
 		return result;
@@ -171,7 +171,7 @@ namespace TSPlugin {
 
 	// https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
 	CStringA ConvertUnicodeToUTF8(const CStringW& uni);
-	CStringW Utf8ToCString(const CStringA& utf8Str);
+	CStringW Utf8ToCString(const char* utf8Str);
 
 	BOOL DirectoryExists(CString szPath);
 

@@ -25,7 +25,7 @@ namespace TSPlugin {
 	}
 
 
-	CStringW Utf8ToCString(const CStringA& utf8Str) {
+	CStringW Utf8ToCString(const char* utf8Str) {
 
 		const int utf8StrLen = (int)strlen(utf8Str);
 

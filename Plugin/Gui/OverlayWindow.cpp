@@ -80,7 +80,7 @@ namespace TSPlugin {
 	}
 
 
-	void OverlayWindow::PaintToBackbuffer(HDC dc) {
+	void OverlayWindow::PaintTextToBackbuffer(HDC dc, const CString& text) {
 		Graphics graphics(dc);
 		graphics.SetSmoothingMode(SmoothingMode::SmoothingModeHighQuality);
 
@@ -89,17 +89,20 @@ namespace TSPlugin {
 
 		Rect rect(0, 0, clientRect.Width(), clientRect.Height());
 		
-		const shared_ptr<const CString> infoData_guard = infoData;
-		DrawTextToContext(graphics, *infoData_guard);
-
+		DrawTextToContext(graphics, text);
 	}
 
 
 	void OverlayWindow::OnPaint() {
-
+		// has to be the first.
 		CPaintDC dc(this);
-		CRect clientRect;
 
+		const shared_ptr<const CString> interfaceText_guard = interfaceText;
+		const CString& text = *interfaceText_guard;
+
+		//ShowWindow(text.GetLength() > 0 ? SW_SHOWMAXIMIZED : SW_HIDE);
+		
+		CRect clientRect;
 		GetClientRect(clientRect);
 
 		BP_PAINTPARAMS params = { sizeof(params), BPPF_NOCLIP | BPPF_ERASE };
@@ -111,7 +114,7 @@ namespace TSPlugin {
 			brush.CreateSolidBrush(TransparentKey);
 			FillRect(hdcMem, &clientRect, brush);
 
-			PaintToBackbuffer(hdcMem);
+			PaintTextToBackbuffer(hdcMem, text);
 
 			EndBufferedPaint(hpb, TRUE);
 		}
@@ -124,8 +127,15 @@ namespace TSPlugin {
 		return TRUE;
 	}
 
-	void OverlayWindow::SetInfoData(const CString& newInfoData) {
-		infoData = make_shared<CString>(newInfoData);
+	void OverlayWindow::SetInterfaceText(const CString& newInterfaceText) {
+		if (*interfaceText == newInterfaceText) {
+			// no change
+			return;
+		}
+
+		ShowWindow(newInterfaceText.GetLength() > 0 ? SW_SHOW : SW_HIDE);
+
+		interfaceText = make_shared<CString>(newInterfaceText);
 		Invalidate();
 	}
 

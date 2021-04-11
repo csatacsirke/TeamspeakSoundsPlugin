@@ -231,13 +231,12 @@ namespace TSPlugin {
 	}
 
 
-	CStringA InputHandler::CreateTextInterface() {
+	CString InputHandler::CreateTextInterface() {
 		if (commandInProgress) {
 			return commandLineInterface.CreateTextInterface();
-		} else {
-			return "";
-		}
-		
+		} 
+
+		return {};
 	}
 
 	optional<fs::path> InputHandler::TryGetSelectedFile() {

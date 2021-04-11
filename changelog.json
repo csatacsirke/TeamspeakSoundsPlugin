@@ -58,9 +58,9 @@
     ]
   },
   {
-    "date": "2021.03.17",
+    "date": "2021.04.11",
     "changes": [
-      "Pause/Resume support"
+      "Overlay show what's currently playing, and also the person who requested it, if it's from Twitch."
     ]
   }
 ]

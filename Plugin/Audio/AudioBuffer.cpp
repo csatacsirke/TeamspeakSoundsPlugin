@@ -5,13 +5,13 @@
 
 namespace TSPlugin {
 
-	void TSPlugin::AudioBuffer::AddTrackToQueue(std::shared_ptr<WaveTrackPlaybackState> track) {
-		std::unique_lock<std::mutex> lock(mutex);
+	void AudioBuffer::AddTrackToQueue(std::shared_ptr<WaveTrackPlaybackState> track) {
+		std::unique_lock lock(mutex);
 		trackQueue.push(track);
 	}
 
-	shared_ptr<WaveTrackPlaybackState> TSPlugin::AudioBuffer::FetchTrack() {
-		std::unique_lock<std::mutex> lock(mutex);
+	shared_ptr<WaveTrackPlaybackState> AudioBuffer::FetchTrack() {
+		std::unique_lock lock(mutex);
 
 		if (trackQueue.empty()) {
 			return nullptr;
@@ -29,8 +29,8 @@ namespace TSPlugin {
 		return track;
 	}
 
-	shared_ptr<WaveTrackPlaybackState> TSPlugin::AudioBuffer::TryPopTrack() {
-		std::unique_lock<std::mutex> lock(mutex);
+	shared_ptr<WaveTrackPlaybackState> AudioBuffer::TryPopTrack() {
+		std::unique_lock lock(mutex);
 
 		if (trackQueue.empty()) {
 			return nullptr;
@@ -42,21 +42,22 @@ namespace TSPlugin {
 		return track;
 	}
 
-	CachedAudioSample48k TSPlugin::AudioBuffer::TryGetSamples(const int sampleCountForOneChannel, const int outputChannels) {
+	CachedAudioSample48k AudioBuffer::TryGetSamples(const uint64_t sampleCountForOneChannel, const int outputChannels) {
 		shared_ptr<WaveTrackPlaybackState> playbackState = FetchTrack();
 		if (!playbackState) {
 			return nullptr;
 		}
 
-		const WaveTrack& track = *playbackState->GetTrack();
+		auto track_guard = playbackState->GetTrack();
+		const WaveTrack& track = *track_guard;
 
 
 		const WAVEFORMATEX& format = track.format;
 
-		const int frameLengthMillisecs = sampleCountForOneChannel * 1000 / outputFrequency;
+		const uint64_t frameLengthMillisecs = sampleCountForOneChannel * 1000 / outputFrequency;
 
-		const int64_t inputSampleCount = format.nSamplesPerSec * format.nChannels * frameLengthMillisecs / 1000;
-		const int64_t outputSampleCount = sampleCountForOneChannel * outputChannels;
+		const uint64_t inputSampleCount = uint64_t(format.nSamplesPerSec) * format.nChannels * frameLengthMillisecs / 1000;
+		const uint64_t outputSampleCount = sampleCountForOneChannel * outputChannels;
 
 
 		//const uint8_t* start = track.data.data();
@@ -93,14 +94,23 @@ namespace TSPlugin {
 		return nullptr;
 	}
 
-	void TSPlugin::AudioBuffer::Clear() {
+	void AudioBuffer::Clear() {
 		std::unique_lock<std::mutex> lock(mutex);
 
 		// wtf? miért nincs clear()??
 		trackQueue = {};
 	}
 
-	bool TSPlugin::AudioBuffer::IsEmpty() const {
+	bool AudioBuffer::IsEmpty() const {
+		std::unique_lock<std::mutex> lock(mutex);
+
 		return trackQueue.empty();
+	}
+
+	std::shared_ptr<const WaveTrack> AudioBuffer::GetCurrentTrack() {
+		if (auto playbackState = FetchTrack()) {
+			return playbackState->GetTrack();
+		}
+		return nullptr;
 	}
 } // namespace TSPlugin 

@@ -3,6 +3,7 @@
 
 #include <Audio/SignalProcessing.h>
 #include <Audio/Wave.h>
+#include <Audio/WaveTrackPlaybackState.h>
 
 #include <Util/Util.h>
 
@@ -131,56 +132,17 @@ namespace TSPlugin {
 	};
 
 
-	struct DataSegment {
-		const uint8_t* start;
-		size_t size;
-	};
-
-
-	struct WaveTrackPlaybackState {
-
-		explicit WaveTrackPlaybackState(std::shared_ptr<WaveTrack> track) : track(track) {
-			NULL;
-		}
-
-		WaveTrackPlaybackState(const WaveTrackPlaybackState& other) = delete;
-
-		bool EndOfTrack() const {
-			return (currentOffset >= track->data.size());
-		}
-
-		DataSegment GetNextDataSegment(size_t requestedSize) {
-			const uint8_t* ptr = track->data.data() + currentOffset;
-			
-			const size_t remainingDataSize = track->data.size() > currentOffset ? track->data.size() - currentOffset : 0;
-
-			const size_t segmentSize = std::min<size_t>(requestedSize, remainingDataSize);
-
-			currentOffset += requestedSize;
-
-			return { ptr, segmentSize };
-		}
-
-		std::shared_ptr<const WaveTrack> GetTrack() const {
-			return track;
-		}
-
-	private:
-		const std::shared_ptr<const WaveTrack> track;
-		size_t currentOffset = 0;
-
-	};
-
 
 	class AudioBuffer {
 	public:
 
 		void AddTrackToQueue(std::shared_ptr<WaveTrackPlaybackState> track);
 
-		CachedAudioSample48k TryGetSamples(const int sampleCountForOneChannel, const int outputChannels);
+		CachedAudioSample48k TryGetSamples(const uint64_t sampleCountForOneChannel, const int outputChannels);
 
 		void Clear();
 		bool IsEmpty() const;
+		std::shared_ptr<const WaveTrack> GetCurrentTrack();
 
 		shared_ptr<WaveTrackPlaybackState> TryPopTrack();
 
@@ -191,7 +153,7 @@ namespace TSPlugin {
 	private:
 		const int outputFrequency = 48000;
 
-		std::mutex mutex;
+		mutable std::mutex mutex;
 		std::queue<shared_ptr<WaveTrackPlaybackState>> trackQueue;
 		AudioBufferCache cache;
 

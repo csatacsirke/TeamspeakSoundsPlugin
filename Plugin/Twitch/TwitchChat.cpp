@@ -40,12 +40,12 @@ namespace TSPlugin::TwitchChat {
     using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
     struct TwitchChatReader : public ITwitchChatReader {
-        void Start(IHandler& handler, const std::string_view channel, const std::string_view password) override;
+        void Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) override;
         void Stop() override;
 
     private:
-        bool Run(IHandler& handler, const std::string_view channel, const std::string_view password);
-        void HandleRead(IHandler& handler, const std::string_view message);
+        bool Run(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password);
+        void HandleRead(ITwitchMessageHandler& handler, const std::string_view message);
         void Authenticate(const std::string_view channel, const std::string_view password);
         void Write(const std::string_view message);
     private:
@@ -68,7 +68,7 @@ namespace TSPlugin::TwitchChat {
         return std::make_shared<TwitchChatReader>();
     }
 
-    void TwitchChatReader::Start(IHandler& handler, const std::string_view channel, const std::string_view password) {
+    void TwitchChatReader::Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) {
         std::lock_guard guard(_mutex);
 
         // need to copy, can't be sure if string_view is persistent
@@ -92,7 +92,7 @@ namespace TSPlugin::TwitchChat {
         
     }
 
-    void TwitchChatReader::HandleRead(IHandler& handler, const std::string_view message) {
+    void TwitchChatReader::HandleRead(ITwitchMessageHandler& handler, const std::string_view message) {
         if (message.starts_with("PING")) {
             ws->write(net::buffer("PONG :tmi.twitch.tv"));
         }
@@ -159,7 +159,7 @@ namespace TSPlugin::TwitchChat {
         
     }
 
-    bool TwitchChatReader::Run(IHandler& handler, const std::string_view channel, const std::string_view password) {
+    bool TwitchChatReader::Run(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) {
         try {
 
             std::string host = "irc-ws.chat.twitch.tv";

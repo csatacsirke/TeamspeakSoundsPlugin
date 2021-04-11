@@ -256,7 +256,7 @@ namespace TSPlugin {
 	}
 
 
-	void SoundplayerApp::PlayFile(const fs::path& filePath) {
+	void SoundplayerApp::PlayFile(const fs::path& filePath, const PlayFileOptions& options) {
 
 		//if (filePath.Find(L".mp3") >= 0) {
 		//	return;
@@ -277,6 +277,7 @@ namespace TSPlugin {
 			return;
 		}
 
+		track->metadata.comment = options.comment;
 
 
 
@@ -305,13 +306,25 @@ namespace TSPlugin {
 		//for (const auto& playbackBuffer : playbackBuffers) {
 		//	audioBufferForPlayback->AddSamples(track);
 		//}
-		audioBufferForPlayback->AddTrackToQueue(make_shared<WaveTrackPlaybackState>(track));
+
+		auto playbackState = make_shared<WaveTrackPlaybackState>(track);
+		audioBufferForPlayback->AddTrackToQueue(playbackState);
 		//playbackBuffersLock.unlock();
 
 		// ha uj hangot hátszunk be, felejtsük el az elözöt
 		pausedTrack = nullptr;
 
 
+		// this is not the best approach
+		// <overlay refreshing> 
+		// TODO ezt valahogy automatizálni?
+		InvalidateOverlay();
+
+		while (track == audioBufferForPlayback->GetCurrentTrack()) {
+			this_thread::sleep_for(1000ms);
+		}
+		InvalidateOverlay();
+		// </overlay refreshing> 
 	}
 
 
@@ -356,9 +369,9 @@ namespace TSPlugin {
 		return PassEvent;
 	}
 
-	void SoundplayerApp::AsyncPlayFile(const fs::path& file) {
-		std::thread([this, file] {
-			PlayFile(file);
+	void SoundplayerApp::AsyncPlayFile(const fs::path& file, const PlayFileOptions& options) {
+		std::thread([this, file, options] {
+			PlayFile(file, options);
 		}).detach();
 
 	}
@@ -467,6 +480,14 @@ namespace TSPlugin {
 		OpenConsole();
 	}
 
+	void SoundplayerApp::InvalidateOverlay() {
+
+		if (overlayWindow) {
+			overlayWindow->SetInterfaceText(CreateTextUI());
+		}
+	}
+
+
 	void SoundplayerApp::UpdateOverlay() {
 		if (!overlayWindow) {
 			overlayWindow = make_shared<OverlayWindow>();
@@ -474,8 +495,7 @@ namespace TSPlugin {
 			overlayWindow->ShowWindow(SW_SHOW);
 		}
 		
-
-		overlayWindow->SetInfoData(Utf8ToCString(GetPluginInfoData()));
+		InvalidateOverlay();
 	}
 
 	void SoundplayerApp::SaveConfig() {
@@ -501,13 +521,27 @@ namespace TSPlugin {
 
 	// create a text UI that is displayed both in the TS info panel,
 	// and in the overlay window (if visible)
-	CStringA SoundplayerApp::GetPluginInfoData() {
-		CStringA texrUI;
+	CString SoundplayerApp::CreateTextUI() {
+		CString textUI;
 
-		//audioBufferForPlayback->currentTrack
-		texrUI += inputHandler.CreateTextInterface();
+		if (auto track = audioBufferForPlayback->GetCurrentTrack()) {
+			const auto& metadata = track->metadata;
+			if (metadata.fileName) {
+				textUI += FormatString(L"Now playing: %s", metadata.fileName->GetString());
+			}
 
-		return texrUI;
+			if (metadata.comment) {
+				textUI += FormatString(L" (%s)", metadata.comment->GetString());
+			}
+
+			if (!textUI.IsEmpty()) {
+				textUI += L"\n";
+			}
+		}
+
+		textUI += inputHandler.CreateTextInterface();
+
+		return textUI;
 	}
 
 
@@ -864,7 +898,8 @@ namespace TSPlugin {
 
 		const CString sound_W = Utf8ToCString(sound.c_str());
 		if (auto fileName = TryGetLikelyFileName(sound_W)) {
-			AsyncPlayFile(*fileName);
+			const CString comment = FormatString(L"requested by: %s", Utf8ToCString(sender.c_str()).GetString());
+			AsyncPlayFile(*fileName, { .comment = comment});
 		}
 
 

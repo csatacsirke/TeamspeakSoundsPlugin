@@ -221,6 +221,9 @@
     <ClInclude Include="Audio\wave.h">
       <Filter>Wave</Filter>
     </ClInclude>
+    <ClInclude Include="Audio\WaveTrackPlaybackState.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
