@@ -114,7 +114,11 @@ namespace TSPlugin {
 
 		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const fs::path& path) override;
 
-		void TwitchChat::ITwitchMessageHandler::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) override;
+		TwitchChat::TwitchResponse OnTwitchMessage(
+			const std::string& channel, 
+			const std::string& sender, 
+			const std::string& message
+		) override;
 		
 	private:
 

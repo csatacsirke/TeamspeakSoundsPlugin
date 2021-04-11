@@ -869,8 +869,10 @@ namespace TSPlugin {
 		AsyncPlayFile(path);
 	}
 
-	void SoundplayerApp::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) {
+	TwitchChat::TwitchResponse SoundplayerApp::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) {
 		(void)channel;
+
+		TwitchChat::TwitchResponse response;
 
 		//vector<string> authorizeUsers;
 		istringstream authorizedUsersList = istringstream(ConvertUnicodeToUTF8(Global::config.Get(ConfigKeys::AuthorizedUsers)).GetString());
@@ -884,25 +886,37 @@ namespace TSPlugin {
 			}
 		}
 
-		if (!authorized) {
-			Log::Debug(L"Unauthorized user: " + Utf8ToCString(CStringA(sender.c_str())));
-			return;
-		}
 
 		std::regex re(R"""(!sound (.+))""");
 		std::match_results<const char*> captures;
 		if (!std::regex_search(message.c_str(), captures, re)) {
-			return;
+			return {};
 		}
 		const std::string sound = captures[1];
 
-		const CString sound_W = Utf8ToCString(sound.c_str());
-		if (auto fileName = TryGetLikelyFileName(sound_W)) {
-			const CString comment = FormatString(L"requested by: %s", Utf8ToCString(sender.c_str()).GetString());
-			AsyncPlayFile(*fileName, { .comment = comment});
+
+		if (!authorized) {
+			Log::Debug(L"Unauthorized user: " + Utf8ToCString(CStringA(sender.c_str())));
+			return {
+				.chatResponseText = format_string("Unauthorized user: %s", sender.c_str()),
+			};
 		}
 
+		const CString sound_W = Utf8ToCString(sound.c_str());
+		auto fileName = TryGetLikelyFileName(sound_W);
 
+		if (!fileName) {
+			return {
+				.chatResponseText = format_string("No such file found: '%s'", sound.c_str()),
+			};
+		}
+
+		const CString comment = FormatString(L"requested by: %s", Utf8ToCString(sender.c_str()).GetString());
+		AsyncPlayFile(*fileName, { .comment = comment });
+
+		return { 
+			.chatResponseText = format_string("Playing %s", ConvertUnicodeToUTF8(fileName->filename().c_str()).GetString()),
+		};
 	}
 
 

@@ -2,11 +2,16 @@
 
 #include <memory>
 #include <string>
+#include <optional>
 
 namespace TSPlugin::TwitchChat {
 
+    struct TwitchResponse {
+        std::optional<std::string> chatResponseText;
+    };
+
     struct ITwitchMessageHandler {
-        virtual void OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) = 0;
+        virtual TwitchResponse OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) = 0;
         virtual ~ITwitchMessageHandler() = default;
     };
 

@@ -45,7 +45,7 @@ namespace TSPlugin::TwitchChat {
 
     private:
         bool Run(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password);
-        void HandleRead(ITwitchMessageHandler& handler, const std::string_view message);
+        TwitchResponse HandleRead(ITwitchMessageHandler& handler, const std::string_view message);
         void Authenticate(const std::string_view channel, const std::string_view password);
         void Write(const std::string_view message);
     private:
@@ -92,7 +92,7 @@ namespace TSPlugin::TwitchChat {
         
     }
 
-    void TwitchChatReader::HandleRead(ITwitchMessageHandler& handler, const std::string_view message) {
+    TwitchResponse TwitchChatReader::HandleRead(ITwitchMessageHandler& handler, const std::string_view message) {
         if (message.starts_with("PING")) {
             ws->write(net::buffer("PONG :tmi.twitch.tv"));
         }
@@ -125,10 +125,10 @@ namespace TSPlugin::TwitchChat {
             const std::string channel = captures[2];
             const std::string message = captures[3];
 
-            handler.OnTwitchMessage(channel, speaker, message);
+            return handler.OnTwitchMessage(channel, speaker, message);
         }
 
-
+        return {};
     }
 
     void TwitchChatReader::Write(const std::string_view message) {
@@ -198,7 +198,12 @@ namespace TSPlugin::TwitchChat {
                 // Read a message into our buffer
                 beast::flat_buffer buffer;
                 ws->read(buffer);
-                HandleRead(handler, std::string_view((const char*)buffer.data().data(), buffer.data().size()));
+                const TwitchResponse response = HandleRead(handler, std::string_view((const char*)buffer.data().data(), buffer.data().size()));
+
+                if (response.chatResponseText) {
+                    // PRIVMSG #<channel> :This is a sample message
+                    Write(format_string("PRIVMSG %s :%s", channel.data(), response.chatResponseText->c_str()));
+                }
             }
 
             // Close the WebSocket connection
