@@ -78,7 +78,6 @@ namespace TSPlugin {
 		TryGetSoundsDirectory(AskGui);
 
 		InitTwitchChat();
-		TwitchRewards::RegisterMagnetLink();
 
 
 

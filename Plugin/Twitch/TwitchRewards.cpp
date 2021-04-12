@@ -5,7 +5,7 @@
 #include <Util/Util.h>
 
 #include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
+//#include <boost/asio/ssl.hpp>
 #include <iostream>
 
 
@@ -40,35 +40,35 @@ namespace TSPlugin::TwitchRewards {
             "cost":50000
         }'
     */
-    bool Create() {
-        boost::system::error_code ec;
-        using namespace boost::asio;
+    //bool Create() {
+    //    boost::system::error_code ec;
+    //    using namespace boost::asio;
 
-        // what we need
-        io_service svc;
-        ssl::context ctx(ssl::context::method::sslv23_client);
-        ssl::stream<ip::tcp::socket> ssock(svc, ctx);
-        ssock.lowest_layer().connect({ {}, 8087 }); // http://localhost:8087 for test
-        ssock.handshake(ssl::stream_base::handshake_type::client);
+    //    // what we need
+    //    io_service svc;
+    //    ssl::context ctx(ssl::context::method::sslv23_client);
+    //    ssl::stream<ip::tcp::socket> ssock(svc, ctx);
+    //    ssock.lowest_layer().connect({ {}, 8087 }); // http://localhost:8087 for test
+    //    ssock.handshake(ssl::stream_base::handshake_type::client);
 
-        // send request
-        std::string request("GET /newGame?name=david HTTP/1.1\r\n\r\n");
-        boost::asio::write(ssock, buffer(request));
+    //    // send request
+    //    std::string request("GET /newGame?name=david HTTP/1.1\r\n\r\n");
+    //    boost::asio::write(ssock, buffer(request));
 
-        // read response
-        std::string response;
+    //    // read response
+    //    std::string response;
 
-        do {
-            char buf[1024];
-            size_t bytes_transferred = ssock.read_some(buffer(buf), ec);
-            if (!ec) response.append(buf, buf + bytes_transferred);
-        } while (!ec);
+    //    do {
+    //        char buf[1024];
+    //        size_t bytes_transferred = ssock.read_some(buffer(buf), ec);
+    //        if (!ec) response.append(buf, buf + bytes_transferred);
+    //    } while (!ec);
 
-        // print and exit
-        std::cout << "Response received: '" << response << "'\n";
+    //    // print and exit
+    //    std::cout << "Response received: '" << response << "'\n";
 
-        return true;
-    }
+    //    return true;
+    //}
 
 
     bool RegisterMagnetLink() {
