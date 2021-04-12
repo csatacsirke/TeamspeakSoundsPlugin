@@ -405,6 +405,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="App\Globals.cpp" />
     <ClCompile Include="App\SoundplayerApp.cpp" />
     <ClCompile Include="App\InputHandler.cpp" />
     <ClCompile Include="App\QuickSoundHandler.cpp" />
@@ -417,6 +418,7 @@
     <ClCompile Include="App\UpdateHandler.cpp" />
     <ClCompile Include="Twitch\TwitchChat.cpp" />
     <ClCompile Include="Audio\MediaFoundationReader.cpp" />
+    <ClCompile Include="Twitch\TwitchRewards.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="exe\main.cpp" />
     <ClCompile Include="Gui\AudioProcessorDialog.cpp" />
@@ -448,6 +450,7 @@
     <ClCompile Include="Web\FileSync.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\Globals.h" />
     <ClInclude Include="App\NetworkAudioHandlerImpl.h" />
     <ClInclude Include="App\SoundplayerApp.h" />
     <ClInclude Include="App\InputHandler.h" />
@@ -461,6 +464,7 @@
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />
     <ClInclude Include="Twitch\TwitchChat.h" />
+    <ClInclude Include="Twitch\TwitchRewards.h" />
     <ClInclude Include="Util\TsHelperFunctions.h" />
     <ClInclude Include="Util\Config.h" />
     <ClInclude Include="Gui\AudioProcessorDialog.h" />

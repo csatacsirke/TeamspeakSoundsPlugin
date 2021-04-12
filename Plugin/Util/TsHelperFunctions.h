@@ -1,17 +1,18 @@
 #pragma once
 
-#include "Util.h"
+#include <App/Globals.h>
 
-#include <pluginsdk\include\teamspeak/public_errors.h>
-#include <pluginsdk\include\teamspeak/public_errors_rare.h>
-#include <pluginsdk\include\teamspeak/public_definitions.h>
-#include <pluginsdk\include\teamspeak/public_rare_definitions.h>
-#include <pluginsdk\include\teamspeak/clientlib_publicdefinitions.h>
+#include <pluginsdk/include/teamspeak/public_errors.h>
+#include <pluginsdk/include/teamspeak/public_errors_rare.h>
+#include <pluginsdk/include/teamspeak/public_definitions.h>
+#include <pluginsdk/include/teamspeak/public_rare_definitions.h>
+#include <pluginsdk/include/teamspeak/clientlib_publicdefinitions.h>
+#include <pluginsdk/include/ts3_functions.h>
 
 namespace TSPlugin {
 
 	namespace Ts {
-		using namespace Global;
+		using namespace TSPlugin::Global;
 
 		static inline void CheckAndLogError(UINT error) {
 			if (error != ERROR_ok) {

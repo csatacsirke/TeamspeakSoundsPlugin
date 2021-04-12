@@ -2,6 +2,7 @@
 
 #include "SoundplayerApp.h"
 
+#include <App/Globals.h>
 #include <App/UpdateHandler.h>
 
 #include <Audio/wave.h>
@@ -18,7 +19,7 @@
 #include <Util\TsHelperFunctions.h>
 
 #include <Twitch/TwitchChat.h>
-
+#include <Twitch/TwitchRewards.h>
 
 #include "afxdlgs.h"
 #include <Mmsystem.h>
@@ -77,6 +78,7 @@ namespace TSPlugin {
 		TryGetSoundsDirectory(AskGui);
 
 		InitTwitchChat();
+		TwitchRewards::RegisterMagnetLink();
 
 
 
@@ -202,6 +204,7 @@ namespace TSPlugin {
 #ifdef _DEBUG
 		menuHandler.Add("Open Developer Console", [&] { this->OpenDeveloperConsole(); });
 #endif
+		menuHandler.Add("Login to Twitch", [&] { this->LoginToTwitch(); });
 
 		menuHandler.Configure(menuItems);
 		//
@@ -506,6 +509,10 @@ namespace TSPlugin {
 	void SoundplayerApp::LoadConfig() {
 		const fs::path path = fs::path(Global::configPath) / Global::config.defaultFileName.GetString();
 		Global::config.LoadFromFile(path);
+	}
+
+	void SoundplayerApp::LoginToTwitch() {
+		TwitchRewards::RegisterMagnetLink();
 	}
 
 

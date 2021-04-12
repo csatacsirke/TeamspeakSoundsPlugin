@@ -134,6 +134,7 @@ namespace TSPlugin {
 		void UpdateOverlay();
 		void SaveConfig();
 		void LoadConfig();
+		void LoginToTwitch();
 
 	private:
 		MenuHandler menuHandler;

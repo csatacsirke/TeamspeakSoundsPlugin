@@ -1,29 +1,13 @@
 #include "stdafx.h"
 
-#include "Util\Util.h"
-#include "Util\Config.h"
-#include "Util\Log.h"
-#include "Gui\SoundFolderSelector.h"
+#include "Util.h"
+#include "Config.h"
+#include "Log.h"
+#include "Gui/SoundFolderSelector.h"
 
+#include <App/Globals.h>
 
 namespace TSPlugin {
-
-	namespace Global {
-
-
-		struct TS3Functions ts3Functions;
-		uint64 connection = 0;
-		char* pluginID = NULL;
-		//anyID myID;
-
-
-		char appPath[PATH_BUFSIZE];
-		char resourcesPath[PATH_BUFSIZE];
-		char configPath[PATH_BUFSIZE];
-		char pluginPath[PATH_BUFSIZE];
-
-	}
-
 
 	CStringW Utf8ToCString(const char* utf8Str) {
 

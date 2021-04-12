@@ -8,7 +8,8 @@
 #include "afxdialogex.h"
 
 
-#include <Util\Config.h>
+#include <Util/Config.h>
+#include <App/Globals.h>
 
 
 namespace TSPlugin {

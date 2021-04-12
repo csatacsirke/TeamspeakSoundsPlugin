@@ -94,35 +94,6 @@ namespace TSPlugin {
 #define ONCE(X) {static bool first = true; if(first) { first = false; X; }}
 
 
-#define COMMAND_BUFSIZE 128
-#define INFODATA_BUFSIZE 128
-#define SERVERINFO_BUFSIZE 256
-#define CHANNELINFO_BUFSIZE 512
-#define RETURNCODE_BUFSIZE 128
-
-#define PATH_BUFSIZE 512
-
-	/*The client lib works at 48Khz internally.
-	It is therefore advisable to use the same for your project */
-#define PLAYBACK_FREQUENCY 48000
-#define PLAYBACK_CHANNELS 2
-
-
-
-	namespace Global {
-		extern struct TS3Functions ts3Functions;
-		extern uint64 connection;
-		extern char* pluginID;
-		//extern anyID myID;
-
-		extern char appPath[PATH_BUFSIZE];
-		extern char resourcesPath[PATH_BUFSIZE];
-		extern char configPath[PATH_BUFSIZE];
-		extern char pluginPath[PATH_BUFSIZE];
-
-	}
-
-
 	class Buffer : private std::unique_ptr<std::vector<uint8_t>> {
 	public:
 		Buffer() {

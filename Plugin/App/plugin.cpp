@@ -31,6 +31,7 @@ using namespace std;
 
 #include <App\SoundplayerApp.h>
 #include <App\UpdateHandler.h>
+#include <App\Globals.h>
 
 
 
@@ -117,7 +118,7 @@ const char* ts3plugin_description() {
 
 /* Set TeamSpeak 3 callback functions */
 void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
-	ts3Functions = funcs;
+	TSPlugin::Global::ts3Functions = funcs;
 }
 
 /*

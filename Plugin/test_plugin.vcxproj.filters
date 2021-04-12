@@ -224,6 +224,12 @@
     <ClInclude Include="Audio\WaveTrackPlaybackState.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Twitch\TwitchRewards.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -348,6 +354,12 @@
     </ClCompile>
     <ClCompile Include="Audio\wave.cpp">
       <Filter>Wave</Filter>
+    </ClCompile>
+    <ClCompile Include="Twitch\TwitchRewards.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Globals.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
