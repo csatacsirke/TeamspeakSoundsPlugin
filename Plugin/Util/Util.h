@@ -1,10 +1,13 @@
 ﻿#pragma once
 
+#include "Log.h"
+
 #include <string>
 #include <queue>
 #include <thread>
 #include <map>
 #include <optional>
+#include <filesystem>
 
 //#include <pluginsdk\include\teamspeak/public_errors.h>
 //#include <pluginsdk\include\teamspeak/public_errors_rare.h>
@@ -15,11 +18,10 @@
 //
 //#include <KeyboardHook/KeyboardHookUtils.h>
 
-#include "Log.h"
-
 namespace TSPlugin {
 
 	//using namespace KeyboardHook;
+	namespace fs = std::filesystem;
 
 	//Returns the last Win32 error, in string format. Returns an empty string if there is no error.
 	CString GetLastErrorAsString();

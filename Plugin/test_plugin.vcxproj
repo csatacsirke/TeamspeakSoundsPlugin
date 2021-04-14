@@ -416,6 +416,8 @@
     <ClCompile Include="Gui\ConfigDialog.cpp" />
     <ClCompile Include="Gui\OverlayWindow.cpp" />
     <ClCompile Include="App\UpdateHandler.cpp" />
+    <ClCompile Include="Gui\TwitchIntegrationDialog.cpp" />
+    <ClCompile Include="Twitch\TwitchLogin.cpp" />
     <ClCompile Include="Twitch\TwitchChat.cpp" />
     <ClCompile Include="Audio\MediaFoundationReader.cpp" />
     <ClCompile Include="Twitch\TwitchRewards.cpp" />
@@ -448,6 +450,7 @@
     <ClCompile Include="Audio\PitchShiftFilter.cpp" />
     <ClCompile Include="Audio\wave.cpp" />
     <ClCompile Include="Web\FileSync.cpp" />
+    <ClCompile Include="Web\Http.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\Globals.h" />
@@ -463,7 +466,9 @@
     <ClInclude Include="Gui\ConfigDialog.h" />
     <ClInclude Include="Gui\OverlayWindow.h" />
     <ClInclude Include="App\UpdateHandler.h" />
+    <ClInclude Include="Gui\TwitchIntegrationDialog.h" />
     <ClInclude Include="Twitch\TwitchChat.h" />
+    <ClInclude Include="Twitch\TwitchLogin.h" />
     <ClInclude Include="Twitch\TwitchRewards.h" />
     <ClInclude Include="Util\TsHelperFunctions.h" />
     <ClInclude Include="Util\Config.h" />

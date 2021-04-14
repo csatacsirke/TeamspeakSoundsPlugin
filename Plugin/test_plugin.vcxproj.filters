@@ -230,6 +230,12 @@
     <ClInclude Include="App\Globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Twitch\TwitchLogin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Gui\TwitchIntegrationDialog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -359,6 +365,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="App\Globals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Gui\TwitchIntegrationDialog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Twitch\TwitchLogin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Web\Http.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

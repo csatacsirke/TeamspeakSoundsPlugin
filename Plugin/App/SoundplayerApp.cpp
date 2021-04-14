@@ -203,7 +203,7 @@ namespace TSPlugin {
 #ifdef _DEBUG
 		menuHandler.Add("Open Developer Console", [&] { this->OpenDeveloperConsole(); });
 #endif
-		menuHandler.Add("Login to Twitch", [&] { this->LoginToTwitch(); });
+		menuHandler.Add("Login to Twitch", [&] { this->OpenTwitchDialog(); });
 
 		menuHandler.Configure(menuItems);
 		//
@@ -510,8 +510,9 @@ namespace TSPlugin {
 		Global::config.LoadFromFile(path);
 	}
 
-	void SoundplayerApp::LoginToTwitch() {
-		TwitchRewards::RegisterMagnetLink();
+	void SoundplayerApp::OpenTwitchDialog() {
+		
+		//TwitchRewards::RegisterMagnetLink();
 	}
 
 

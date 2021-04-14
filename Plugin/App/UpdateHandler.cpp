@@ -20,7 +20,7 @@ namespace TSPlugin {
 		const CString endpoint = FormatString(L"battlechicken/ts/downloads/SoundplayerPlugin_x64%s.ts3_plugin", updateChannel);
 
 
-		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", endpoint);
+		const optional<vector<uint8_t>> result = Http::SimpleHttpRequest(L"users.atw.hu", endpoint);
 		if (!result) {
 			return;
 		}
@@ -50,7 +50,7 @@ namespace TSPlugin {
 
 	static optional<vector<CString>> DownloadChanges(const CStringA& currentVersion, const CStringA& serverVersion) {
 
-		const optional<vector<uint8_t>> optChangesJson = Web::HttpRequest(L"users.atw.hu", L"battlechicken/ts/changes.php");
+		const optional<vector<uint8_t>> optChangesJson = Http::SimpleHttpRequest(L"users.atw.hu", L"battlechicken/ts/changes.php");
 		if (!optChangesJson) {
 			ASSERT(0);
 			return nullopt;
@@ -96,7 +96,7 @@ namespace TSPlugin {
 		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"beta" : L"stable";
 		const CString endpoint = FormatString(L"battlechicken/ts/version?channel=%s", updateChannel);
 
-		const optional<vector<uint8_t>> result = Web::HttpRequest(L"users.atw.hu", endpoint);
+		const optional<vector<uint8_t>> result = Http::SimpleHttpRequest(L"users.atw.hu", endpoint);
 
 		if (!result) {
 			return nullopt;

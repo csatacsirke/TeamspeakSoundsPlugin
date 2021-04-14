@@ -8,7 +8,8 @@
 //#include "http.h"
 #include <App/SoundplayerApp.h>
 
-#include <Web/SoundBroadcaster.h>
+//#include <Web/SoundBroadcaster.h>
+#include <Web/Http.h>
 
 #include <Gui/NetworkDialog.h>
 #include <Gui/AudioProcessorDialog.h>
@@ -23,6 +24,8 @@
 #include <Audio/PitchFilter.h>
 
 #include <Util/Config.h>
+
+#include <Twitch/TwitchLogin.h>
 
 #include <conio.h>
 #include <stdio.h>
@@ -136,15 +139,13 @@ namespace TSPlugin {
 			OpenConsole();
 
 			auto app = make_shared<SoundplayerApp>();
-			app->Init();
-
-
-			std::string line;
-			while (std::getline(std::cin, line)) {
-				if (line == "exit") {
-					break;
-				}
-			}
+			
+			//Twitch::ValidateToken(L"...");
+			// https://id.twitch.tv/oauth2/validate
+			auto response = Http::HttpRequest(L"id.twitch.tv", L"oauth2/validate", {
+				.useHttps=true,
+				.headers = FormatString(L"Authorization: OAuth %s", L"..."),
+				});
 
 			app->Shutdown();
 
