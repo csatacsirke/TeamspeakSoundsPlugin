@@ -8,12 +8,18 @@ namespace TSPlugin::Http {
 
 	static const CString GET = L"GET";
 	static const CString POST = L"POST";
+	static const CString PATCH = L"PATCH";
+	static const CString DELETE = L"DELETE";
 
 
 	struct HttpOptions {
 		CString verb = GET;
-		bool useHttps = false;
+		bool useHttps = true;
 		CString headers = L"";
+		// can be binary
+		std::string body;
+		// .php?key=value
+		std::map<CString, CString> queryParameters;
 	};
 
 	struct HttpResponse {
@@ -24,7 +30,7 @@ namespace TSPlugin::Http {
 	};
 
 
-	HttpResponse HttpRequest(const CString& serverUrl, const CString& serverObject, const HttpOptions& options = {});
+	HttpResponse HttpRequest(const CString& serverUrl, const CString& serverObject, const HttpOptions& options);
 	optional<vector<uint8_t>> SimpleHttpRequest(const CString& serverUrl, const CString& serverObject);
 
 }

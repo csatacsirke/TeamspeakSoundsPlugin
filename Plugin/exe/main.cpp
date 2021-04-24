@@ -14,6 +14,7 @@
 #include <Gui/NetworkDialog.h>
 #include <Gui/AudioProcessorDialog.h>
 #include <Gui/OverlayWindow.h>
+#include <Gui/TwitchIntegrationDialog.h>
 
 
 #include <Audio/MP3Player.h>
@@ -25,7 +26,7 @@
 
 #include <Util/Config.h>
 
-#include <Twitch/TwitchLogin.h>
+#include <Twitch/TwitchApi.h>
 
 #include <conio.h>
 #include <stdio.h>
@@ -131,6 +132,29 @@ namespace TSPlugin {
 		float volume2 = CalculateMaxVolume_Absolute(*track);
 
 	}
+	void TwitchCliTest() {
+
+		auto twitchState = make_shared<Twitch::TwitchState>();
+		twitchState->accessToken = L"1hqjcgjx1b2g2fducxekdj0pqczugv";
+		Twitch::CreateReward(*twitchState);
+	}
+
+	static CString GetEnv(const TCHAR* envVarName) {
+
+		TCHAR* envVar;
+		size_t size;
+		errno_t result = _wdupenv_s(&envVar, &size, envVarName);
+		if (result != 0) {
+			ASSERT(0);
+			return L"";
+		}
+
+		Finally finally([&] {
+			free(envVar);
+		});
+
+		return envVar;
+	}
 
 
 	class CMyApp : public CWinApp {
@@ -138,25 +162,91 @@ namespace TSPlugin {
 			
 			OpenConsole();
 
-			auto app = make_shared<SoundplayerApp>();
+			//auto app = make_shared<SoundplayerApp>();
 			
 			//Twitch::ValidateToken(L"...");
 			// https://id.twitch.tv/oauth2/validate
-			auto response = Http::HttpRequest(L"id.twitch.tv", L"oauth2/validate", {
-				.useHttps=true,
-				.headers = FormatString(L"Authorization: OAuth %s", L"..."),
-				});
+			//auto response = Http::HttpRequest(L"id.twitch.tv", L"oauth2/validate", {
+			//	.useHttps=true,
+			//	.headers = FormatString(L"Authorization: OAuth %s", L"..."),
+			//	});
 
-			app->Shutdown();
+			//Twitch::StartUserLogin();
+			//auto optAccessToken = Twitch::PollAccessToken(L"9dd3b0e245cb84761cd3cce85dded044");
+			//
+			//bool isTokenValid = false;
+			//if (optAccessToken) {
+			//	isTokenValid = Twitch::ValidateToken(*optAccessToken);
+			//}
 
+
+			//app->Shutdown();
+
+			//auto twitchState = make_shared<Twitch::TwitchState>();
+			//TwitchIntegrationDialog dialog(twitchState);
+			//dialog.DoModal();
+#if 1
+			auto twitchState = make_shared<Twitch::TwitchState>();
+			
+			twitchState->session = GetEnv(L"TWITCH_SESSION");
+			
+			if (!Twitch::PollAccessToken(*twitchState)) {
+				return FALSE;
+			}
+
+
+
+			auto optRewards = Twitch::GetRewards(*twitchState);
+			if (!optRewards) {
+				return FALSE;
+			}
+			auto& rewards = *optRewards;
+
+			//bool didDelete0 = Twitch::DeleteReward(*twitchState, (CString)rewards["data"][0]["id"].get<std::string>().c_str());
+			//bool didDelete1 = Twitch::DeleteReward(*twitchState, (CString)rewards["data"][1]["id"].get<std::string>().c_str());
+			//Twitch::CreateReward(*twitchState);
+			//std::string _rewards = rewards.dump();
+
+
+			if (rewards["data"].size() == 0) {
+				Twitch::CreateReward(*twitchState);
+			}
+
+
+			CString rewardId = (CString)rewards["data"][0]["id"].get<std::string>().c_str();
+			//for (auto& rewardObject : rewards["data"]) {
+			//	auto rewardTitle = rewardObject["title"].get<std::string>();
+			//	if (rewardTitle == "Play sound") {
+			//		rewardId = rewardObject["id"].get<std::string>().c_str();
+			//	}
+			//}
+
+			nlohmann::json toUpdate;
+			toUpdate["cost"] = 50000;
+			toUpdate["title"] = "[TEST-ONLY] Play Sound";
+			toUpdate["prompt"] = "Name of the sound to play?";
+			const bool didUpdate = Twitch::UpdateReward(*twitchState, rewardId, toUpdate);
+
+
+			auto optUnfullfilledRedemptions = GetUnfulfilledRedemptions(*twitchState, rewardId);
+			if (!optUnfullfilledRedemptions) {
+				return FALSE;
+			}
+
+			//auto str = optUnfullfilledRewards->dump();
+			for (auto& redemption : *optUnfullfilledRedemptions) {
+				ConfirmRewardRedemption(*twitchState, redemption);
+			}
+
+#endif
+			//TwitchCliTest();
 			return TRUE;
 		}
 	};
 
+
+	// singleton
 	CMyApp theApp;
-
-
-
 }
 
 

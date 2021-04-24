@@ -139,7 +139,7 @@ namespace TSPlugin::TwitchChat {
 
         std::string message_auth;
         message_auth += "PASS ";
-        message_auth += password;
+        message_auth += password; // ami igazából access token
         Write(message_auth);
         
 

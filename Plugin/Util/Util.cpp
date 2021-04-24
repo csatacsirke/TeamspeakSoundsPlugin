@@ -37,8 +37,9 @@ namespace TSPlugin {
 	}
 
 	// https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
-	CStringA ConvertUnicodeToUTF8(const CStringW& uni) {
-		if (uni.IsEmpty()) return ""; // nothing to do
+	CStringA ConvertUnicodeToUTF8(const wchar_t* uni) {
+		//if (uni.IsEmpty()) return ""; // nothing to do
+
 		CStringA utf8;
 		int cc = 0;
 		// get length (cc) of the new multibyte string excluding the \0 terminator first

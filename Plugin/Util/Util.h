@@ -8,6 +8,7 @@
 #include <map>
 #include <optional>
 #include <filesystem>
+#include <atomic>
 
 //#include <pluginsdk\include\teamspeak/public_errors.h>
 //#include <pluginsdk\include\teamspeak/public_errors_rare.h>
@@ -143,7 +144,7 @@ namespace TSPlugin {
 
 
 	// https://www.arclab.com/en/kb/cppmfc/convert-cstring-unicode-utf-16le-to-utf-8-and-reverse.html (2016.03.26)
-	CStringA ConvertUnicodeToUTF8(const CStringW& uni);
+	CStringA ConvertUnicodeToUTF8(const wchar_t* uni);
 	CStringW Utf8ToCString(const char* utf8Str);
 
 	BOOL DirectoryExists(CString szPath);
@@ -285,6 +286,36 @@ namespace TSPlugin {
 	static inline CWnd* NoParent() {
 		return NULL;
 	}
+
+	// https://stackoverflow.com/questions/29775153/stopping-long-sleep-threads
+	struct timer_killer {
+		// returns false if killed:
+		template<class R, class P>
+		bool wait_for(std::chrono::duration<R, P> const& time) const {
+			std::unique_lock<std::mutex> lock(m);
+			return !cv.wait_for(lock, time, [&] {return terminate; });
+		}
+		void kill() {
+			std::unique_lock<std::mutex> lock(m);
+			terminate = true; // should be modified inside mutex lock
+			cv.notify_all(); // it is safe, and *sometimes* optimal, to do this outside the lock
+		}
+
+		void reset() {
+			terminate = false;
+		}
+
+		// I like to explicitly delete/default special member functions:
+		timer_killer() = default;
+		timer_killer(timer_killer&&) = delete;
+		timer_killer(timer_killer const&) = delete;
+		timer_killer& operator=(timer_killer&&) = delete;
+		timer_killer& operator=(timer_killer const&) = delete;
+	private:
+		mutable std::condition_variable cv;
+		mutable std::mutex m;
+		bool terminate = false;
+	};
 
 
 	std::vector<fs::path> ListFilesInDirectory(const fs::path& path, const CString& filter = L"");

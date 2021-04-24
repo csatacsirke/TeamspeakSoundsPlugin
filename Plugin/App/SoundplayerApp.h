@@ -1,21 +1,23 @@
 ﻿#pragma once
 
 
-//#include <HookInstaller\Hook\KeyboardHookInstaller.h>
+//#include <HookInstaller/Hook/KeyboardHookInstaller.h>
 
 // TODO kihozni a libböl
-//#include <HookInstaller\Hook\PipeHandler.h>
+//#include <HookInstaller/Hook/PipeHandler.h>
 
-#include "KeyboardHook\LocalKeyboardHookInstaller.h"
-//#include "KeyboardHook\PipeHandler.h"
+#include "KeyboardHook/LocalKeyboardHookInstaller.h"
+//#include "KeyboardHook/PipeHandler.h"
 
-#include <Util\Config.h>
+#include <Util/Config.h>
 #include <Audio/OnlineMicrophone.h>
 #include <Audio/AudioProcessor.h>
 #include <Audio/AudioPlayer.h>
 #include <Audio/AudioBuffer.h>
-#include <Gui\InputObserverDialog.h>
+#include <Gui/InputObserverDialog.h>
+
 #include <Twitch/TwitchChat.h>
+#include <Twitch/TwitchApi.h>
 
 #include "HotkeyHandler.h"
 #include "MenuHandler.h"
@@ -177,9 +179,8 @@ namespace TSPlugin {
 		shared_ptr<TwitchChat::ITwitchChatReader> twitchChatReader;
 
 		shared_ptr<WaveTrackPlaybackState> pausedTrack;
-		// különböző thread-ek buzerálhatják, le kell előtte másolni a ptr-t
-		//shared_ptr<const FileList> unsafeFileList;
-		
+
+		shared_ptr<Twitch::TwitchState> twitchState = make_shared<Twitch::TwitchState>();
 	};
 
 }

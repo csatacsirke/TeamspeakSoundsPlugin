@@ -9,14 +9,15 @@
 #include <Audio/AudioDecoder.h>
 //#include <Audio/Steganography.h>
 
-#include "Gui\SettingsDialog.h"
+#include "Gui/SettingsDialog.h"
 #include <Gui/AudioProcessorDialog.h>
 #include <Gui/ConfigDialog.h>
 #include <Gui/OverlayWindow.h>
+#include <Gui/TwitchIntegrationDialog.h>
 
-#include <Util\TSSoundPlayer.h>
-#include <Util\Util.h>
-#include <Util\TsHelperFunctions.h>
+#include <Util/TSSoundPlayer.h>
+#include <Util/Util.h>
+#include <Util/TsHelperFunctions.h>
 
 #include <Twitch/TwitchChat.h>
 #include <Twitch/TwitchRewards.h>
@@ -134,12 +135,19 @@ namespace TSPlugin {
 		//}
 
 		//TwitchToken
-		auto twitchToken = ConvertUnicodeToUTF8(Global::config.Get(ConfigKeys::TwitchToken));
+		//auto twitchToken = ConvertUnicodeToUTF8(Global::config.Get(ConfigKeys::TwitchToken));
+		const CString twitchToken = twitchState->accessToken;
 		if (twitchToken.GetLength() == 0) {
 			return;
 		}
 
-		auto channel = Global::config.Get(ConfigKeys::TwitchChannel);
+		auto validationInfo = twitchState->validationInfo;
+		if (!validationInfo) {
+			return;
+		}
+
+		//auto channel = Global::config.Get(ConfigKeys::TwitchChannel);
+		const CString channel = validationInfo->clientName;
 		if (channel.GetLength() == 0) {
 			return;
 		}
@@ -147,7 +155,7 @@ namespace TSPlugin {
 		const CStringA ircChannel = CStringA("#") + ConvertUnicodeToUTF8(channel);
 
 		twitchChatReader = TwitchChat::CreateTwitchChatReader();
-		twitchChatReader->Start(*this, ircChannel.GetString(), twitchToken.GetString());
+		twitchChatReader->Start(*this, ircChannel.GetString(), ConvertUnicodeToUTF8(twitchToken).GetString());
 
 	} catch (...) {
 
@@ -511,8 +519,10 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OpenTwitchDialog() {
+
+		TwitchIntegrationDialog twitchDialog(twitchState);
+		twitchDialog.DoModal();
 		
-		//TwitchRewards::RegisterMagnetLink();
 	}
 
 

@@ -50,29 +50,35 @@ namespace TSPlugin::Http {
 			flags |= WINHTTP_FLAG_SECURE;
 		}
 
-		HINTERNET hRequest = WinHttpOpenRequest(hConnect, options.verb, serverObject, NULL, NULL, NULL, flags);
+		CString serverObjectWithQueryParams = serverObject;
+		if (options.queryParameters.size() > 0) {
+			serverObjectWithQueryParams += L"?";
+			bool isFirst = true;
+			for (const auto& kv : options.queryParameters) {
+				if (!isFirst) {
+					serverObjectWithQueryParams += L"&";
+				}
+				isFirst = false;
+				serverObjectWithQueryParams += FormatString(L"%s=%s", kv.first.GetString(), kv.second.GetString());
+			}
+		}
+
+		HINTERNET hRequest = WinHttpOpenRequest(hConnect, options.verb, serverObjectWithQueryParams, NULL, NULL, NULL, flags);
 		Finally closeRequest([&] {
 			WinHttpCloseHandle(hRequest);
 		});
 
-		//if (options.useHttps) {
-		//	DWORD dwReqOpts = 0;
-		//	DWORD dwSize = sizeof(DWORD);
-		//	WinHttpSetOption(
-		//		hRequest,
-		//		WINHTTP_OPTION_SECURITY_FLAGS,
-		//		&dwReqOpts,
-		//		sizeof(DWORD));
-		//}
-		//
+
+		// has to be non-const buffer
+		string body = options.body;
 
 		const BOOL bSendRequestResult = WinHttpSendRequest(
 			hRequest,
 			options.headers,
-			-1,
-			WINHTTP_NO_REQUEST_DATA,
-			0,
-			0,
+			-1, // null terminated
+			(body.size() > 0 ? body.data() : nullptr),
+			(DWORD)body.size(),
+			(DWORD)body.size(),
 			0
 		);
 
