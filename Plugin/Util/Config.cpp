@@ -32,9 +32,7 @@ namespace TSPlugin {
 			{ OverlayBackgroundAlpha, L"96" },
 			{ OverlayFontSize, L"18" },
 			{ BetaVersion, L"0" },
-
-			{ TwitchToken, L"" },
-			{ TwitchChannel, L"bogeczki" },
+			{ TwitchSession, L"" },
 			{ AuthorizedUsers, L"battlechicken,bogeczki,atrax,ugyismegkurlak" },
 		};
 	}

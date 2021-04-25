@@ -239,6 +239,9 @@
     <ClInclude Include="Util\Atomic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Twitch\TwitchPubSub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -377,6 +380,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Twitch\TwitchApi.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Twitch\TwitchPubSub.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

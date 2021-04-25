@@ -18,6 +18,7 @@
 
 #include <Twitch/TwitchChat.h>
 #include <Twitch/TwitchApi.h>
+#include <Twitch/TwitchPubSub.h>
 
 #include "HotkeyHandler.h"
 #include "MenuHandler.h"
@@ -32,7 +33,13 @@
 
 namespace TSPlugin {
 
-	class SoundplayerApp : public LocalKeyboardHookInstallerDelegate, InputHandlerDelegate, QuickSoundHandlerDelegate, TwitchChat::ITwitchMessageHandler {
+	class SoundplayerApp 
+		: public LocalKeyboardHookInstallerDelegate, 
+		InputHandlerDelegate, 
+		QuickSoundHandlerDelegate, 
+		TwitchChat::ITwitchMessageHandler,
+		TwitchPubSub::ITwitchPubSubMessageHandler
+	{
 
 	public:
 
@@ -116,6 +123,8 @@ namespace TSPlugin {
 
 		void QuickSoundHandlerDelegate::OnQuickSoundMatch(const fs::path& path) override;
 
+		void TwitchPubSub::ITwitchPubSubMessageHandler::OnTwitchChannelPointRedemption(const Twitch::RewardRedemption& rewardRedemption) override;
+
 		TwitchChat::TwitchResponse OnTwitchMessage(
 			const std::string& channel, 
 			const std::string& sender, 
@@ -128,7 +137,7 @@ namespace TSPlugin {
 
 
 		void InitKeyboardHook();
-		void InitTwitchChat();
+		void InitTwitchIntegration();
 
 		void SendFileNameToChat(CString fileName);
 		void SendMessageToChannelChat(CString message);
@@ -175,11 +184,10 @@ namespace TSPlugin {
 		shared_ptr<NetworkAudioHandler> networkAudioHandler = NetworkAudioHandler::Create();
 
 		shared_ptr<class OverlayWindow> overlayWindow;
-
-		shared_ptr<TwitchChat::ITwitchChatReader> twitchChatReader;
-
 		shared_ptr<WaveTrackPlaybackState> pausedTrack;
 
+		shared_ptr<TwitchPubSub::ITwitchPubSub> twitchPubSub;
+		shared_ptr<TwitchChat::ITwitchChatReader> twitchChatReader;
 		shared_ptr<Twitch::TwitchState> twitchState = make_shared<Twitch::TwitchState>();
 	};
 

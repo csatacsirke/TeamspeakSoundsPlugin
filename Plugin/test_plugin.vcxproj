@@ -420,6 +420,7 @@
     <ClCompile Include="Twitch\TwitchApi.cpp" />
     <ClCompile Include="Twitch\TwitchChat.cpp" />
     <ClCompile Include="Audio\MediaFoundationReader.cpp" />
+    <ClCompile Include="Twitch\TwitchPubSub.cpp" />
     <ClCompile Include="Twitch\TwitchRewards.cpp" />
     <ClCompile Include="Util\Config.cpp" />
     <ClCompile Include="exe\main.cpp" />
@@ -469,6 +470,7 @@
     <ClInclude Include="Gui\TwitchIntegrationDialog.h" />
     <ClInclude Include="Twitch\TwitchChat.h" />
     <ClInclude Include="Twitch\TwitchApi.h" />
+    <ClInclude Include="Twitch\TwitchPubSub.h" />
     <ClInclude Include="Twitch\TwitchRewards.h" />
     <ClInclude Include="Util\Atomic.h" />
     <ClInclude Include="Util\TsHelperFunctions.h" />

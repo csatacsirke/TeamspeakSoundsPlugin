@@ -19,13 +19,17 @@
 #include <Util/Util.h>
 #include <Util/TsHelperFunctions.h>
 
-#include <Twitch/TwitchChat.h>
 #include <Twitch/TwitchRewards.h>
+#include <Twitch/TwitchChat.h>
+#include <Twitch/TwitchApi.h>
+#include <Twitch/TwitchPubSub.h>
 
 #include "afxdlgs.h"
 #include <Mmsystem.h>
 #include <atlpath.h>
 #include <filesystem>
+
+
 
 
 #define DEBUG_MODE FALSE
@@ -78,7 +82,7 @@ namespace TSPlugin {
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
 
-		InitTwitchChat();
+		InitTwitchIntegration();
 
 
 
@@ -121,21 +125,19 @@ namespace TSPlugin {
 		localHookInstaller.Attach();
 	}
 
-	void SoundplayerApp::InitTwitchChat() try {
+	void SoundplayerApp::InitTwitchIntegration() try {
+		twitchState->session = Global::config.Get(ConfigKeys::TwitchSession);
 
-		// warning C4996: 'getenv': This function or variable may be unsafe. Consider using _dupenv_s instead. 
-		// // https://en.cppreference.com/w/cpp/utility/program/getenv
-		// This function is thread-safe (calling it from multiple threads does not introduce a data race) as long as 
-		// no other function modifies the host environment. In particular, the POSIX functions setenv(), unsetenv(), 
-		// and putenv() would introduce a data race if called without synchronization. 
-		//#pragma warning(disable: 4996)
-		//if (const char* auth_token = std::getenv("TWITCH_TOKEN")) {
-		//	twitchChatReader = TwitchChat::CreateTwitchChatReader();
-		//	twitchChatReader->Start(*this, "#bogeczki", auth_token);
-		//}
+		const CString session = twitchState->session;
+		if (session.GetLength() == 0) {
+			return;
+		}
 
-		//TwitchToken
-		//auto twitchToken = ConvertUnicodeToUTF8(Global::config.Get(ConfigKeys::TwitchToken));
+
+		if (!Twitch::PollAccessToken(*twitchState)) {
+			return;
+		}
+
 		const CString twitchToken = twitchState->accessToken;
 		if (twitchToken.GetLength() == 0) {
 			return;
@@ -156,6 +158,9 @@ namespace TSPlugin {
 
 		twitchChatReader = TwitchChat::CreateTwitchChatReader();
 		twitchChatReader->Start(*this, ircChannel.GetString(), ConvertUnicodeToUTF8(twitchToken).GetString());
+
+		twitchPubSub = TwitchPubSub::CreateTwitchPubSub(*this, twitchState);
+		twitchPubSub->Start();
 
 	} catch (...) {
 
@@ -523,7 +528,10 @@ namespace TSPlugin {
 		TwitchIntegrationDialog twitchDialog(twitchState);
 		twitchDialog.DoModal();
 		
+		Global::config.Add(ConfigKeys::TwitchSession, twitchState->session);
+		Global::config.Save();
 	}
+
 
 
 	void SoundplayerApp::UpdateObserverDialog() {
@@ -884,6 +892,15 @@ namespace TSPlugin {
 
 	void SoundplayerApp::OnQuickSoundMatch(const fs::path& path) {
 		AsyncPlayFile(path);
+	}
+
+	void SoundplayerApp::OnTwitchChannelPointRedemption(const Twitch::RewardRedemption& rewardRedemption) {
+		if (!twitchState) {
+			ASSERT(0);
+			return;
+		}
+
+		Twitch::ConfirmRewardRedemption(*twitchState, rewardRedemption);
 	}
 
 	TwitchChat::TwitchResponse SoundplayerApp::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) {

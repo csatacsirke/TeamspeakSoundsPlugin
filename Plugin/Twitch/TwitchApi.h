@@ -55,6 +55,9 @@ namespace TSPlugin::Twitch {
 		Reward reward;
 	};
 
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Reward, id, title)
+	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RewardRedemption, user_name, id, user_input, reward)
+
 
 	bool CreateReward(TwitchState& twitchState);
 	bool UpdateReward(TwitchState& twitchState, const CString& rewardId, const Json& params);

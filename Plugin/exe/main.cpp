@@ -27,6 +27,7 @@
 #include <Util/Config.h>
 
 #include <Twitch/TwitchApi.h>
+#include <Twitch/TwitchPubSub.h>
 
 #include <conio.h>
 #include <stdio.h>
@@ -156,6 +157,111 @@ namespace TSPlugin {
 		return envVar;
 	}
 
+	BOOL GeneralTwitchApiTest() {
+		auto twitchState = make_shared<Twitch::TwitchState>();
+
+		twitchState->session = GetEnv(L"TWITCH_SESSION");
+
+		if (!Twitch::PollAccessToken(*twitchState)) {
+			return FALSE;
+		}
+
+
+
+		auto optRewards = Twitch::GetRewards(*twitchState);
+		if (!optRewards) {
+			return FALSE;
+		}
+		auto& rewards = *optRewards;
+
+		//bool didDelete0 = Twitch::DeleteReward(*twitchState, (CString)rewards["data"][0]["id"].get<std::string>().c_str());
+		//bool didDelete1 = Twitch::DeleteReward(*twitchState, (CString)rewards["data"][1]["id"].get<std::string>().c_str());
+		//Twitch::CreateReward(*twitchState);
+		//std::string _rewards = rewards.dump();
+
+
+		if (rewards["data"].size() == 0) {
+			Twitch::CreateReward(*twitchState);
+		}
+
+
+		CString rewardId = (CString)rewards["data"][0]["id"].get<std::string>().c_str();
+		//for (auto& rewardObject : rewards["data"]) {
+		//	auto rewardTitle = rewardObject["title"].get<std::string>();
+		//	if (rewardTitle == "Play sound") {
+		//		rewardId = rewardObject["id"].get<std::string>().c_str();
+		//	}
+		//}
+
+		nlohmann::json toUpdate;
+		toUpdate["cost"] = 50000;
+		toUpdate["title"] = "[TEST-ONLY] Play Sound";
+		toUpdate["prompt"] = "Name of the sound to play?";
+		const bool didUpdate = Twitch::UpdateReward(*twitchState, rewardId, toUpdate);
+
+
+		auto optUnfullfilledRedemptions = GetUnfulfilledRedemptions(*twitchState, rewardId);
+		if (!optUnfullfilledRedemptions) {
+			return FALSE;
+		}
+
+		//auto str = optUnfullfilledRewards->dump();
+		for (auto& redemption : *optUnfullfilledRedemptions) {
+			ConfirmRewardRedemption(*twitchState, redemption);
+		}
+
+		return TRUE;
+	}
+
+	class TwitchPubSubTestHandler : public TwitchPubSub::ITwitchPubSubMessageHandler {
+		// Inherited via ITwitchPubSubMessageHandler
+		void OnTwitchChannelPointRedemption(const Twitch::RewardRedemption& redemption) override {
+			std::cout << "User input: " << redemption.user_input << std::endl;
+		}
+
+		void OnTwitchPubSubMessage(std::string_view json) override {
+			std::cout << json << std::endl;
+		}
+	};
+
+	BOOL TwitchPubSubTest() {
+
+		auto twitchState = make_shared<Twitch::TwitchState>();
+
+		twitchState->session = GetEnv(L"TWITCH_SESSION");
+
+		if (!Twitch::PollAccessToken(*twitchState)) {
+			return FALSE;
+		}
+
+		{
+			auto optRewards = Twitch::GetRewards(*twitchState);
+			if (!optRewards) {
+				return FALSE;
+			}
+			auto& rewards = *optRewards;
+
+			const CString rewardId = (CString)rewards["data"][0]["id"].get<std::string>().c_str();
+
+			nlohmann::json toUpdate;
+			toUpdate["cost"] = 500000;
+			toUpdate["title"] = "[TEST-ONLY] Play Sound";
+			toUpdate["prompt"] = "Name of the sound to play?";
+			const bool didUpdate = Twitch::UpdateReward(*twitchState, rewardId, toUpdate);
+		}
+		
+
+		TwitchPubSubTestHandler handler;
+		auto pubsub = TwitchPubSub::CreateTwitchPubSub(handler, twitchState);
+		pubsub->Start();
+
+		getch();
+
+		pubsub->Stop();
+
+		return TRUE;
+	}
+
 
 	class CMyApp : public CWinApp {
 		BOOL InitInstance() override {
@@ -186,60 +292,10 @@ namespace TSPlugin {
 			//TwitchIntegrationDialog dialog(twitchState);
 			//dialog.DoModal();
 #if 1
-			auto twitchState = make_shared<Twitch::TwitchState>();
-			
-			twitchState->session = GetEnv(L"TWITCH_SESSION");
-			
-			if (!Twitch::PollAccessToken(*twitchState)) {
-				return FALSE;
-			}
-
-
-
-			auto optRewards = Twitch::GetRewards(*twitchState);
-			if (!optRewards) {
-				return FALSE;
-			}
-			auto& rewards = *optRewards;
-
-			//bool didDelete0 = Twitch::DeleteReward(*twitchState, (CString)rewards["data"][0]["id"].get<std::string>().c_str());
-			//bool didDelete1 = Twitch::DeleteReward(*twitchState, (CString)rewards["data"][1]["id"].get<std::string>().c_str());
-			//Twitch::CreateReward(*twitchState);
-			//std::string _rewards = rewards.dump();
-
-
-			if (rewards["data"].size() == 0) {
-				Twitch::CreateReward(*twitchState);
-			}
-
-
-			CString rewardId = (CString)rewards["data"][0]["id"].get<std::string>().c_str();
-			//for (auto& rewardObject : rewards["data"]) {
-			//	auto rewardTitle = rewardObject["title"].get<std::string>();
-			//	if (rewardTitle == "Play sound") {
-			//		rewardId = rewardObject["id"].get<std::string>().c_str();
-			//	}
-			//}
-
-			nlohmann::json toUpdate;
-			toUpdate["cost"] = 50000;
-			toUpdate["title"] = "[TEST-ONLY] Play Sound";
-			toUpdate["prompt"] = "Name of the sound to play?";
-			const bool didUpdate = Twitch::UpdateReward(*twitchState, rewardId, toUpdate);
-
-
-			auto optUnfullfilledRedemptions = GetUnfulfilledRedemptions(*twitchState, rewardId);
-			if (!optUnfullfilledRedemptions) {
-				return FALSE;
-			}
-
-			//auto str = optUnfullfilledRewards->dump();
-			for (auto& redemption : *optUnfullfilledRedemptions) {
-				ConfirmRewardRedemption(*twitchState, redemption);
-			}
-
+			//GeneralTwitchApiTest();
+			TwitchPubSubTest();
 #endif
-			//TwitchCliTest();
+			
 			return TRUE;
 		}
 	};

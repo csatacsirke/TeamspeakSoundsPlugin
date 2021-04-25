@@ -14,7 +14,6 @@
 
 namespace TSPlugin::Twitch {
 
-
 	const Http::HttpOptions HttpsGet {
 		.verb = Http::GET,
 		.useHttps = true
@@ -74,6 +73,10 @@ namespace TSPlugin::Twitch {
 
 		if (!Twitch::ValidateAccessToken(twitchState)) {
 			if (!Twitch::RefreshAccessToken(twitchState)) {
+				return FALSE;
+			}
+
+			if (!Twitch::ValidateAccessToken(twitchState)) {
 				return FALSE;
 			}
 		}
@@ -369,8 +372,6 @@ namespace TSPlugin::Twitch {
 	}
 
 
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Reward, id, title)
-	NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(RewardRedemption, user_name, id, user_input, reward)
 
 	//optional<vector<RewardRedemption>> _GetUnfulfilledRedemptions(TwitchState& twitchState, const CString& rewardId) {
 	//	try {
