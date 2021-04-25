@@ -46,20 +46,15 @@
     ]
   },
   {
-    "date": "2021.02.28",
-    "changes": [
-      "Twitch integration"
-    ]
-  },
-  {
     "date": "2021.03.04",
     "changes": [
       "Fixed custom Command Starter Character"
     ]
   },
   {
-    "date": "2021.04.11",
+    "date": "2021.04.25",
     "changes": [
+      "Twitch integration",
       "Overlay show what's currently playing, and also the person who requested it, if it's from Twitch."
     ]
   }
