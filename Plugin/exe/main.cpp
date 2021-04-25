@@ -262,6 +262,17 @@ namespace TSPlugin {
 		return TRUE;
 	}
 
+	void GuiTest() {
+		auto twitchState = make_shared<Twitch::TwitchState>();
+		twitchState->session = GetEnv(L"TWITCH_SESSION");
+		if (!Twitch::PollAccessToken(*twitchState)) {
+			return;
+
+		}
+		TwitchIntegrationDialog dialog(twitchState);
+		dialog.DoModal();
+	}
+
 
 	class CMyApp : public CWinApp {
 		BOOL InitInstance() override {
@@ -293,7 +304,8 @@ namespace TSPlugin {
 			//dialog.DoModal();
 #if 1
 			//GeneralTwitchApiTest();
-			TwitchPubSubTest();
+			//TwitchPubSubTest();
+			GuiTest();
 #endif
 			
 			return TRUE;
