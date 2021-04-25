@@ -37,7 +37,7 @@ namespace TSPlugin {
 
 	enum TryGetSoundsDirectoryOptions { None, AskGui };
 	std::optional<CString> TryGetSoundsDirectory(TryGetSoundsDirectoryOptions options = None);
-	std::optional<fs::path> TryGetLikelyFileName(const CString& inputString);
+	std::optional<fs::path> TryGetSoundFileForUserInput(const CString& inputString);
 
 
 	struct Exception {

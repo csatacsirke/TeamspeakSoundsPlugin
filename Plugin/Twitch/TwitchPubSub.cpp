@@ -23,6 +23,10 @@
 #include <string>
 #include <regex>
 
+// if building vcpkg static lbiraries, this isnt built,
+// this is a windows built in
+#pragma comment(lib, "crypt32.lib")
+
 namespace TSPlugin::TwitchPubSub {
 
     using namespace std;
@@ -121,23 +125,48 @@ namespace TSPlugin::TwitchPubSub {
     void TwitchPubSub::HandleRead(const std::string_view message) {
         handler.OnTwitchPubSubMessage(message);
 
-        const Json json = Json::parse(message);
-        if (json["type"] == "PING") {
-            Ping();
-            return;
-        }
+        
+        try {
+            const Json json = Json::parse(message);
+            const std::string type = json["type"].get<std::string>();
 
-        if (json["type"] == "reward-redeemed") {
-            try {
-                const RewardRedemption rewardRedemption = json["data"]["redemption"].get<RewardRedemption>();
-                handler.OnTwitchChannelPointRedemption(rewardRedemption);
-            } catch (Json::exception) {
-                // ...
+            auto _json = json.dump();
+            
+            if (type == "PING") {
+                Ping();
+                return;
             }
-            return;
+
+            if (type == "MESSAGE") {
+                const auto validationInfo = twitchState->validationInfo;
+                const std::string topic = json["data"]["topic"].get<std::string>();
+                const std::string expectedTopic = format_string("channel-points-channel-v1.%s", ConvertUnicodeToUTF8(validationInfo->userId).GetString());
+                if (topic == expectedTopic) {
+                    // json encoded message in json -- jsonception
+                    const Json messageJson = Json::parse(json["data"]["message"].get<std::string>());
+
+                    if (messageJson["type"] == "reward-redeemed") {
+                        // of fucking course, the 2 api-s dont have the same format
+                        //const RewardRedemption rewardRedemption = messageJson["data"]["redemption"].get<RewardRedemption>();
+                        const Json redemptionJson = messageJson["data"]["redemption"];
+                        RewardRedemption rewardRedemption{
+                            .user_name = redemptionJson["user"]["display_name"],
+                            .id = redemptionJson["id"],
+                            .user_input = redemptionJson["user_input"],
+                            .reward {
+                                .id = redemptionJson["reward"]["id"],
+                                .title = redemptionJson["reward"]["title"],
+                            },
+                        };
+                        handler.OnTwitchChannelPointRedemption(rewardRedemption);
+                    }
+                }
+                
+            }
+        } catch (Json::exception) {
+            // ...
         }
 
-        return;
     }
 
     void TwitchPubSub::Write(const Json& json) {

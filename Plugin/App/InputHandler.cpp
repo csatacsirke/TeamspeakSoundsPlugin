@@ -220,7 +220,7 @@ namespace TSPlugin {
 		if (StartsWith(str, queuePrefix)) {
 			CString command = str.Right(str.GetLength() - queuePrefix.GetLength());
 			
-			if (auto fileName = TryGetLikelyFileName(command)) {
+			if (auto fileName = TryGetSoundFileForUserInput(command)) {
 				delegate.OnFileEnqueued(*fileName);
 			
 			}

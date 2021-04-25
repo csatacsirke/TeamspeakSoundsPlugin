@@ -1,0 +1,8 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+    "name": "ts-sounds-plugin",
+    "version": "0.15.2",
+    "dependencies": [
+        "boost-beast"
+    ]
+}

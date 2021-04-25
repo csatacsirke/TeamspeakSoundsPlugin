@@ -67,7 +67,10 @@ namespace TSPlugin::Twitch {
 
 	optional<vector<RewardRedemption>> GetUnfulfilledRedemptions(TwitchState& twitchState, const CString& rewardId);
 
-	bool ConfirmRewardRedemption(TwitchState& twitchState, const RewardRedemption& redemption);
+	enum class RedemptionStatus {
+		Fulfilled, Cancelled
+	};
+	bool UpdateRewardRedemption(TwitchState& twitchState, const RewardRedemption& redemption, RedemptionStatus newStatus);
 
 
 };

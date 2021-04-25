@@ -802,7 +802,7 @@ namespace TSPlugin {
 				std::thread([=] {
 
 					Sleep(500);
-					if (auto fileName = TryGetLikelyFileName(soundName)) {
+					if (auto fileName = TryGetSoundFileForUserInput(soundName)) {
 						AsyncPlayFile(*fileName);
 					}
 
@@ -876,7 +876,7 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::OnHotkeyCommand(const CString& command) {
-		if (auto fileToPlay = TryGetLikelyFileName(command)) {
+		if (auto fileToPlay = TryGetSoundFileForUserInput(command)) {
 			AsyncPlayFile(*fileToPlay);
 		}
 		//std::vector<CString> possibleFiles = GetPossibleFiles(command);
@@ -900,7 +900,24 @@ namespace TSPlugin {
 			return;
 		}
 
-		Twitch::ConfirmRewardRedemption(*twitchState, rewardRedemption);
+
+		auto soundFilePath = TryGetSoundFileForUserInput(Utf8ToCString(rewardRedemption.user_input.c_str()));
+
+		std::string chatResponseText;
+		if (!soundFilePath) {
+			chatResponseText = format_string("No matching file found: '%s'", rewardRedemption.user_input.c_str());
+		} else {
+			chatResponseText = format_string("Playing '%s'", soundFilePath->filename().u8string().c_str());
+		}
+
+		const CString comment = FormatString(L"requested by: %s", Utf8ToCString(rewardRedemption.user_name.c_str()).GetString());
+		AsyncPlayFile(*soundFilePath, { .comment = comment });
+
+
+		const Twitch::RedemptionStatus newStatus = soundFilePath ? Twitch::RedemptionStatus::Fulfilled : Twitch::RedemptionStatus::Cancelled;
+
+		Twitch::UpdateRewardRedemption(*twitchState, rewardRedemption, newStatus);
+		twitchChatReader->SendChannelMessage(chatResponseText.c_str());
 	}
 
 	TwitchChat::TwitchResponse SoundplayerApp::OnTwitchMessage(const std::string& channel, const std::string& sender, const std::string& message) {
@@ -926,8 +943,8 @@ namespace TSPlugin {
 		if (!std::regex_search(message.c_str(), captures, re)) {
 			return {};
 		}
-		const std::string sound = captures[1];
 
+		const std::string userInput = captures[1];
 
 		if (!authorized) {
 			Log::Debug(L"Unauthorized user: " + Utf8ToCString(CStringA(sender.c_str())));
@@ -936,12 +953,12 @@ namespace TSPlugin {
 			};
 		}
 
-		const CString sound_W = Utf8ToCString(sound.c_str());
-		auto fileName = TryGetLikelyFileName(sound_W);
+		
+		auto fileName = TryGetSoundFileForUserInput(Utf8ToCString(userInput.c_str()));
 
 		if (!fileName) {
 			return {
-				.chatResponseText = format_string("No such file found: '%s'", sound.c_str()),
+				.chatResponseText = format_string("No matching file found: '%s'", userInput.c_str()),
 			};
 		}
 
@@ -949,7 +966,7 @@ namespace TSPlugin {
 		AsyncPlayFile(*fileName, { .comment = comment });
 
 		return { 
-			.chatResponseText = format_string("Playing %s", ConvertUnicodeToUTF8(fileName->filename().c_str()).GetString()),
+			.chatResponseText = format_string("Playing %s", fileName->filename().u8string().c_str()),
 		};
 	}
 

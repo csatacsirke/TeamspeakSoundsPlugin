@@ -298,7 +298,7 @@ namespace TSPlugin {
 		return results;
 	}
 
-	optional<fs::path> TryGetLikelyFileName(const CString& inputString) {
+	optional<fs::path> TryGetSoundFileForUserInput(const CString& inputString) {
 
 		vector<fs::path> possibleFiles = _GetPossibleFiles(inputString);
 		if (possibleFiles.size() >= 1) {

@@ -18,6 +18,7 @@ namespace TSPlugin::TwitchChat {
     struct ITwitchChatReader {
         virtual void Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) = 0;
         virtual void Stop() = 0;
+        virtual void SendChannelMessage(const char* message) = 0;
         virtual ~ITwitchChatReader() = default;
     };
 

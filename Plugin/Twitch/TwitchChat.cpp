@@ -42,11 +42,11 @@ namespace TSPlugin::TwitchChat {
     struct TwitchChatReader : public ITwitchChatReader {
         void Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) override;
         void Stop() override;
-
+        void SendChannelMessage(const char* message) override;
     private:
-        bool Run(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password);
+        bool Run(ITwitchMessageHandler& handler, const char* channel, const char* password);
         TwitchResponse HandleRead(ITwitchMessageHandler& handler, const std::string_view message);
-        void Authenticate(const std::string_view channel, const std::string_view password);
+        void Authenticate(const char* channel, const char* password);
         void Write(const std::string_view message);
     private:
 
@@ -60,20 +60,23 @@ namespace TSPlugin::TwitchChat {
         std::shared_ptr<websocket::stream<tcp::socket>> ws = make_shared<websocket::stream<tcp::socket>>(ioc);
 
         std::thread backgroundThread;
-
         std::mutex _mutex;
+
+        std::string m_channel;
     };
 
     std::shared_ptr<ITwitchChatReader> CreateTwitchChatReader() {
         return std::make_shared<TwitchChatReader>();
     }
 
-    void TwitchChatReader::Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) {
+    void TwitchChatReader::Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view oauthToken) {
         std::lock_guard guard(_mutex);
 
+        m_channel = channel;
+
         // need to copy, can't be sure if string_view is persistent
-        backgroundThread = std::thread([this, &handler, channel=std::string(channel), password=std::string(password)] {
-            Run(handler, channel, password);
+        backgroundThread = std::thread([this, &handler, channel=std::string(channel), oauthToken=std::string(oauthToken)] {
+            Run(handler, channel.c_str(), oauthToken.c_str());
         });
     }
 
@@ -90,6 +93,11 @@ namespace TSPlugin::TwitchChat {
             backgroundThread.join();
         }
         
+    }
+
+    void TwitchChatReader::SendChannelMessage(const char* message) {
+        // PRIVMSG #<channel> :This is a sample message
+        Write(format_string("PRIVMSG %s :%s", m_channel.c_str(), message));
     }
 
     TwitchResponse TwitchChatReader::HandleRead(ITwitchMessageHandler& handler, const std::string_view message) {
@@ -135,12 +143,10 @@ namespace TSPlugin::TwitchChat {
         ws->write(net::buffer(message));
     }
 
-    void TwitchChatReader::Authenticate(const std::string_view channel, const std::string_view password) {
+    void TwitchChatReader::Authenticate(const char* channel, const char* oauthToken) {
 
-        std::string message_auth;
-        message_auth += "PASS ";
-        message_auth += password; // ami igazából access token
-        Write(message_auth);
+        // ami igazából access token
+        Write(format_string("PASS oauth:%s", oauthToken));
         
 
 
@@ -159,7 +165,7 @@ namespace TSPlugin::TwitchChat {
         
     }
 
-    bool TwitchChatReader::Run(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) {
+    bool TwitchChatReader::Run(ITwitchMessageHandler& handler, const char* channel, const char* oauthToken) {
         try {
 
             std::string host = "irc-ws.chat.twitch.tv";
@@ -188,7 +194,7 @@ namespace TSPlugin::TwitchChat {
             ws->handshake(host, "/");
 
 
-            Authenticate(channel, password);
+            Authenticate(channel, oauthToken);
 
             // Send the message
             //ws->write(net::buffer(std::string(text)));
@@ -201,8 +207,7 @@ namespace TSPlugin::TwitchChat {
                 const TwitchResponse response = HandleRead(handler, std::string_view((const char*)buffer.data().data(), buffer.data().size()));
 
                 if (response.chatResponseText) {
-                    // PRIVMSG #<channel> :This is a sample message
-                    Write(format_string("PRIVMSG %s :%s", channel.data(), response.chatResponseText->c_str()));
+                    SendChannelMessage(response.chatResponseText->c_str());
                 }
             }
 

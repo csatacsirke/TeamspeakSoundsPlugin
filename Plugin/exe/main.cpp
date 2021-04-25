@@ -207,7 +207,7 @@ namespace TSPlugin {
 
 		//auto str = optUnfullfilledRewards->dump();
 		for (auto& redemption : *optUnfullfilledRedemptions) {
-			ConfirmRewardRedemption(*twitchState, redemption);
+			UpdateRewardRedemption(*twitchState, redemption, Twitch::RedemptionStatus::Cancelled);
 		}
 
 		return TRUE;
@@ -244,7 +244,7 @@ namespace TSPlugin {
 			const CString rewardId = (CString)rewards["data"][0]["id"].get<std::string>().c_str();
 
 			nlohmann::json toUpdate;
-			toUpdate["cost"] = 500000;
+			toUpdate["cost"] = 5;
 			toUpdate["title"] = "[TEST-ONLY] Play Sound";
 			toUpdate["prompt"] = "Name of the sound to play?";
 			const bool didUpdate = Twitch::UpdateReward(*twitchState, rewardId, toUpdate);

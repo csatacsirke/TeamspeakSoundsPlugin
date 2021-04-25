@@ -437,7 +437,7 @@ namespace TSPlugin::Twitch {
 		}
 	}
 
-	bool ConfirmRewardRedemption(TwitchState& twitchState, const RewardRedemption& redemption) {
+	bool UpdateRewardRedemption(TwitchState& twitchState, const RewardRedemption& redemption, RedemptionStatus newStatus) {
 		/*
 		curl --X PATCH 'https://api.twitch.tv/helix/channel_points/custom_rewards/redemptions?broadcaster_id=274637212&reward_id=92af127c-7326-4483-a52b-b0da0be61c01&id=17fa2df1-ad76-4804-bfa5-a40ef63efe63' \
 			-H 'client-id: gx2pv4208cff0ig9ou7nk3riccffxt' \
@@ -467,7 +467,16 @@ namespace TSPlugin::Twitch {
 		};
 
 		Json bodyJson;
-		bodyJson["status"] = "CANCELED"; // TODO: FULFILLED
+		if (newStatus == RedemptionStatus::Cancelled) {
+			// yeah.. cancelled vs canceled
+			bodyJson["status"] = "CANCELED";
+		} else if (newStatus == RedemptionStatus::Fulfilled) {
+			bodyJson["status"] = "FULFILLED";
+		} else {
+			// unimplemented?
+			ASSERT(0);
+			return false;
+		}
 
 		Http::HttpOptions options{
 			.verb = Http::PATCH,
