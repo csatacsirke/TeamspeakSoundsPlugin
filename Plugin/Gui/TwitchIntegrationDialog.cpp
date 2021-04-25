@@ -163,7 +163,7 @@ void TwitchIntegrationDialog::SaveRewardsToTwitchInBackground() {
 		ExecuteOnGuiThread([didUpdate, this] {
 			const wchar_t* text = didUpdate ? L"Update successful." : L"Failed to save changes to Twitch";
 			const int nType = didUpdate ? MB_ICONINFORMATION : MB_ICONERROR;
-			MessageBoxW(text, nullptr, nType);
+			MessageBoxW(text, L"Reward update status", nType);
 		});
 	});
 }

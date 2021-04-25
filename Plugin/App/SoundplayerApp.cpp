@@ -82,6 +82,8 @@ namespace TSPlugin {
 		// hogy feldobja az ablakot, ha kell
 		TryGetSoundsDirectory(AskGui);
 
+		twitchState->session = Global::config.Get(ConfigKeys::TwitchSession);
+
 		InitTwitchIntegration();
 
 
@@ -118,6 +120,10 @@ namespace TSPlugin {
 		if (twitchChatReader) {
 			twitchChatReader->Stop();
 		}
+
+		if (twitchPubSub) {
+			twitchPubSub->Stop();
+		}
 	}
 
 
@@ -126,10 +132,12 @@ namespace TSPlugin {
 	}
 
 	void SoundplayerApp::InitTwitchIntegration() try {
-		twitchState->session = Global::config.Get(ConfigKeys::TwitchSession);
+		// TODO lehet hogy ezt threadben jobb lenne
 
 		const CString session = twitchState->session;
 		if (session.GetLength() == 0) {
+			twitchChatReader = nullptr;
+			twitchPubSub = nullptr;
 			return;
 		}
 
@@ -156,11 +164,15 @@ namespace TSPlugin {
 
 		const CStringA ircChannel = CStringA("#") + ConvertUnicodeToUTF8(channel);
 
-		twitchChatReader = TwitchChat::CreateTwitchChatReader();
-		twitchChatReader->Start(*this, ircChannel.GetString(), ConvertUnicodeToUTF8(twitchToken).GetString());
+		if (!twitchChatReader) {
+			twitchChatReader = TwitchChat::CreateTwitchChatReader();
+			twitchChatReader->Start(*this, ircChannel.GetString(), ConvertUnicodeToUTF8(twitchToken).GetString());
+		}
 
-		twitchPubSub = TwitchPubSub::CreateTwitchPubSub(*this, twitchState);
-		twitchPubSub->Start();
+		if (!twitchPubSub) {
+			twitchPubSub = TwitchPubSub::CreateTwitchPubSub(*this, twitchState);
+			twitchPubSub->Start();
+		}
 
 	} catch (...) {
 
@@ -216,7 +228,7 @@ namespace TSPlugin {
 #ifdef _DEBUG
 		menuHandler.Add("Open Developer Console", [&] { this->OpenDeveloperConsole(); });
 #endif
-		menuHandler.Add("Login to Twitch", [&] { this->OpenTwitchDialog(); });
+		menuHandler.Add("Twitch Integration...", [&] { this->OpenTwitchDialog(); });
 
 		menuHandler.Configure(menuItems);
 		//
@@ -530,6 +542,8 @@ namespace TSPlugin {
 		
 		Global::config.Add(ConfigKeys::TwitchSession, twitchState->session);
 		Global::config.Save();
+
+		InitTwitchIntegration();
 	}
 
 
