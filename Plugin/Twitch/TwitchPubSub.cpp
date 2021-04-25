@@ -75,6 +75,7 @@ namespace TSPlugin::TwitchPubSub {
 
 
         std::thread backgroundThread;
+        std::jthread pingThread;
         std::mutex _mutex;
     };
 
@@ -265,8 +266,17 @@ namespace TSPlugin::TwitchPubSub {
             Ping();
             Authenticate();
 
-            // Send the message
-            //ws->write(net::buffer(std::string(text)));
+
+
+            pingThread = std::jthread([this](std::stop_token stoken) {
+                while (!stoken.stop_requested()) {
+                    Ping();
+                    std::mutex mutex;
+                    std::unique_lock lock(mutex);
+                    std::condition_variable_any().wait_for(lock, stoken, 3min,
+                        [&stoken] { return false; });
+                }
+            });
 
             // This buffer will hold the incoming message
             while (ws->is_open()) {
