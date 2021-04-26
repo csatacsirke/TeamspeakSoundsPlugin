@@ -40,6 +40,8 @@ namespace TSPlugin::TwitchChat {
     using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
     struct TwitchChatReader : public ITwitchChatReader {
+        ~TwitchChatReader();
+
         void Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view password) override;
         void Stop() override;
         void SendChannelMessage(const char* message) override;
@@ -67,6 +69,10 @@ namespace TSPlugin::TwitchChat {
 
     std::shared_ptr<ITwitchChatReader> CreateTwitchChatReader() {
         return std::make_shared<TwitchChatReader>();
+    }
+
+    TwitchChatReader::~TwitchChatReader() {
+        Stop();
     }
 
     void TwitchChatReader::Start(ITwitchMessageHandler& handler, const std::string_view channel, const std::string_view oauthToken) {
