@@ -57,6 +57,12 @@
       "Twitch integration",
       "Overlay show what's currently playing, and also the person who requested it, if it's from Twitch."
     ]
+  },
+  {
+    "date": "2021.04.27",
+    "changes": [
+      "Stability improvements"
+    ]
   }
 ]
 
