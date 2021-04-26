@@ -917,18 +917,17 @@ namespace TSPlugin {
 
 		auto soundFilePath = TryGetSoundFileForUserInput(Utf8ToCString(rewardRedemption.user_input.c_str()));
 
+		Twitch::RedemptionStatus newStatus;
 		std::string chatResponseText;
 		if (!soundFilePath) {
 			chatResponseText = format_string("No matching file found: '%s'", rewardRedemption.user_input.c_str());
+			newStatus = Twitch::RedemptionStatus::Cancelled;
 		} else {
 			chatResponseText = format_string("Playing '%s'", soundFilePath->filename().u8string().c_str());
+			const CString comment = FormatString(L"requested by: %s", Utf8ToCString(rewardRedemption.user_name.c_str()).GetString());
+			AsyncPlayFile(*soundFilePath, { .comment = comment });
+			newStatus = Twitch::RedemptionStatus::Fulfilled;
 		}
-
-		const CString comment = FormatString(L"requested by: %s", Utf8ToCString(rewardRedemption.user_name.c_str()).GetString());
-		AsyncPlayFile(*soundFilePath, { .comment = comment });
-
-
-		const Twitch::RedemptionStatus newStatus = soundFilePath ? Twitch::RedemptionStatus::Fulfilled : Twitch::RedemptionStatus::Cancelled;
 
 		Twitch::UpdateRewardRedemption(*twitchState, rewardRedemption, newStatus);
 		twitchChatReader->SendChannelMessage(chatResponseText.c_str());
