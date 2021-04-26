@@ -13,15 +13,15 @@
 
 namespace TSPlugin {
 
+	const wchar_t* UPDATE_SERVER_NAME = L"battlechicken.hu";
 
 	static void DownloadAndInstallNewVerison() {
 
-		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"_beta" : L"";
-		const CString endpoint = FormatString(L"battlechicken/ts/downloads/SoundplayerPlugin_x64%s.ts3_plugin", updateChannel);
+		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"beta" : L"stable";
+		const CString serverObject = FormatString(L"releases/%s/SoundplayerPlugin_x64.ts3_plugin", updateChannel);
 
-
-		const optional<vector<uint8_t>> result = Http::SimpleHttpRequest(L"users.atw.hu", endpoint);
-		if (!result) {
+		auto result = Http::HttpRequest(UPDATE_SERVER_NAME, serverObject, {});
+		if (result.statusCode != 200) {
 			return;
 		}
 
@@ -33,7 +33,7 @@ namespace TSPlugin {
 		path tempPath = path(tempDirectoryPath) / "SoundplayerPlugin_x64.ts3_plugin";
 
 		ofstream out(tempPath, ios::binary);
-		out.write((const char*)result->data(), result->size());
+		out.write((const char*)result.body.data(), result.body.size());
 		out.close();
 
 
@@ -50,16 +50,15 @@ namespace TSPlugin {
 
 	static optional<vector<CString>> DownloadChanges(const CStringA& currentVersion, const CStringA& serverVersion) {
 
-		const optional<vector<uint8_t>> optChangesJson = Http::SimpleHttpRequest(L"users.atw.hu", L"battlechicken/ts/changes.php");
-		if (!optChangesJson) {
-			ASSERT(0);
+
+		auto result = Http::HttpRequest(UPDATE_SERVER_NAME, L"changes", {});
+		if (result.statusCode != 200) {
 			return nullopt;
 		}
 
-		
 
 		try {
-			auto jsonArray = nlohmann::json::parse(*optChangesJson);
+			auto jsonArray = nlohmann::json::parse(result.body);
 
 			std::vector<ChangeEntry> changeEntries;
 			jsonArray.get_to(changeEntries);
@@ -94,16 +93,16 @@ namespace TSPlugin {
 	static optional<CStringA> DownloadVersionOnServer() {
 
 		const CString updateChannel = Global::config.GetBool(ConfigKeys::BetaVersion) ? L"beta" : L"stable";
-		const CString endpoint = FormatString(L"battlechicken/ts/version?channel=%s", updateChannel);
+		
+		auto result = Http::HttpRequest(UPDATE_SERVER_NAME, L"version", {
+			.queryParameters = {{L"channel", updateChannel}},
+		});
 
-		const optional<vector<uint8_t>> result = Http::SimpleHttpRequest(L"users.atw.hu", endpoint);
-
-		if (!result) {
+		if (result.statusCode != 200) {
 			return nullopt;
 		}
 
-
-		const CStringA versionOnServer = CStringA((const char*)result->data(), (int)result->size());
+		const CStringA versionOnServer = CStringA((const char*)result.body.data(), (int)result.body.size());
 
 		return versionOnServer;
 	}
