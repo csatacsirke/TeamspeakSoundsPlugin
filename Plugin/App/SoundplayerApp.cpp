@@ -37,14 +37,10 @@
 
 /*
 TODO LIST
-első futtatásnál 0x707 hiba a lejátszásnál
-normálisan beálíltani a lejátszás paramétereket, új soundpalyer osztály?
-megnézni hogy lehet e használni a acquiredata függvényt
-update jelzö
+
 reload plugin ne fagyjon szét
 hangtorzitás :^)
 hangfelvétel
-A Sleep paraméterét normálisan kiszámolni ????
 cachelni a reasamplezott cuccokat
 a connectiont hozzárendelni az apphoz, mert az a szar simán változhat a az ipse két fület nyit T_T
 	arra viszont vigyázni kell hogy a keyboardhook az singleton!!!!
